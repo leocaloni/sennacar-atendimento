@@ -4,7 +4,7 @@ from datetime import datetime
 class FuncionarioBase(BaseModel):
     nome: str
     email: EmailStr
-    cargo: str | None = None
+    cargo: str 
 
 class FuncionarioCreate(FuncionarioBase):
     senha: str

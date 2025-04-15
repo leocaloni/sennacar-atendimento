@@ -13,7 +13,7 @@ id INT AUTO_INCREMENT PRIMARY KEY,
 nome VARCHAR(100) NOT NULL,
 email VARCHAR(100) UNIQUE NOT NULL,
 senha_hash VARCHAR(255) NOT NULL,
-cargo VARCHAR(50),
+cargo VARCHAR(50) NOT NULL DEFAULT 'atendente',
 data_cadastro DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -64,7 +64,7 @@ CREATE TABLE itens_orcamento (
 CREATE TABLE agendamentos (
     id INT AUTO_INCREMENT PRIMARY KEY,
     cliente_id INT,
-    funcionario_id INT, -- opcional
+    funcionario_id INT, 
     data_agendada DATETIME NOT NULL,
     status ENUM('pendente', 'confirmado', 'concluido', 'cancelado') DEFAULT 'pendente',
     observacoes TEXT,

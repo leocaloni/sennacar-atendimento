@@ -13,5 +13,5 @@ class Funcionario(Base):
     nome = Column(String (100), nullable=False)
     email = Column(String(100), unique=True, nullable=False)
     senha_hash = Column(String(255), nullable=False)
-    cargo = Column(String(50))
+    cargo = Column(String(50), nullable=False, default="atendente")
     data_cadastro = Column(DateTime, default=get_brasilia_time)
