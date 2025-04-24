@@ -102,3 +102,6 @@ CREATE TABLE mensagens (
     data_envio DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (canal_id) REFERENCES canais_chat(id)
 );
+
+USE sennacar_db;
+select * from funcionarios;
