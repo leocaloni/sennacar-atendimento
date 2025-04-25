@@ -21,3 +21,4 @@ class Agendamento(Base):
 
     cliente = relationship("Cliente", back_populates="agendamentos")
     funcionario = relationship('Funcionario', back_populates='agendamentos')
+    produtos_agendados = relationship("ProdutoAgendado", back_populates="agendamentos")

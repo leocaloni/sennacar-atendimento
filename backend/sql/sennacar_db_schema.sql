@@ -50,17 +50,6 @@ CREATE TABLE orcamentos (
     FOREIGN KEY (cliente_id) REFERENCES clientes(id)
 );
 
-CREATE TABLE itens_orcamento (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    orcamento_id INT,
-    produto_id INT,
-    quantidade INT DEFAULT 1,
-    preco_unitario DECIMAL(10,2),
-    preco_mao_obra DECIMAL(10,2),
-    FOREIGN KEY (orcamento_id) REFERENCES orcamentos(id),
-    FOREIGN KEY (produto_id) REFERENCES produtos(id)
-);
-
 CREATE TABLE agendamentos (
     id INT AUTO_INCREMENT PRIMARY KEY,
     cliente_id INT,
@@ -105,3 +94,6 @@ CREATE TABLE mensagens (
 
 USE sennacar_db;
 select * from funcionarios;
+select * from clientes;
+select * from agendamentos;
+select * from categorias;

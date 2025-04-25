@@ -18,3 +18,5 @@ class Produto(Base):
 
     categoria = relationship("Categoria", back_populates="produtos")
     marca = relationship("Marca", back_populates="produtos")
+    itens_orcamento = relationship("ItemOrcamento", back_populates="produto")
+    produtos_agendados = relationship("ProdutoAgendado", back_populates="produtos")

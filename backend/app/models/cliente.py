@@ -17,3 +17,4 @@ class Cliente(Base):
     data_cadastro = Column(DateTime, default=get_brasilia_time)
 
     agendamentos = relationship("Agendamento", back_populates="cliente")
+    orcamentos = relationship("Orcamento", back_populates="cliente")
