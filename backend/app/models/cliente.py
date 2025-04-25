@@ -1,4 +1,5 @@
 from sqlalchemy import Column, Integer, String, DateTime
+from sqlalchemy.orm import relationship
 from app.database import Base
 from datetime import datetime, timezone
 import pytz
@@ -14,3 +15,5 @@ class Cliente(Base):
     email = Column(String(100))
     telefone = Column(String(20), nullable=False)
     data_cadastro = Column(DateTime, default=get_brasilia_time)
+
+    agendamentos = relationship("Agendamento", back_populates="cliente")

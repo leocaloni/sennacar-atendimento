@@ -1,4 +1,5 @@
 from sqlalchemy import Column, Integer, String, DateTime
+from sqlalchemy.orm import relationship
 from datetime import datetime
 from app.database import Base
 import pytz
@@ -15,3 +16,5 @@ class Funcionario(Base):
     senha_hash = Column(String(255), nullable=False)
     cargo = Column(String(50), nullable=False, default="atendente")
     data_cadastro = Column(DateTime, default=get_brasilia_time)
+
+    agendamentos = relationship("Agendamento", back_populates="funcionario")
