@@ -29,9 +29,9 @@ def custom_openapi():
     if app.openapi_schema:
         return app.openapi_schema
     openapi_schema = get_openapi(
-        title="Seu Projeto",
+        title="Sennacar API",
         version="1.0.0",
-        description="Descrição",
+        description="API do sistema de agendamentos e atendimento da Sennacar",
         routes=app.routes,
     )
     openapi_schema["components"]["securitySchemes"] = {
