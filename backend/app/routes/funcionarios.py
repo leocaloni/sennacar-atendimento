@@ -1,56 +1,80 @@
-from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy.orm import Session
+from fastapi import APIRouter, Depends, HTTPException, status
+from app.models.funcionario import Funcionario
 from app.auth.auth_utils import get_current_user, verificar_admin
-from app.models import Funcionario
-from app.dependencies import get_db
-from app.schemas.funcionario import FuncionarioCreate, FuncionarioOut, FuncionarioUpdate
-from app.crud import funcionario as crud
+from bson import ObjectId
+from typing import List, Optional
 
 router = APIRouter(prefix="/funcionarios", tags=["Funcionários"])
 
-@router.get("/me")
-def get_me(usuario: Funcionario = Depends(get_current_user)):
-    return {"id": usuario.id, "nome": usuario.nome, "cargo": usuario.cargo}
-
-@router.get("/admin")
-def rota_admin(admin: Funcionario = Depends(verificar_admin)):
-    return {"mensagem": "Bem-vindo admin"}
-
-@router.post("/", response_model=FuncionarioOut)
-def criar_funcionario(
-    funcionario_data: FuncionarioCreate,
-    db: Session = Depends(get_db),
-    admin: Funcionario = Depends(verificar_admin)
+@router.post("/", status_code=status.HTTP_201_CREATED)
+async def criar_funcionario(
+    nome: str,
+    email: str,
+    senha: str,
+    is_admin: bool = False,
+    admin: dict = Depends(verificar_admin)
 ):
-    return crud.criar_funcionario(db, funcionario_data)
+    novo_funcionario = Funcionario(nome, email, senha, is_admin)
+    funcionario_id = novo_funcionario.cadastrar_funcionario()
+    
+    if not funcionario_id:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Email já cadastrado ou dados inválidos",
+        )
+    
+    return {"id": funcionario_id}
 
-@router.get("/{funcionario_id}", response_model=FuncionarioOut)
-def buscar_funcionario(funcionario_id: int, db: Session = Depends(get_db)):
-    db_funcionario = crud.buscar_funcionario_por_id(db, funcionario_id)
-    if not db_funcionario:
-        raise HTTPException(status_code=404, detail="Funcionário não encontrado")
-    return db_funcionario
-
-@router.get("/", response_model=list[FuncionarioOut])
-def listar_funcionarios(nome: str = None, cargo: str = None, db: Session = Depends(get_db)):
-    db_funcionarios = crud.listar_funcionarios(db, nome=nome, cargo=cargo)
-    return db_funcionarios
-
-@router.put("/{funcionario_id}", response_model=FuncionarioOut)
-def atualizar_funcionario(
-    funcionario_id: int,
-    funcionario: FuncionarioUpdate,
-    db: Session = Depends(get_db),
-    admin: Funcionario = Depends(verificar_admin)
+@router.get("/", response_model=List[dict])
+async def listar_funcionarios(
+    user: dict = Depends(get_current_user)
 ):
-    db_funcionario = crud.atualizar_funcionario(db, funcionario_id, funcionario)
-    if not db_funcionario:
-        raise HTTPException(status_code=404, detail="Funcionário não encontrado")
-    return db_funcionario
+    return Funcionario.listar_todos()
+
+@router.get("/me", response_model=dict)
+async def meu_perfil(
+    user: dict = Depends(get_current_user)
+):
+    return user
+
+@router.put("/{funcionario_id}")
+async def atualizar_funcionario(
+    funcionario_id: str,
+    nome: Optional[str] = None,
+    email: Optional[str] = None,
+    is_admin: Optional[bool] = None,
+    admin: dict = Depends(verificar_admin)
+):
+    dados_atualizacao = {}
+    if nome: dados_atualizacao["nome"] = nome
+    if email: dados_atualizacao["email"] = email
+    if is_admin is not None: dados_atualizacao["isAdmin"] = is_admin
+    
+    if not dados_atualizacao:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Nenhum dado fornecido para atualização",
+        )
+    
+    sucesso = Funcionario.atualizar_funcionario(funcionario_id, dados_atualizacao)
+    if not sucesso:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Funcionário não encontrado",
+        )
+    
+    return {"message": "Funcionário atualizado"}
 
 @router.delete("/{funcionario_id}")
-def deletar_funcionario(funcionario_id: int, db: Session = Depends(get_db), admin: Funcionario = Depends(verificar_admin)):
-    result = crud.deletar_funcionario(db, funcionario_id)
-    if not result:
-        raise HTTPException(status_code=404, detail="Funcionário não encontrado")
-    return {"message": "Funcionário deletado com sucesso"}
+async def deletar_funcionario(
+    funcionario_id: str,
+    admin: dict = Depends(verificar_admin)
+):
+    sucesso = Funcionario.deletar_funcionario(funcionario_id)
+    if not sucesso:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Funcionário não encontrado",
+        )
+    
+    return {"message": "Funcionário removido"}

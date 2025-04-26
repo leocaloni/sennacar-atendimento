@@ -1,11 +1,21 @@
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker, declarative_base
-import os
-from dotenv import load_dotenv
+from pymongo import MongoClient
 
-load_dotenv()
-DATABASE_URL = os.getenv("DATABASE_URL")
+client = MongoClient("mongodb://localhost:27017")
+db = client["sennacar_db"]
 
-engine = create_engine(DATABASE_URL, echo=True)
-SessionLocal = sessionmaker(bind=engine, autoflush=False, autocommit=False)
-Base = declarative_base()
+db["funcionarios"].create_index("email", unique=True)
+db["agendamentos"].create_index("data_agendada", unique=True)
+db["produtos"].create_index("nome")
+db["clientes"].create_index("telefone", unique=True)
+
+def get_funcionario_collection():
+    return db["funcionarios"]
+
+def get_clientes_collection():
+    return db["clientes"]
+
+def get_agendamentos_collection():
+    return db["agendamentos"]
+
+def get_produtos_collection():
+    return db["produtos"]

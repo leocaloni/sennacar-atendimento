@@ -1,20 +1,80 @@
-from sqlalchemy import Column, Integer, String, DateTime
-from sqlalchemy.orm import relationship
-from app.database import Base
-from datetime import datetime, timezone
-import pytz
+from app.database import get_clientes_collection
+from bson import ObjectId
+from typing import Optional, Dict, List
 
-def get_brasilia_time():
-    return datetime.now(pytz.timezone("America/Sao_Paulo"))
+class Cliente:
+    def __init__(self, nome: str, email: str, telefone: str):
+        self.nome = nome
+        self.email = email
+        self.telefone = telefone
 
-class Cliente(Base):
-    __tablename__ = "clientes"
+    def cadastrar_cliente(self) -> Optional[str]:
+        try:
+            clientes_collection = get_clientes_collection()
+            
+            if clientes_collection.find_one({"$or": [{"email": self.email}, {"telefone": self.telefone}]}):
+                print("Cliente já cadastrado (email ou telefone existente)")
+                return None
+            
+            cliente_id = clientes_collection.insert_one({
+                "nome": self.nome,
+                "email": self.email,
+                "telefone": self.telefone
+            }).inserted_id
 
-    id = Column(Integer, primary_key=True, index=True)
-    nome = Column(String(100), nullable=False)
-    email = Column(String(100))
-    telefone = Column(String(20), nullable=False)
-    data_cadastro = Column(DateTime, default=get_brasilia_time)
+            print(f"Cliente cadastrado com sucesso. ID: {cliente_id}")
+            return str(cliente_id)
+            
+        except Exception as e:
+            print(f"Erro ao cadastrar cliente: {e}")
+            return None
 
-    agendamentos = relationship("Agendamento", back_populates="cliente")
-    orcamentos = relationship("Orcamento", back_populates="cliente")
+    @staticmethod
+    def buscar_por_id(cliente_id: str) -> Optional[Dict]:
+        try:
+            return get_clientes_collection().find_one({"_id": ObjectId(cliente_id)})
+        except Exception as e:
+            print(f"Erro ao buscar cliente: {e}")
+            return None
+
+    @staticmethod
+    def buscar_por_telefone(telefone: str) -> Optional[Dict]:
+        try:
+            return get_clientes_collection().find_one({"telefone": telefone})
+        except Exception as e:
+            print(f"Erro ao buscar cliente por telefone: {e}")
+            return None
+
+    @staticmethod
+    def listar_todos() -> List[Dict]:
+        try:
+            return list(get_clientes_collection().find({}))
+        except Exception as e:
+            print(f"Erro ao listar clientes: {e}")
+            return []
+
+    @staticmethod
+    def atualizar_cliente(
+        cliente_id: str, 
+        dados_atualizacao: Dict
+    ) -> bool:
+        try:
+            result = get_clientes_collection().update_one(
+                {"_id": ObjectId(cliente_id)},
+                {"$set": dados_atualizacao}
+            )
+            return result.modified_count > 0
+        except Exception as e:
+            print(f"Erro ao atualizar cliente: {e}")
+            return False
+
+    @staticmethod
+    def deletar_cliente(cliente_id: str) -> bool:
+        try:
+            result = get_clientes_collection().delete_one(
+                {"_id": ObjectId(cliente_id)}
+            )
+            return result.deleted_count > 0
+        except Exception as e:
+            print(f"Erro ao deletar cliente: {e}")
+            return False

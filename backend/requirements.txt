@@ -1,8 +1,9 @@
 fastapi
 uvicorn
-sqlalchemy
-pymysql
-pytz
+python-jose[cryptography]
 passlib
 bcrypt
-python-jose[cryptography]
+pytz
+pymongo
+motor
+python-dotenv

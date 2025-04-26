@@ -1,21 +1,23 @@
-from fastapi import APIRouter, HTTPException, Depends
-from sqlalchemy.orm import Session
-from app.schemas.auth import LoginInput, TokenOut
-from app.models import Funcionario
-from app.dependencies import get_db
+from fastapi import APIRouter, Depends, HTTPException, status
+from pydantic import BaseModel
+from app.models.funcionario import Funcionario
 from app.auth.auth_utils import criar_token_acesso
-from passlib.context import CryptContext
 
-router = APIRouter(prefix="/auth", tags=["Autenticação"])
+router = APIRouter(tags=["Autenticação"])
 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+class LoginRequest(BaseModel):
+    email: str
+    senha: str
 
-@router.post("/login", response_model=TokenOut)
-def login(data: LoginInput, db: Session = Depends(get_db)):
-    funcionario = db.query(Funcionario).filter(Funcionario.email == data.email).first()
-    if not funcionario or not pwd_context.verify(data.senha, funcionario.senha_hash):
+@router.post("/login")
+async def login(login_data: LoginRequest):
+    funcionario = Funcionario.buscar_por_email(login_data.email)
+    
+    if not funcionario:
         raise HTTPException(status_code=401, detail="Credenciais inválidas")
-
-    token_data = {"sub": str(funcionario.id)}
-    token = criar_token_acesso(token_data)
+    
+    if not Funcionario.verificar_senha(funcionario["senha"], login_data.senha):
+        raise HTTPException(status_code=401, detail="Credenciais inválidas")
+    
+    token = criar_token_acesso(str(funcionario["_id"]))
     return {"access_token": token, "token_type": "bearer"}
