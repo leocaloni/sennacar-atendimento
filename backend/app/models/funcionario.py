@@ -37,13 +37,15 @@ class Funcionario:
     @staticmethod
     def buscar_por_id(funcionario_id: str) -> Optional[Dict]:
         try:
+            funcionario_id_obj = ObjectId(funcionario_id)
             funcionario = get_funcionario_collection().find_one(
-                {"_id": ObjectId(funcionario_id)}
+                {"_id": funcionario_id_obj}
             )
             return funcionario if funcionario else None
         except Exception as e:
             print(f"Erro ao buscar funcionário: {e}")
             return None
+
 
     @staticmethod
     def buscar_por_email(email: str) -> Optional[Dict]:

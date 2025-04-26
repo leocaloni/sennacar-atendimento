@@ -1,5 +1,6 @@
 from pydantic import BaseModel, EmailStr, Field
 from typing import Optional
+from bson import ObjectId
 
 class FuncionarioBase(BaseModel):
     nome: str
@@ -19,5 +20,10 @@ class FuncionarioResponse(FuncionarioBase):
     id: str = Field(alias="_id")
 
     class Config:
-        populate_by_name = True
         orm_mode = True
+
+    @classmethod
+    def from_mongo(cls, data):
+        if '_id' in data:
+            data['_id'] = str(data['_id'])
+        return cls(**data)

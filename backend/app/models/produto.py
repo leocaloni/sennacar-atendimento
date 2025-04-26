@@ -91,3 +91,26 @@ class Produto:
         except Exception as e:
             print(f"Erro ao listar produtos: {str(e)}")
             return []
+    
+    @staticmethod
+    def atualizar_produto(produto_id: str, dados_atualizados: dict) -> bool:
+        try:
+            produtos_col = get_produtos_collection()
+            result = produtos_col.update_one(
+                {"_id": ObjectId(produto_id)},
+                {"$set": dados_atualizados}
+            )
+            return result.modified_count > 0
+        except Exception as e:
+            print(f"Erro ao atualizar produto: {str(e)}")
+            return False
+
+    @staticmethod
+    def deletar_produto(produto_id: str) -> bool:
+        try:
+            produtos_col = get_produtos_collection()
+            result = produtos_col.delete_one({"_id": ObjectId(produto_id)})
+            return result.deleted_count > 0
+        except Exception as e:
+            print(f"Erro ao deletar produto: {str(e)}")
+            return False

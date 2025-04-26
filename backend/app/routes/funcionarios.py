@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from app.models.funcionario import Funcionario
 from app.auth.auth_utils import get_current_user, verificar_admin
-from bson import ObjectId
 from typing import List, Optional
+from app.schemas.funcionario import FuncionarioResponse
 
 router = APIRouter(prefix="/funcionarios", tags=["Funcionários"])
 
@@ -25,17 +25,23 @@ async def criar_funcionario(
     
     return {"id": funcionario_id}
 
-@router.get("/", response_model=List[dict])
+@router.get("/", response_model=List[FuncionarioResponse])
 async def listar_funcionarios(
     user: dict = Depends(get_current_user)
 ):
-    return Funcionario.listar_todos()
+    funcionarios = Funcionario.listar_todos()
+    if not funcionarios:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Nenhum funcionário encontrado"
+        )
+    return [FuncionarioResponse.from_mongo(funcionario) for funcionario in funcionarios]
 
-@router.get("/me", response_model=dict)
+@router.get("/me", response_model=FuncionarioResponse)
 async def meu_perfil(
     user: dict = Depends(get_current_user)
 ):
-    return user
+    return FuncionarioResponse.from_mongo(user)
 
 @router.put("/{funcionario_id}")
 async def atualizar_funcionario(
