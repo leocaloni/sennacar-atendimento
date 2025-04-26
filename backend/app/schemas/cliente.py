@@ -1,21 +1,20 @@
 from pydantic import BaseModel, EmailStr, Field
 from typing import Optional
 
-class FuncionarioBase(BaseModel):
+class ClienteBase(BaseModel):
     nome: str
     email: EmailStr
-    is_admin: bool = False
+    telefone: str
 
-class FuncionarioCreate(FuncionarioBase):
-    senha: str
+class ClienteCreate(ClienteBase):
+    pass
 
-class FuncionarioUpdate(BaseModel):
+class ClienteUpdate(BaseModel):
     nome: Optional[str] = None
     email: Optional[EmailStr] = None
-    senha: Optional[str] = None
-    is_admin: Optional[bool] = None
+    telefone: Optional[str] = None
 
-class FuncionarioResponse(FuncionarioBase):
+class ClienteResponse(ClienteBase):
     id: str = Field(alias="_id")
 
     class Config:

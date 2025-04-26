@@ -5,12 +5,13 @@ from typing import Optional, Dict, List
 from app.models.produto import Produto
 
 class Agendamento:
-    def __init__(self, cliente_id: str, data_agendada: datetime, produtos: List[str] = [], status: str = "pendente", observacoes: str = ""):
+    def __init__(self, cliente_id: str, data_agendada: datetime, produtos: List[str] = [], status: str = "pendente", observacoes: str = "", valor_total: float = 0.0):
         self.cliente_id = cliente_id
         self.data_agendada = data_agendada
         self.produtos = produtos
         self.status = status
         self.observacoes = observacoes
+        self.valor_total = valor_total
 
     def criar_agendamento(self) -> Optional[str]:
         try:
@@ -84,6 +85,14 @@ class Agendamento:
             ))
         except Exception as e:
             print(f"Erro ao filtrar agendamentos: {str(e)}")
+            return []
+        
+    @staticmethod
+    def listar_todos() -> List[Dict]:
+        try:
+            return list(get_agendamentos_collection().find({}))
+        except Exception as e:
+            print(f"Erro ao listar agendamentos: {e}")
             return []
         
     @staticmethod

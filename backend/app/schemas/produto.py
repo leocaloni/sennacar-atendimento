@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing import Optional
 from decimal import Decimal
 
@@ -10,10 +10,7 @@ class ProdutoBase(BaseModel):
     descricao: Optional[str] = None
 
 class ProdutoCreate(BaseModel):
-    nome: str
-    descricao: str
-    preco: float
-    estoque: int
+    pass
 
 class ProdutoUpdate(BaseModel):
     nome: Optional[str] = None
@@ -23,7 +20,13 @@ class ProdutoUpdate(BaseModel):
     descricao: Optional[str] = None
 
 class ProdutoResponse(ProdutoBase):
-    id: str
+    id: str = Field(alias="_id")
 
     class Config:
         orm_mode = True
+
+    @classmethod
+    def from_mongo(cls, data):
+        if '_id' in data:
+            data['_id'] = str(data['_id'])
+        return cls(**data)

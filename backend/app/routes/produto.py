@@ -1,7 +1,8 @@
 from decimal import Decimal
+from typing import Optional
 from bson import ObjectId
 from fastapi import APIRouter, HTTPException, status, Depends
-from app.schemas.produto import ProdutoCreate, ProdutoUpdate, ProdutoResponse
+from app.schemas.produto import ProdutoResponse
 from app.models.produto import Produto
 from app.auth.auth_utils import verificar_admin, get_current_user
 from app.database import get_produtos_collection
@@ -10,15 +11,23 @@ router = APIRouter(prefix="/produtos", tags=["Produtos"])
 
 @router.post("/", status_code=201)
 async def criar_produto(
-    produto: ProdutoCreate,
+    nome: str,
+    preco: Decimal,
+    preco_mao_obra: Decimal = 0.0,
+    categoria: Optional[str] = None,
+    descricao: Optional[str] = None,
     admin: dict = Depends(verificar_admin)
 ):
-    produtos_col = get_produtos_collection()
+    novo_produto = Produto(nome, preco, preco_mao_obra, categoria, descricao)
+    produto_id = novo_produto.cadastrar_produto()
+
+    if not produto_id:
+         raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Produto já cadastrado ou dados inválidos"
+        )
     
-    novo_produto = produto.model_dump()
-    resultado = produtos_col.insert_one(novo_produto)
-    
-    return {"id": str(resultado.inserted_id)}
+    return {"id": produto_id}
 
 @router.get("/{produto_id}", response_model=ProdutoResponse)
 async def obter_produto(produto_id: str, user=Depends(get_current_user)):
@@ -48,23 +57,33 @@ async def listar_produtos_por_categoria(categoria: str, user=Depends(get_current
 @router.put("/{produto_id}")
 async def atualizar_produto(
     produto_id: str,
-    dados: ProdutoUpdate, 
+    nome: Optional[str] = None,
+    preco: Optional[Decimal] = None,
+    preco_mao_obra: Optional[Decimal] = None,
+    categoria: Optional[str] = None,
+    descricao: Optional[str] = None,
     admin: dict = Depends(verificar_admin)
 ):
-    produtos_col = get_produtos_collection()
+    dados_atualizacao = {}
+    if nome: dados_atualizacao["nome"] = nome
+    if preco: dados_atualizacao["preco"] = preco
+    if preco_mao_obra: dados_atualizacao["preco_mao_obra"] = preco_mao_obra
+    if categoria: dados_atualizacao["categoria"] = categoria
+    if descricao: dados_atualizacao["deascricao"] = descricao
 
-    produto_existente = produtos_col.find_one({"_id": ObjectId(produto_id)})
-    if not produto_existente:
-        raise HTTPException(status_code=404, detail="Produto não encontrado")
-
-    update_data = {k: (float(v) if isinstance (v, Decimal) else v) for k, v in dados.model_dump(exclude_unset=True).items()}
-
-    if not update_data:
-        raise HTTPException(status_code=400, detail="Nenhum dado enviado para atualização")
-
-    produtos_col.update_one({"_id": ObjectId(produto_id)}, {"$set": update_data})
-    return {"mensagem": "Produto atualizado com sucesso"}
-
+    if not dados_atualizacao:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Nenhum dado fornecido para atualização",
+        )
+    
+    sucesso = Produto.atualizar_produto(produto_id, dados_atualizacao)
+    if not sucesso:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Produto não encontrado",
+        )
+    return {"message": "Produto atualizado"}
 
 @router.delete("/{produto_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def deletar_produto(produto_id: str, user=Depends(verificar_admin)):
