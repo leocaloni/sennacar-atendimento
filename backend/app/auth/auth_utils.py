@@ -11,7 +11,7 @@ load_dotenv()
 SECRET_KEY = os.getenv("SECRET_KEY") or "fallback_key_123"
 ALGORITHM = "HS256"
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")
 
 
 def criar_token_acesso(user_id: str) -> str:

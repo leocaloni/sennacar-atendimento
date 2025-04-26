@@ -1,6 +1,6 @@
 from fastapi import FastAPI
-from app.routes import funcionarios, auth
 from fastapi.security import OAuth2PasswordBearer
+from app.routes import funcionarios, auth
 from fastapi.openapi.utils import get_openapi
 
 app = FastAPI(
@@ -16,34 +16,31 @@ app = FastAPI(
     ]
 )
 
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+
 app.include_router(funcionarios.router, prefix="/funcionarios", tags=["Funcionários"])
 app.include_router(auth.router, prefix="/auth", tags=["Autenticação"])
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")
 
 def custom_openapi():
     if app.openapi_schema:
         return app.openapi_schema
-        
     openapi_schema = get_openapi(
-        title=app.title,
-        version=app.version,
-        description=app.description,
+        title="Seu Projeto",
+        version="1.0.0",
+        description="Descrição",
         routes=app.routes,
     )
-    
     openapi_schema["components"]["securitySchemes"] = {
         "BearerAuth": {
             "type": "http",
             "scheme": "bearer",
-            "bearerFormat": "JWT"
+            "bearerFormat": "JWT",
         }
     }
-    
     for path in openapi_schema["paths"].values():
         for method in path.values():
-            method.setdefault("security", [{"BearerAuth": []}])
-    
+            method.setdefault("security", []).append({"BearerAuth": []})
     app.openapi_schema = openapi_schema
     return app.openapi_schema
 
