@@ -7,3 +7,6 @@ pytz
 pymongo
 motor
 python-dotenv
+torch
+numpy
+nltk

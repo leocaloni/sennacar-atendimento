@@ -1,0 +1,291 @@
+{
+  "intents": [
+    {
+      "tag": "saudacoes",
+      "patterns": [
+        "olá",
+        "ola",
+        "bom dia",
+        "boa tarde",
+        "boa noite",
+        "oi",
+        "tudo bem?",
+        "e aí?",
+        "saudações",
+        "eai"
+      ],
+      "responses": [
+        "Olá, seja bem-vindo(a) à SennaCar! Como posso te ajudar hoje?",
+        "Oi! Seja bem-vindo(a) à SennaCar. Em que posso te ajudar?"
+      ]
+    },
+    {
+      "tag": "despedidas",
+      "patterns": [
+        "tchau",
+        "até logo",
+        "fui",
+        "adeus",
+        "obrigado",
+        "vlw",
+        "até mais"
+      ],
+      "responses": [
+        "Até logo! Se precisar de novo, é só chamar.",
+        "Obrigado por usar nosso serviço! Volte sempre."
+      ]
+    },
+    {
+      "tag": "informacoes_sobre_loja",
+      "patterns": [
+        "onde vocês estão?",
+        "onde vcs ficam",
+        "onde vc estao",
+        "qual o endereço?",
+        "horário de funcionamento",
+        "quando vocês abrem?"
+      ],
+      "responses": [
+        "Estamos localizados na Av. Antônio de Souza, 268 - Centro, Guarulhos - SP. Nosso horário de funcionamento de segunda à sexta das 08:00 às 18:00, e de sábados das 08:00 às 13:00. Estamos esperando por você!",
+        "Nosso endereço é Av. Antônio de Souza, 268 - Centro, Guarulhos - SP. Funcionamos de segunda a sexta das 08h às 18h, e aos sábados das 08h às 13h. Esperamos sua visita!"
+      ]
+    },
+    {
+      "tag": "agendamento",
+      "patterns": [
+        "agendar",
+        "marcar horário",
+        "quero instalar",
+        "preciso levar o carro",
+        "tem vaga para",
+        "marcar serviço"
+      ],
+      "responses": [
+        "Vamos agendar! Preciso que você me informe os produtos que deseja instalar.",
+        "Ótimo! Qual serviço ou produto você gostaria de agendar?"
+      ]
+    },
+    {
+      "tag": "status_agendamento",
+      "patterns": [
+        "onde está meu agendamento",
+        "status do serviço",
+        "já está pronto?",
+        "como está meu carro",
+        "verificar agendamento",
+        "confirmar agendamento",
+        "meu agendamento está certo?",
+        "agendamento confirmado?",
+        "horário agendado"
+      ],
+      "responses": [
+        "Para verificar, preciso do seu telefone ou e-mail cadastrado. Pode me informar?",
+        "Vou verificar! Me passe o seu telefone ou e-mail cadastrado para confirmar o agendamento."
+      ]
+    },
+    {
+      "tag": "cancelar_agendamento",
+      "patterns": [
+        "quero cancelar meu agendamento",
+        "cancelar horário",
+        "não posso mais comparecer",
+        "desmarcar agendamento"
+      ],
+      "responses": [
+        "Entendido! Vou cancelar seu agendamento. Qual é o seu telefone ou e-mail cadastrado e qual a data do seu agendamento?"
+      ]
+    },
+    {
+      "tag": "contato_humano",
+      "patterns": [
+        "falar com atendente",
+        "quero um humano",
+        "me transfere",
+        "atendimento real",
+        "transferir"
+      ],
+      "responses": [
+        "Entendi! Vou transferir você para um atendente. Um momento...",
+        "Claro! Um especialista já vai te atender em alguns instantes."
+      ]
+    },
+    {
+      "tag": "problemas",
+      "patterns": ["não resolveu meu problema", "não é isso", "ta errado"],
+      "responses": [
+        "Entendi, peço desculpas pela inconveniência, deseja falar com um atendente?",
+        "Perdão pela inconveniência, quer que eu te transfira para um atendente?"
+      ]
+    },
+    {
+      "tag": "produtos_populares",
+      "patterns": [
+        "o que vocês vendem",
+        "tipos de peça",
+        "tem para meu carro",
+        "catalogo",
+        "quais serviços oferecem"
+      ],
+      "responses": [
+        "Trabalhamos com instalações de insulfilm, PPF (película de proteção de pintura), multimídias e caixas de som!",
+        "Oferecemos instalação de insulfilm, PPF, multimídias e caixas de som. Pode contar com a gente!"
+      ]
+    },
+    {
+      "tag": "pagamento",
+      "patterns": [
+        "formas de pagamento",
+        "aceita pix",
+        "pode parcelar",
+        "cartão de crédito",
+        "débito aceito?"
+      ],
+      "responses": [
+        "Aceitamos cartões de crédito ou débito, pix e dinheiro.,",
+        "Você pode pagar com cartão de crédito, débito, pix ou dinheiro."
+      ]
+    },
+    {
+      "tag": "orcamento_insulfim",
+      "patterns": [
+        "quanto custa o insulfilm?",
+        "preço do insulfilm",
+        "valor do insulfilm",
+        "quanto é o insulfilm?",
+        "qual o preço do insulfilm?",
+        "quero comprar um insulfim",
+        "gostaria de insulfim",
+        "preços insulfim",
+        "quanto custa o insufilme?",
+        "preço do insufilme",
+        "valor do insufilme",
+        "quanto é o insufilme?",
+        "qual o preço do insufilme?",
+        "quero comprar um insufilme",
+        "gostaria de insufilme",
+        "preços insufilme",
+        "quanto custa o insulfilme?",
+        "preço do insulfilme",
+        "valor do insulfilme",
+        "quanto é o insulfilme?",
+        "qual o preço do insulfilme?",
+        "quero comprar um insulfilme",
+        "gostaria de insulfilme",
+        "preços insulfilme"
+      ],
+      "responses": [
+        "O preço do Insulfilm varia conforme o modelo. Aqui está a lista de nossos insulfimes:",
+        "Temos vários modelos de Insulfilm e os valores variam! Vou te mostrar a lista completa:"
+      ]
+    },
+    {
+      "tag": "orcamento_multimidia",
+      "patterns": [
+        "quanto custa a instalação de multimídia?",
+        "preço de multimídia",
+        "valor da multimídia",
+        "quanto é para instalar multimídia?",
+        "quero comprar uma multimidia",
+        "gostaria de multimidia",
+        "preços multimidia"
+      ],
+      "responses": [
+        "O preço para instalação de multimídia pode variar dependendo do modelo da multimídia. Temos de 2gb, 4gb, 6gb e 8gb de RAM, quanto maior a RAM maior a velocidade da multimídia! Aqui está a lista das multimídias:",
+        "O valor da instalação da multimídia depende do modelo! Temos opções de 2gb, 4gb, 6gb e 8gb de RAM. Segue abaixo a lista completa:"
+      ]
+    },
+    {
+      "tag": "orcamento_ppf",
+      "patterns": [
+        "quanto custa a instalação de ppf",
+        "ppf",
+        "película de proteção de pintura",
+        "valor do ppf",
+        "instalar ppf",
+        "quanto custa para instalar o ppf",
+        "quanto custa para instalar a pelicula de protecao da pintura",
+        "quero comprar um ppf",
+        "gostaria de ppf",
+        "preços ppf"
+      ],
+      "responses": [
+        "O preço do PPF (película de proteção de pintura) pode variar dependendo do modelo do carro, devido à isso a análise deve ser feita pessoalmente, ou você pode perguntar à um de nossos especialistas. Caso queira que eu te passe à um atendente digite 'transferir' que eu já te transfiro!",
+        "O valor do PPF depende do modelo do seu carro. Para uma análise mais precisa, recomendamos uma visita ou falar diretamente com um especialista. Se quiser, digite 'transferir'!"
+      ]
+    },
+    {
+      "tag": "orcamento_som",
+      "patterns": [
+        "quanto custa a instalação de subwoofer",
+        "subwoofer",
+        "quanto custa a instalação de caixas de som",
+        "caixa de som",
+        "valor da caixa de som",
+        "instalar subwoofer",
+        "quanto custa para instalar as caixas de som",
+        "quanto custa para instalar o subwoofer",
+        "quero comprar um subwoofer",
+        "gostaria de subwoofer",
+        "preços subwoofer",
+        "quero comprar uma caixa de som",
+        "gostaria de caixa de som",
+        "preços caixa de som"
+      ],
+      "responses": [
+        "O preço depende da marca e do modelo da caixa de som! Vou te passar a lista dos nossos subwoofers:",
+        "Os valores variam conforme o modelo da caixa de som! Vou te enviar a lista de subwoofers disponíveis:"
+      ]
+    },
+    {
+      "tag": "informacoes_insulfilm",
+      "patterns": [
+        "quais são os modelos de insulfilm?",
+        "tipos de insulfilm",
+        "qual é a diferença entre G5, G20 e G50?"
+      ],
+      "responses": [
+        "O modelo G5 é mais escuro, o G20 é um pouco mais claro e G50 é bem mais claro. Temos todos eles aqui!",
+        "O Insulfilm G5 é o mais escuro, o G20 é intermediário e o G50 é mais claro. Trabalhamos com todos esses modelos!"
+      ]
+    },
+    {
+      "tag": "informacoes_multimidia",
+      "patterns": [
+        "quais tipos de multimídia vocês têm?",
+        "tipos de multimídia",
+        "instalação de multimídia em carros",
+        "quais as opções de multimídia?"
+      ],
+      "responses": [
+        "Temos várias opções de multimídia, com diferentes tamanhos e funcionalidades, como telas de 2GB, 4GB, 6GB e 8GB de RAM, com sistemas Android e outras funcionalidades. Você pode escolher conforme a sua necessidade!",
+        "Oferecemos multimídias de 2GB, 4GB, 6GB e 8GB de RAM, com diversas funções modernas, incluindo sistemas Android!"
+      ]
+    },
+    {
+      "tag": "informacoes_ppf",
+      "patterns": [
+        "o que é ppf?",
+        "como funciona o ppf?",
+        "para que serve a película de proteção de pintura?",
+        "benefícios do ppf"
+      ],
+      "responses": [
+        "O PPF é uma película de proteção de pintura, que ajuda a preservar o acabamento do carro, protegendo contra arranhões, sujeiras e danos causados por pedras e outros elementos. Temos tanto o modelo transparente quanto o black piano!",
+        "A película PPF protege a pintura do carro contra riscos, sujeira e impactos. Trabalhamos com versões transparentes e black piano!"
+      ]
+    },
+    {
+      "tag": "confirmação_de_horario",
+      "patterns": [
+        "qual o horário disponível?",
+        "tem horário para amanhã?",
+        "horário de funcionamento para serviços",
+        "quais horários posso agendar?"
+      ],
+      "responses": [
+        "Posso verificar para você! Teria alguma preferência de dia ou horário para facilitar?",
+        "Vou consultar os horários disponíveis! Alguma preferência de dia ou período?"
+      ]
+    }
+  ]
+}
