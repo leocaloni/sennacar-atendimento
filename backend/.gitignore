@@ -8,3 +8,5 @@ app/models/__pycache__/
 app/routes/__pycache__/
 app/schemas/__pycache__/
 app/auth/__pycache__/
+chatbot_model.pth
+dimensions.json

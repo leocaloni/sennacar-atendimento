@@ -79,8 +79,8 @@
         "horário agendado"
       ],
       "responses": [
-        "Para verificar, preciso do seu telefone ou e-mail cadastrado. Pode me informar?",
-        "Vou verificar! Me passe o seu telefone ou e-mail cadastrado para confirmar o agendamento."
+        "Para verificar, preciso do seu telefone ou e-mail cadastrado. Pode me informar? (mande no formato: 'nome', 'email', 'telefone')",
+        "Vou verificar! Me passe o seu telefone ou e-mail cadastrado para confirmar o agendamento. (mande no formato: 'nome', 'email', 'telefone')"
       ]
     },
     {
@@ -92,7 +92,14 @@
         "desmarcar agendamento"
       ],
       "responses": [
-        "Entendido! Vou cancelar seu agendamento. Qual é o seu telefone ou e-mail cadastrado e qual a data do seu agendamento?"
+        "Para cancelar o agendamento você deve entrar em contato com um de nossos atendentes! Posso transferi-lo para um ou você pode entrar em contato no WhatsApp, o que você prefere?"
+      ]
+    },
+    {
+      "tag": "whatsapp",
+      "patterns": ["whatsapp", "telefone", "contato"],
+      "responses": [
+        "Aqui está nosso número de telefone: (11) 99999-9999. Você pode entrar em contato no WhatsApp ou ligar!"
       ]
     },
     {
@@ -171,10 +178,11 @@
         "qual o preço do insulfilme?",
         "quero comprar um insulfilme",
         "gostaria de insulfilme",
-        "preços insulfilme"
+        "preços insulfilme",
+        "gostaria de instalar insulfilm no meu carro"
       ],
       "responses": [
-        "O preço do Insulfilm varia conforme o modelo. Aqui está a lista de nossos insulfimes:",
+        "O preço do Insulfilm varia conforme o modelo. Aqui está a lista de nossos insulfims:",
         "Temos vários modelos de Insulfilm e os valores variam! Vou te mostrar a lista completa:"
       ]
     },
@@ -187,7 +195,8 @@
         "quanto é para instalar multimídia?",
         "quero comprar uma multimidia",
         "gostaria de multimidia",
-        "preços multimidia"
+        "preços multimidia",
+        "gostaria de instalar multimidia no meu carro"
       ],
       "responses": [
         "O preço para instalação de multimídia pode variar dependendo do modelo da multimídia. Temos de 2gb, 4gb, 6gb e 8gb de RAM, quanto maior a RAM maior a velocidade da multimídia! Aqui está a lista das multimídias:",
@@ -206,7 +215,8 @@
         "quanto custa para instalar a pelicula de protecao da pintura",
         "quero comprar um ppf",
         "gostaria de ppf",
-        "preços ppf"
+        "preços ppf",
+        "gostaria de instalar ppf no meu carro"
       ],
       "responses": [
         "O preço do PPF (película de proteção de pintura) pode variar dependendo do modelo do carro, devido à isso a análise deve ser feita pessoalmente, ou você pode perguntar à um de nossos especialistas. Caso queira que eu te passe à um atendente digite 'transferir' que eu já te transfiro!",
@@ -229,7 +239,9 @@
         "preços subwoofer",
         "quero comprar uma caixa de som",
         "gostaria de caixa de som",
-        "preços caixa de som"
+        "preços caixa de som",
+        "gostaria de instalar som no meu carro",
+        "gostaria de instalar subwoofer no meu carro"
       ],
       "responses": [
         "O preço depende da marca e do modelo da caixa de som! Vou te passar a lista dos nossos subwoofers:",
@@ -278,7 +290,6 @@
       "tag": "confirmação_de_horario",
       "patterns": [
         "qual o horário disponível?",
-        "tem horário para amanhã?",
         "horário de funcionamento para serviços",
         "quais horários posso agendar?"
       ],
@@ -286,6 +297,166 @@
         "Posso verificar para você! Teria alguma preferência de dia ou horário para facilitar?",
         "Vou consultar os horários disponíveis! Alguma preferência de dia ou período?"
       ]
+    },
+    {
+      "tag": "agendamento_insulfim",
+      "patterns": [
+        "quero instalar insulfim",
+        "quero agendar insulfim",
+        "instalar insulfim",
+        "quero instalar insulfime",
+        "quero agendar insulfime",
+        "instalar insulfime",
+        "quero instalar insufilme",
+        "quero agendar insulfime",
+        "instalar insulfilme",
+        "instalar insulfime",
+        "quero agendar instalacao insufilme",
+        "quero agendar instalar insulfime",
+        "instalar insulfilme"
+      ],
+      "responses": [
+        "Claro! Deseja qual modelo de Insulfim? Aqui vai uma lista:",
+        "Temos vários modelos de Insulfilm e os valores variam! Vou te mostrar a lista completa:"
+      ]
+    },
+    {
+      "tag": "agendamento_insulfim_g5",
+      "patterns": [
+        "quero instalar insulfim g5",
+        "quero agendar insulfim g5",
+        "instalar insulfim g5",
+        "quero instalar insulfime g5",
+        "quero agendar insulfime g5",
+        "instalar insulfime g5",
+        "quero instalar insufilme g5",
+        "quero agendar insulfime g5",
+        "instalar insulfilme g5",
+        "instalar insulfime g5",
+        "quero agendar instalacao insufilme g5",
+        "quero agendar instalar insulfime g5",
+        "instalar insulfilme g5",
+        "gostaria do g5"
+      ],
+      "responses": [
+        "Claro! Me passa seu nome, email e telefone para que prosseguimos com o agendamento! (mande no formato: 'nome', 'email', 'telefone')",
+        "Só preciso do seu nome, email e telefone para que possamos agendar sua instalação! (mande no formato: 'nome', 'email', 'telefone')"
+      ]
+    },
+    {
+      "tag": "agendamento_insulfim_g20",
+      "patterns": [
+        "quero instalar insulfim g20",
+        "quero agendar insulfim g20",
+        "instalar insulfim g20",
+        "quero instalar insulfime g20",
+        "quero agendar insulfime g20",
+        "instalar insulfime g20",
+        "quero instalar insufilme g20",
+        "quero agendar insulfime g20",
+        "instalar insulfilme g20",
+        "instalar insulfime g20",
+        "quero agendar instalacao insufilme g20",
+        "quero agendar instalar insulfime g20",
+        "instalar insulfilme g20",
+        "gostaria do g20"
+      ],
+      "responses": [
+        "Claro! Me passa seu nome, email e telefone para que prosseguimos com o agendamento! (mande no formato: 'nome', 'email', 'telefone')",
+        "Só preciso do seu nome, email e telefone para que possamos agendar sua instalação! (mande no formato: 'nome', 'email', 'telefone')"
+      ]
+    },
+    {
+      "tag": "agendamento_insulfim_g50",
+      "patterns": [
+        "quero instalar insulfim g50",
+        "quero agendar insulfim g50",
+        "instalar insulfim g50",
+        "quero instalar insulfime g50",
+        "quero agendar insulfime g50",
+        "instalar insulfime g50",
+        "quero instalar insufilme g50",
+        "quero agendar insulfime g50",
+        "instalar insulfilme g50",
+        "instalar insulfime g50",
+        "quero agendar instalacao insufilme g50",
+        "quero agendar instalar insulfime g50",
+        "instalar insulfilme g50",
+        "gostaria do g50"
+      ],
+      "responses": [
+        "Claro! Me passa seu nome, email e telefone para que prosseguimos com o agendamento! (mande no formato: 'nome', 'email', 'telefone')",
+        "Só preciso do seu nome, email e telefone para que possamos agendar sua instalação! (mande no formato: 'nome', 'email', 'telefone')"
+      ]
+    },
+    {
+      "tag": "agendamento_multimidia",
+      "patterns": [
+        "quero instalar multimidia",
+        "quero agendar multimidia",
+        "instalar multimidia",
+        "quero instalar midia",
+        "quero agendar midia",
+        "instalar midia",
+        "quero instalar tela",
+        "quero agendar tela",
+        "instalar tela"
+      ],
+      "responses": [
+        "Claro! Deseja qual modelo de Multimídia? Aqui vai uma lista:",
+        "Temos vários modelos de Multimídia e os valores variam! Vou te mostrar a lista completa:"
+      ]
+    },
+    {
+      "tag": "agendamento_som",
+      "patterns": [
+        "quero instalar caixas de som",
+        "quero agendar subwoofer",
+        "instalar som",
+        "quero instalar som",
+        "quero agendar caixa de som",
+        "instalar subwoofer",
+        "quero instalar caixa de som",
+        "quero agendar som",
+        "instalar caixa de som"
+      ],
+      "responses": [
+        "Claro! Deseja qual modelo de caixas de som? Aqui vai uma lista:",
+        "Temos vários modelos de caixasde som e subwoofers e os valores variam! Vou te mostrar a lista completa:"
+      ]
+    },
+    {
+      "tag": "agendamento_ppf",
+      "patterns": [
+        "quero instalar ppf",
+        "quero agendar ppf",
+        "instalar ppf",
+        "quero instalar pelicula de protecao",
+        "quero agendar pelicula de protecao",
+        "instalar pelicula de protecao",
+        "quero instalar protecao da pintura",
+        "quero agendar protecao da pintura",
+        "instalar caixa de protecao da pintura"
+      ],
+      "responses": [
+        "Claro! O orçamento de PPF varia conforme o modelo do carro e as áreas que deseja proteger! Para uma análise melhor recomendo falar com um de nossos atendentes, digite 'transferir' que eu já te trasnfiro para um especialista.",
+        "Para o PPF um especialista deve analisar o modelo do carro e as áreas que deseja proteger! Para uma melhor análise recomendamos uma visita presencial ou falar com um de nossos atendentes! Você pode falar via WhatsApp ou eu posso te trasnferir aqui mesmo à um de nossos especialistas, é só digitar 'trasnferir' que eu já te trasnfiro para um atendente!"
+      ]
+    },
+    {
+      "tag": "confirmar_agendamento",
+      "patterns": ["sim", "agendar", "quero agendar", "confirmar"],
+      "responses": ["{AGENDAMENTO_INICIADO}"]
+    },
+    {
+      "tag": "catalogo_completo",
+      "patterns": [
+        "ver todos os produtos",
+        "quero ver tudo",
+        "mostre todo o catálogo",
+        "produtos disponíveis"
+      ],
+      "responses": ["{CATALOGO_COMPLETO}"]
     }
   ]
 }

@@ -44,7 +44,7 @@ async def listar_produtos_por_categoria(categoria: str, user=Depends(get_current
     produtos = Produto.listar_por_categoria(categoria)
     return [
         ProdutoResponse(
-            id=str(produto['_id']),
+            _id=str(produto['_id']),
             nome=produto['nome'],
             preco=produto['preco'],
             preco_mao_obra=produto.get('preco_mao_obra', 0.0),

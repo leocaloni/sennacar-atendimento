@@ -11,6 +11,11 @@ import torch.nn.functional as F
 import torch.optim as optim
 from torch.utils.data import DataLoader, TensorDataset
 
+import re
+from app.models.cliente import Cliente
+from app.models.produto import Produto
+from app.models.agendamento import Agendamento
+from datetime import datetime
 
 class ChatbotModel(nn.Module):
 
@@ -49,6 +54,23 @@ class ChatbotAssistant:
         self.X = None
         self.y = None
 
+        self.selected_date = []
+        self.client_data = {"nome" : None, "email" : None,"telefone" : None}
+        self.selected_products = []
+        self.awaiting_more_products = False
+        self.produtos_por_categoria = {} 
+        self.produtos_por_categoria = {} 
+        self.produtos_temp = None
+        self.awaiting_product_selection = False
+        self.current_category = None
+        self.selected_product = None
+        self.awaiting_confirmation = False 
+        self.client_data_temp = None
+        self.awaiting_scheduling = False
+        self.awaiting_scheduling_confirmation = False
+        self.awaiting_category_selection = False
+        self.temp_agendamento_data = None
+
     @staticmethod
     def tokenize_and_lemmatize(text):
         lemmatizer = nltk.WordNetLemmatizer()
@@ -65,7 +87,7 @@ class ChatbotAssistant:
         lemmatizer = nltk.WordNetLemmatizer()
 
         if os.path.exists(self.intents_path):
-            with open(self.intents_path, 'r') as f:
+            with open(self.intents_path, 'r', encoding="utf-8") as f:
                 intents_data = json.load(f)
 
             for intent in intents_data['intents']:
@@ -135,6 +157,45 @@ class ChatbotAssistant:
         self.model.load_state_dict(torch.load(model_path, weights_only=True))
 
     def process_message(self, input_message):
+        category_mapping = {
+        'orcamento_insulfim': 'insulfim',
+        'orcamento_multimidia': 'multimidia',
+        'orcamento_ppf': 'ppf',
+        'orcamento_som': 'som',
+        'agendamento_insulfim': 'insulfim',
+        'agendamento_multimidia': 'multimidia',
+        'agendamento_som': 'som'
+    }
+            
+        if self.awaiting_confirmation:
+            return self._handle_confirmation(input_message)
+        
+        if self.awaiting_product_selection:
+            return handle_product_selection(self, input_message)
+        
+        if self.awaiting_scheduling:
+            return confirmar_agendamento(self, input_message)
+        
+        if self.awaiting_scheduling_confirmation:
+            if input_message.lower() in ['sim', 's']:
+                self.awaiting_scheduling = True
+                self.awaiting_scheduling_confirmation = False
+                return "📅 Por favor, informe a data e horário (DD/MM/AAAA HH:MM):"
+            else:
+                self.awaiting_scheduling_confirmation = False
+                return "Agendamento cancelado. Como posso ajudar?"
+                
+        match = re.match(r"([a-zA-Z\s]+),\s*([\w\.-]+@[\w\.-]+\.\w+),\s*(\+?\d{1,3}?[-.\s]?\(?\d{1,4}?\)?[-.\s]?\d{1,4}[-.\s]?\d{1,4})", input_message)
+        if match:
+            nome, email, telefone = match.groups()
+            self.client_data_temp = {
+                "nome": nome.strip(),
+                "email": email.strip(),
+                "telefone": telefone.strip()
+            }
+            self.awaiting_confirmation = True
+            return self._generate_confirmation_message()
+
         words = self.tokenize_and_lemmatize(input_message)
         bag = self.bag_of_words(words)
 
@@ -147,6 +208,22 @@ class ChatbotAssistant:
         predicted_class_index = torch.argmax(predictions, dim=1).item()
         predicted_intent = self.intents[predicted_class_index]
 
+        if predicted_intent == 'catalogo_completo':
+            if "listar_todos_produtos" in self.function_mappings:
+                return self.function_mappings["listar_todos_produtos"](self)
+        elif predicted_intent in category_mapping:
+            categoria = category_mapping[predicted_intent]
+            if "listar_produtos" in self.function_mappings:
+                return self.function_mappings["listar_produtos"](self, categoria)
+
+        if predicted_intent in category_mapping:
+            categoria = category_mapping[predicted_intent]
+            if "listar_produtos" in self.function_mappings:
+                return self.function_mappings["listar_produtos"](self, categoria)
+            
+        if self.function_mappings and predicted_intent in self.function_mappings:
+            self.function_mappings[predicted_intent](self)
+
         if self.function_mappings:
             if predicted_intent in self.function_mappings:
                 self.function_mappings[predicted_intent]()
@@ -155,16 +232,312 @@ class ChatbotAssistant:
             return random.choice(self.intents_responses[predicted_intent])
         else:
             return None
+    
+    def _generate_confirmation_message(self):
+        return (
+            "Por favor, confirme seus dados:\n"
+            f"Nome: {self.client_data_temp['nome']}\n"
+            f"Email: {self.client_data_temp['email']}\n"
+            f"Telefone: {self.client_data_temp['telefone']}\n\n"
+            "Digite 'dados corretos' para confirmar ou 'dados incorretos' para reenviar."
+        )
 
+    def _handle_confirmation(self, input_message):
+        if input_message.lower() == 'dados corretos':
+            self.client_data = self.client_data_temp
+            self.client_data_temp = None
+            self.awaiting_confirmation = False
+            
+            if "cadastrar_cliente" in self.function_mappings:
+                success = self.function_mappings["cadastrar_cliente"](self)
+                if success and self.selected_products:
+                    self.awaiting_scheduling = True
+                    return ("✅ Dados confirmados!\n\n"
+                        "📅 Informe a data e horário (DD/MM/AAAA HH:MM):")
+                elif success:
+                    return "✅ Dados confirmados com sucesso!"
+                return "⚠️ Dados confirmados (cliente já existia)"
+            
+        elif input_message.lower() == 'dados incorretos':
+            self.client_data_temp = None
+            self.awaiting_confirmation = False
+            return "↩️ Por favor, reenvie seus dados: Nome, Email, Telefone"
+        
+        return "⚠️ Digite 'dados corretos' para confirmar ou 'dados incorretos' para corrigir"
 
-def get_stocks():
-    stocks = ['APPL', 'META', 'NVDA', 'GS', 'MSFT']
+def cadastrar_cliente(chatbot_assistant):
+    nome = chatbot_assistant.client_data["nome"]
+    email = chatbot_assistant.client_data["email"]
+    telefone = chatbot_assistant.client_data["telefone"]
+    
+    if not all([nome, email, telefone]):
+        print("Dados do cliente incompletos!")
+        return False
+    
+    try:
+        cliente = Cliente(nome, email, telefone)
+        cliente_existente = cliente.buscar_por_telefone(telefone)
+        
+        if cliente_existente:
+            print(f"Cliente encontrado (ID: {cliente_existente['_id']})")
+            # Atualiza os dados do cliente existente se necessário
+            cliente.atualizar_cliente(str(cliente_existente['_id']), {
+                "nome": nome,
+                "email": email
+            })
+            return True  # Retorna True mesmo para cliente existente
+        
+        cliente_id = cliente.cadastrar_cliente()
+        
+        if cliente_id:
+            print(f"Cliente {nome} cadastrado com sucesso! ID: {cliente_id}")
+            return True
+        return False
+    
+    except Exception as e:
+        print(f"Erro ao processar cliente: {e}")
+        return True  # Continua o fluxo mesmo se houver erro no cadastro
+    
+def listar_todos_produtos(chatbot_assistant):
+    """Lista todos os produtos agrupados por categoria"""
+    categorias = ['insulfim', 'multimidia', 'som', 'ppf']
+    resposta = "📋 Catálogo Completo de Produtos:\n\n"
+    
+    for categoria in categorias:
+        produtos = Produto.listar_por_categoria(categoria)
+        if produtos:
+            resposta += f"🔹 {categoria.upper()}:\n"
+            for idx, produto in enumerate(produtos, 1):
+                resposta += f"   {idx}. {produto['nome']} - R${produto['preco']:.2f}"
+                if produto.get('preco_mao_obra', 0) > 0:
+                    resposta += f" + R${produto['preco_mao_obra']:.2f} (instalação)"
+                resposta += "\n"
+            resposta += "\n"
+    
+    chatbot_assistant.produtos_por_categoria = {
+        cat: Produto.listar_por_categoria(cat) for cat in categorias
+    }
+    chatbot_assistant.awaiting_product_selection = True
+    
+    return resposta + "Digite o número do produto que deseja (ex: 1 para primeiro item) ou 'finalizar' para concluir:"
 
-    print(random.sample(stocks, 3))
+def listar_produtos_por_categoria(chatbot_assistant, categoria=None):
+    """Lista produtos podendo alternar entre categorias"""
+    if categoria:
+        produtos = Produto.listar_por_categoria(categoria)
+        resposta = f"🔹 {categoria.upper()}:\n\n"
+    else:
+        produtos = []
+        resposta = "📋 Todos os Produtos:\n\n"
+        for cat in ['insulfim', 'multimidia', 'som', 'ppf']:
+            produtos.extend(Produto.listar_por_categoria(cat))
+    
+    for idx, produto in enumerate(produtos, 1):
+        resposta += f"{idx}. {produto['nome']} - R${produto['preco']:.2f}"
+        if produto.get('preco_mao_obra', 0) > 0:
+            resposta += f" + R${produto['preco_mao_obra']:.2f} (instalação)"
+        resposta += "\n"
+    
+    chatbot_assistant.produtos_temp = produtos
+    chatbot_assistant.awaiting_product_selection = True
+    
+    resposta += "\n📌 Você pode:\n"
+    resposta += "- Digitar o número de qualquer produto para adicionar\n"
+    if categoria:
+        resposta += "- Digite 'outros' para ver produtos de outras categorias\n"
+    resposta += "- 'finalizar' para concluir a seleção\n"
+    resposta += "- 'cancelar' para recomeçar"
+    
+    return resposta
 
+def handle_product_selection(chatbot_assistant, input_message):
+    if input_message.lower() == 'cancelar':
+        chatbot_assistant.selected_products = []
+        chatbot_assistant.awaiting_product_selection = False
+        return "Operação cancelada. Como posso ajudar?"
+    
+    if input_message.lower() == 'finalizar':
+        if not chatbot_assistant.selected_products:
+            return "Nenhum produto selecionado. Por favor, escolha ao menos um produto."
+        
+        chatbot_assistant.awaiting_product_selection = False
+        
+        # Cria resumo
+        resposta = "📋 Resumo dos Produtos Selecionados:\n\n"
+        total = 0
+        for idx, produto in enumerate(chatbot_assistant.selected_products, 1):
+            preco_total = produto['preco'] + produto.get('preco_mao_obra', 0)
+            resposta += f"{idx}. {produto['nome']} ({produto.get('categoria', '')}) - R${preco_total:.2f}\n"
+            total += preco_total
+        
+        resposta += f"\n💳 Valor Total: R${total:.2f}\n\n"
+        
+        if all(chatbot_assistant.client_data.values()):
+            resposta += "Deseja agendar a instalação? (sim/não)"
+            chatbot_assistant.awaiting_scheduling_confirmation = True
+        else:
+            resposta += "Para agendar, preciso dos seus dados. Por favor, envie no formato: Nome, Email, Telefone"
+        
+        return resposta
+
+    if input_message.lower() == 'outros':
+        resposta = "📌 Escolha uma categoria:\n\n"
+        categorias = ['insulfim', 'multimidia', 'som', 'ppf']
+        for idx, cat in enumerate(categorias, 1):
+            resposta += f"{idx}. {cat.upper()}\n"
+        
+        resposta += "\nDigite o número da categoria que deseja visualizar:"
+        chatbot_assistant.awaiting_category_selection = True
+        return resposta
+
+    if hasattr(chatbot_assistant, 'awaiting_category_selection') and chatbot_assistant.awaiting_category_selection:
+        try:
+            selected_index = int(input_message) - 1
+            categorias = ['insulfim', 'multimidia', 'som', 'ppf']
+            if 0 <= selected_index < len(categorias):
+                categoria = categorias[selected_index]
+                chatbot_assistant.awaiting_category_selection = False
+                return listar_produtos_por_categoria(chatbot_assistant, categoria)
+            else:
+                return "❌ Número inválido. Digite um número entre 1 e 4"
+        except ValueError:
+            return "❌ Por favor, digite um número válido (1-4)"
+
+    try:
+        selected_index = int(input_message) - 1
+        if 0 <= selected_index < len(chatbot_assistant.produtos_temp):
+            produto = chatbot_assistant.produtos_temp[selected_index]
+            chatbot_assistant.selected_products.append(produto)
+            
+            resposta = f"✅ Adicionado: {produto['nome']}\n\n"
+            resposta += "📦 Produtos selecionados até agora:\n"
+            for idx, p in enumerate(chatbot_assistant.selected_products, 1):
+                resposta += f"{idx}. {p['nome']} ({p.get('categoria', '')})\n"
+            
+            resposta += "\n📌 Você pode:\n"
+            resposta += "- Digitar outro número para adicionar mais produtos desta categoria\n"
+            resposta += "- Digitar 'outros' para ver outras categorias\n"
+            resposta += "- 'finalizar' para concluir\n"
+            resposta += "- 'cancelar' para recomeçar"
+            
+            return resposta
+        else:
+            return f"❌ Número inválido. Digite entre 1-{len(chatbot_assistant.produtos_temp)}, 'outros', 'finalizar' ou 'cancelar'"
+    
+    except ValueError:
+        return "❌ Opção inválida. Digite um número, 'outros', 'finalizar' ou 'cancelar'"
+    
+def iniciar_agendamento(chatbot_assistant):
+    if not chatbot_assistant.selected_product:
+        return "Nenhum produto selecionado. Por favor, selecione um produto primeiro."
+    
+    if not chatbot_assistant.client_data.get('nome'):
+        return ("Para agendar, preciso dos seus dados. "
+                "Por favor, envie no formato: Nome, Email, Telefone")
+    
+    return ("Vamos agendar! Por favor, informe a data e horário desejados "
+            "(formato: DD/MM/AAAA HH:MM):")
+
+def confirmar_agendamento(chatbot_assistant, input_message):
+    if input_message.lower() == 'cancelar':
+        chatbot_assistant.awaiting_scheduling = False
+        chatbot_assistant.temp_agendamento_data = None
+        return "Agendamento cancelado. Como posso ajudar?"
+    
+    try:
+        # Primeiro verifica se é confirmação
+        if chatbot_assistant.awaiting_scheduling_confirmation:
+            if input_message.lower() in ['sim', 'confirmar']:
+                if not chatbot_assistant.temp_agendamento_data:
+                    return "❌ Dados do agendamento perdidos. Por favor, recomece."
+                
+                # Guarda os dados em variáveis locais antes de limpar
+                agendamento_data = chatbot_assistant.temp_agendamento_data
+                produtos_nomes = [p['nome'] for p in chatbot_assistant.selected_products]
+                
+                # Cria o agendamento
+                agendamento = Agendamento(
+                    cliente_id=agendamento_data['cliente_id'],
+                    data_agendada=agendamento_data['data'],
+                    produtos=agendamento_data['produtos'],
+                    status="confirmado"
+                )
+                
+                agendamento_id = agendamento.criar_agendamento()
+                
+                # Limpa os estados
+                chatbot_assistant.selected_products = []
+                chatbot_assistant.awaiting_scheduling = False
+                chatbot_assistant.awaiting_scheduling_confirmation = False
+                chatbot_assistant.temp_agendamento_data = None
+                
+                if agendamento_id:
+                    return (f"✅ Agendamento confirmado!\n\n"
+                           f"📅 Data: {agendamento_data['data'].strftime('%d/%m/%Y %H:%M')}\n"
+                           f"🔧 Serviços: {', '.join(produtos_nomes)}\n"
+                           f"📋 ID: {agendamento_id}\n\n"
+                           "Obrigado por agendar conosco!")
+                return "❌ Não foi possível confirmar o agendamento."
+            
+            elif input_message.lower() == 'alterar data':
+                chatbot_assistant.awaiting_scheduling_confirmation = False
+                return "Por favor, informe a nova data (DD/MM/AAAA HH:MM):"
+            
+            else:
+                chatbot_assistant.awaiting_scheduling_confirmation = False
+                chatbot_assistant.temp_agendamento_data = None
+                return "Agendamento não confirmado. Como posso ajudar?"
+        
+        # Processamento da data
+        data_agendada = datetime.strptime(input_message, "%d/%m/%Y %H:%M")
+        
+        # Verifica dados necessários
+        if not chatbot_assistant.selected_products:
+            return "❌ Nenhum produto selecionado. Por favor, recomece."
+        
+        # Busca o cliente
+        cliente = Cliente(
+            chatbot_assistant.client_data['nome'],
+            chatbot_assistant.client_data['email'],
+            chatbot_assistant.client_data['telefone']
+        )
+        cliente_db = cliente.buscar_por_telefone(cliente.telefone)
+        
+        if not cliente_db:
+            return "❌ Cliente não encontrado. Por favor, cadastre-se primeiro."
+
+        # Prepara dados para confirmação
+        chatbot_assistant.temp_agendamento_data = {
+            'cliente_id': str(cliente_db['_id']),
+            'data': data_agendada,
+            'produtos': [str(p['_id']) for p in chatbot_assistant.selected_products]
+        }
+        
+        # Prepara resumo
+        resposta = "📋 Confirme o agendamento:\n\n"
+        resposta += f"📅 Data: {data_agendada.strftime('%d/%m/%Y %H:%M')}\n"
+        resposta += "🔧 Serviços:\n"
+        for p in chatbot_assistant.selected_products:
+            resposta += f"- {p['nome']} ({p.get('categoria', '')})\n"
+        
+        total = sum(p['preco'] + p.get('preco_mao_obra', 0) for p in chatbot_assistant.selected_products)
+        resposta += f"\n💳 Valor Total: R${total:.2f}\n\n"
+        resposta += "Digite:\n- 'confirmar' para finalizar\n- 'cancelar' para abortar\n- 'alterar data' para corrigir"
+        
+        chatbot_assistant.awaiting_scheduling_confirmation = True
+        return resposta
+    
+    except ValueError:
+        return "❌ Formato inválido. Use DD/MM/AAAA HH:MM ou comandos ('confirmar', 'cancelar', 'alterar data')"
 
 if __name__ == '__main__':
-    assistant = ChatbotAssistant('intents.json')
+    function_mappings = {
+        "cadastrar_cliente": cadastrar_cliente,
+        "listar_produtos": listar_produtos_por_categoria,  
+        "listar_todos_produtos": listar_todos_produtos,    
+        "iniciar_agendamento": iniciar_agendamento
+    }
+    assistant = ChatbotAssistant('app/chatbot/intents.json', function_mappings=function_mappings)
     assistant.parse_intents()
     assistant.prepare_data()
     assistant.train_model(batch_size=8, lr=0.001, epochs=100)
