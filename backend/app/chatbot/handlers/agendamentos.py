@@ -1,10 +1,10 @@
-from datetime import datetime
-
+from datetime import datetime, timedelta, timezone
 from app.models.agendamento import Agendamento
 from app.models.cliente import Cliente
-
+from app.google.calendario import GoogleCalendarService 
 
 def iniciar_agendamento(chatbot_assistant):
+    """Mantido igual ao seu original"""
     if not chatbot_assistant.selected_product:
         return "Nenhum produto selecionado. Por favor, selecione um produto primeiro."
     
@@ -22,17 +22,15 @@ def confirmar_agendamento(chatbot_assistant, input_message):
         return "Agendamento cancelado. Como posso ajudar?"
     
     try:
-        # Primeiro verifica se é confirmação
         if chatbot_assistant.awaiting_scheduling_confirmation:
             if input_message.lower() in ['sim', 'confirmar']:
                 if not chatbot_assistant.temp_agendamento_data:
                     return "❌ Dados do agendamento perdidos. Por favor, recomece."
                 
-                # Guarda os dados em variáveis locais antes de limpar
                 agendamento_data = chatbot_assistant.temp_agendamento_data
                 produtos_nomes = [p['nome'] for p in chatbot_assistant.selected_products]
                 
-                # Cria o agendamento
+                # 1. Cria no MongoDB
                 agendamento = Agendamento(
                     cliente_id=agendamento_data['cliente_id'],
                     data_agendada=agendamento_data['data'],
@@ -42,19 +40,40 @@ def confirmar_agendamento(chatbot_assistant, input_message):
                 
                 agendamento_id = agendamento.criar_agendamento()
                 
+                if not agendamento_id:
+                    return "❌ Não foi possível confirmar o agendamento."
+
+                # 2. Sincroniza com Google Calendar (novo)
+                try:
+                    calendar = GoogleCalendarService()
+                    event_data = {
+                        "summary": f"Agendamento - {chatbot_assistant.client_data['nome']}",
+                        "description": f"Produtos: {', '.join(produtos_nomes)}",
+                        "start_time": agendamento_data['data'],
+                        "end_time": agendamento_data['data'] + timedelta(hours=1)
+                    }
+                    google_event = calendar.create_event(event_data)
+                    
+                    if google_event:
+                        # Atualiza MongoDB com ID do Google
+                        Agendamento.atualizar_agendamento(
+                            agendamento_id,
+                            {"google_event_id": google_event["id"]}
+                        )
+                except Exception as e:
+                    print(f"Erro Google Calendar (não crítico): {e}")
+
                 # Limpa os estados
                 chatbot_assistant.selected_products = []
                 chatbot_assistant.awaiting_scheduling = False
                 chatbot_assistant.awaiting_scheduling_confirmation = False
                 chatbot_assistant.temp_agendamento_data = None
                 
-                if agendamento_id:
-                    return (f"✅ Agendamento confirmado!\n\n"
-                           f"📅 Data: {agendamento_data['data'].strftime('%d/%m/%Y %H:%M')}\n"
-                           f"🔧 Serviços: {', '.join(produtos_nomes)}\n"
-                           f"📋 ID: {agendamento_id}\n\n"
-                           "Obrigado por agendar conosco!")
-                return "❌ Não foi possível confirmar o agendamento."
+                return (f"✅ Agendamento confirmado!\n\n"
+                       f"📅 Data: {agendamento_data['data'].strftime('%d/%m/%Y %H:%M')}\n"
+                       f"🔧 Serviços: {', '.join(produtos_nomes)}\n"
+                       f"📋 ID: {agendamento_id}\n\n"
+                       "Obrigado por agendar conosco!")
             
             elif input_message.lower() == 'alterar data':
                 chatbot_assistant.awaiting_scheduling_confirmation = False
@@ -65,14 +84,12 @@ def confirmar_agendamento(chatbot_assistant, input_message):
                 chatbot_assistant.temp_agendamento_data = None
                 return "Agendamento não confirmado. Como posso ajudar?"
         
-        # Processamento da data
-        data_agendada = datetime.strptime(input_message, "%d/%m/%Y %H:%M")
+        # Processamento da data (mantido)
+        data_agendada = datetime.strptime(input_message, "%d/%m/%Y %H:%M").replace(tzinfo=timezone.utc)  # Adicionado timezone
         
-        # Verifica dados necessários
         if not chatbot_assistant.selected_products:
             return "❌ Nenhum produto selecionado. Por favor, recomece."
         
-        # Busca o cliente
         cliente = Cliente(
             chatbot_assistant.client_data['nome'],
             chatbot_assistant.client_data['email'],
@@ -83,14 +100,13 @@ def confirmar_agendamento(chatbot_assistant, input_message):
         if not cliente_db:
             return "❌ Cliente não encontrado. Por favor, cadastre-se primeiro."
 
-        # Prepara dados para confirmação
         chatbot_assistant.temp_agendamento_data = {
             'cliente_id': str(cliente_db['_id']),
             'data': data_agendada,
             'produtos': [str(p['_id']) for p in chatbot_assistant.selected_products]
         }
         
-        # Prepara resumo
+        # Restante mantido igual
         resposta = "📋 Confirme o agendamento:\n\n"
         resposta += f"📅 Data: {data_agendada.strftime('%d/%m/%Y %H:%M')}\n"
         resposta += "🔧 Serviços:\n"

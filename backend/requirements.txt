@@ -10,3 +10,5 @@ python-dotenv
 torch
 numpy
 nltk
+google-api-python-client
+google-auth-*
