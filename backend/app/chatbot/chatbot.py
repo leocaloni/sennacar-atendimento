@@ -232,7 +232,7 @@ class ChatbotAssistant:
         if self.intents_responses[predicted_intent]:
             return random.choice(self.intents_responses[predicted_intent])
         else:
-            return "Desculpe, não entendi. Poderia reformular sua pergunta? Caso queira posso te transferir para um de nossos atendentes, é só digitar 'trasnferir' que eu já te transifiro!"
+            return "Desculpe, não entendi. Poderia reformular sua pergunta? Caso queira falar com um de nossos atendentes, é só chamar no WhatsApp"
     
     def _generate_confirmation_message(self):
         return (

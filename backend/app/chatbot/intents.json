@@ -103,20 +103,6 @@
       ]
     },
     {
-      "tag": "contato_humano",
-      "patterns": [
-        "falar com atendente",
-        "quero um humano",
-        "me transfere",
-        "atendimento real",
-        "transferir"
-      ],
-      "responses": [
-        "Entendi! Vou transferir você para um atendente. Um momento...",
-        "Claro! Um especialista já vai te atender em alguns instantes."
-      ]
-    },
-    {
       "tag": "problemas",
       "patterns": ["não resolveu meu problema", "não é isso", "ta errado"],
       "responses": [
@@ -219,8 +205,8 @@
         "gostaria de instalar ppf no meu carro"
       ],
       "responses": [
-        "O preço do PPF (película de proteção de pintura) pode variar dependendo do modelo do carro, devido à isso a análise deve ser feita pessoalmente, ou você pode perguntar à um de nossos especialistas. Caso queira que eu te passe à um atendente digite 'transferir' que eu já te transfiro!",
-        "O valor do PPF depende do modelo do seu carro. Para uma análise mais precisa, recomendamos uma visita ou falar diretamente com um especialista. Se quiser, digite 'transferir'!"
+        "O preço do PPF (película de proteção de pintura) pode variar dependendo do modelo do carro, devido à isso a análise deve ser feita pessoalmente, ou você pode perguntar à um de nossos especialistas. Nos chame no WhatsApp (11) 99999-9999 para que possamos analisar as opções!",
+        "O valor do PPF depende do modelo do seu carro. Para uma análise mais precisa, recomendamos uma visita ou falar diretamente com um especialista. Nos ligue ou chame no WhatsApp (11) 99999-9999 que resolvemos isso!"
       ]
     },
     {
@@ -441,8 +427,8 @@
         "instalar caixa de protecao da pintura"
       ],
       "responses": [
-        "Claro! O orçamento de PPF varia conforme o modelo do carro e as áreas que deseja proteger! Para uma análise melhor recomendo falar com um de nossos atendentes, digite 'transferir' que eu já te trasnfiro para um especialista.",
-        "Para o PPF um especialista deve analisar o modelo do carro e as áreas que deseja proteger! Para uma melhor análise recomendamos uma visita presencial ou falar com um de nossos atendentes! Você pode falar via WhatsApp ou eu posso te trasnferir aqui mesmo à um de nossos especialistas, é só digitar 'trasnferir' que eu já te trasnfiro para um atendente!"
+        "Claro! O orçamento de PPF varia conforme o modelo do carro e as áreas que deseja proteger! Contate via WhatsApp (11) 99999-9999, para que um especialista analise o seu caso.",
+        "Para o PPF um especialista deve analisar o modelo do carro e as áreas que deseja proteger! Para uma melhor análise recomendamos uma visita presencial ou falar com um de nossos atendentes! Você pode falar via WhatsApp ou eu posso te trasnferir aqui mesmo à um de nossos especialistas, nos mande mensagem via WhatsApp (11) 99999-9999!"
       ]
     },
     {
