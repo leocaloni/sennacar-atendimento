@@ -1,0 +1,74 @@
+.nav-bar {
+  background-color: #eef1f6;
+  display: flex;
+  align-items: center;
+}
+
+.logo-principal {
+  width: 200px;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  padding-left: 60px;
+}
+
+.nav-bar-itens {
+  list-style-type: none;
+  display: flex;
+  padding-left: 12%;
+  font-family: Poppins;
+}
+
+.list-item {
+  padding-left: 100px;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.list-item a {
+  text-decoration: none;
+  color: black;
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.list-item-button {
+  padding-left: 100px;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.list-item-button a {
+  text-decoration: none;
+  color: white;
+  background-color: #000679;
+  padding: 15px;
+  border-radius: 15px;
+  transition: all 0.3s ease;
+}
+
+.list-item a:hover {
+  text-decoration: none;
+  color: black;
+}
+
+.list-item a::after {
+  content: "";
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background-color: black;
+  transition: all 0.3s ease-in-out;
+  opacity: 0;
+}
+
+.list-item a:hover::after {
+  width: 100%;
+  opacity: 1;
+}
+
+.list-item-button a:hover {
+  background-color: #00044d;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}

@@ -1,0 +1,75 @@
+@import url("https://fonts.googleapis.com/css?family=Poppins");
+
+.footer {
+  background-color: #000679;
+  color: white;
+  padding: 20px 10px 10px;
+  font-family: Poppins;
+}
+
+.footer-content {
+  display: flex;
+  justify-content: center;
+  max-width: 1200px;
+  margin: 0 auto;
+  flex-wrap: wrap;
+  gap: 60px;
+  padding-bottom: 20px;
+}
+
+.footer-column {
+  flex: 1;
+  min-width: 250px;
+}
+
+.footer-title {
+  font-size: 1.3rem;
+  margin-bottom: 25px;
+  position: relative;
+  padding-bottom: 15px;
+  font-weight: 600;
+  width: 100%;
+}
+
+.footer-title::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  width: 80px;
+  height: 2px;
+  background: white;
+  transform: translateX(-50%);
+}
+.contact-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 15px;
+  max-width: 100%;
+  justify-content: center;
+}
+
+.footer-icon {
+  width: 22px;
+  height: 22px;
+  filter: brightness(0) invert(1);
+}
+
+.footer-bottom {
+  text-align: center;
+  padding-top: 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.3);
+  font-size: 0.9rem;
+  margin-top: 20px;
+}
+
+@media (max-width: 768px) {
+  .footer-content {
+    gap: 40px;
+  }
+
+  .footer-title::after {
+    width: 60px;
+  }
+}
