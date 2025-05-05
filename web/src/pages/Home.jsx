@@ -63,7 +63,7 @@ function Home() {
               <p>Insulfim</p>
             </div>
           </div>
-          <Link to="/chatbot" className="botao-mais-servicos">
+          <Link to="/servicos" className="botao-mais-servicos">
             Ver todos os serviços
           </Link>
         </div>
