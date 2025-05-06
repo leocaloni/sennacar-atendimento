@@ -1,5 +1,10 @@
-// Chatbot.jsx
-export default function Sobre() {
-  // Adicione "default"
-  return <div>Componente do Chatbot</div>;
+import React from "react";
+import { Link } from "react-router-dom";
+
+import "./Sobre.css";
+
+function Sobre() {
+  return <>sobre</>;
 }
+
+export default Sobre;

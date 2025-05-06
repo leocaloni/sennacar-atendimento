@@ -1,0 +1,133 @@
+html {
+  right: auto;
+  left: auto;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.foto-principal {
+  text-align: center;
+  width: 100%;
+  height: 280px;
+  overflow: hidden;
+  position: relative;
+}
+
+.foto-satelite {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  filter: blur(5px);
+}
+
+.escurecedor {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.6);
+  z-index: 1;
+}
+
+.texto-img-principal {
+  position: absolute;
+  top: 50%;
+  left: 40px;
+  transform: translateY(-50%);
+  color: white;
+  z-index: 2;
+  text-align: left;
+  font-family: Poppins;
+  font-weight: bolder;
+}
+
+.texto-img-principal h1 {
+  margin: 0;
+  font-size: 3rem;
+  font-family: Poppins;
+  font-weight: bolder;
+}
+
+.contatos-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 60px 40px;
+  max-width: 1200px;
+  margin: 0 auto;
+  gap: 80px;
+}
+
+.texto {
+  flex: 1;
+  max-width: 400px;
+  margin-top: -30px;
+}
+
+.texto h2 {
+  font-size: 2.2rem;
+  margin-bottom: 10px;
+  font-family: Poppins;
+  font-weight: bold;
+  color: #000679;
+  right: auto;
+  left: auto;
+}
+
+.titulo {
+  font-size: 2.2rem;
+  margin-bottom: 10px;
+  font-family: Poppins;
+  font-weight: bold;
+  color: #000679;
+}
+.subtitulo {
+  font-size: 1.1rem;
+  margin-bottom: 20px;
+  color: #555;
+  font-family: Poppins;
+}
+
+.lista-contatos {
+  list-style: none;
+  padding: 0;
+  width: 100%;
+  max-width: 400px;
+}
+
+.item-contato {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 20px;
+  font-family: Poppins;
+  font-size: 1.1rem;
+  padding: 8px 15px;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.item-contato:hover {
+  background: rgba(0, 6, 121, 0.05);
+}
+
+.icon-contato {
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+  order: -1;
+}
+
+.mapa-container {
+  flex: 1.5;
+  height: 350px;
+  min-width: 0;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  margin-top: 20px;
+  margin-left: 20px;
+}

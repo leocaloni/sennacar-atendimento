@@ -64,6 +64,21 @@
   margin-top: 20px;
 }
 
+a:hover .contact-item span {
+  color: #00df60;
+  transition: color 0.3s ease;
+}
+
+a:hover .footer-icon {
+  transform: scale(1.1);
+  transition: transform 0.3s ease;
+}
+
+.contact-item:hover span {
+  color: #00df60;
+  transition: color 0.3s ease;
+}
+
 @media (max-width: 768px) {
   .footer-content {
     gap: 40px;
