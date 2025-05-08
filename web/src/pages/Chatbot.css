@@ -1,0 +1,52 @@
+html {
+  right: auto;
+  left: auto;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.foto-principal {
+  text-align: center;
+  width: 100%;
+  height: 280px;
+  overflow: hidden;
+  position: relative;
+}
+
+.foto-bot {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  filter: blur(5px);
+}
+
+.escurecedor {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.6);
+  z-index: 1;
+}
+
+.texto-img-principal {
+  position: absolute;
+  top: 50%;
+  left: 40px;
+  transform: translateY(-50%);
+  color: white;
+  z-index: 2;
+  text-align: left;
+  font-family: Poppins;
+  font-weight: bolder;
+}
+
+.texto-img-principal h1 {
+  margin: 0;
+  font-size: 3rem;
+  font-family: Poppins;
+  font-weight: bolder;
+}

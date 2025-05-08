@@ -64,6 +64,8 @@ html {
   min-height: 400px;
   width: 100%;
   box-sizing: border-box;
+  align-items: center;
+  justify-content: space-between;
 }
 
 .porque-escolher {
@@ -75,6 +77,8 @@ html {
   min-height: 400px;
   width: 100%;
   box-sizing: border-box;
+  align-items: center;
+  justify-content: space-between;
 }
 
 .texto {
@@ -86,6 +90,7 @@ html {
   padding: 20px;
   text-align: center;
   justify-content: center;
+  margin: 0 auto;
 }
 
 .texto h2 {
@@ -131,6 +136,13 @@ html {
   align-items: center;
   justify-content: center;
   min-width: 100px;
+  padding: 3px;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.item-servicos:hover {
+  background: rgba(0, 6, 121, 0.05);
 }
 
 .item-servicos img {
@@ -175,8 +187,7 @@ html {
 
 .slick-slide img {
   width: 100%;
-  height: auto;
-  max-height: 400px;
+  height: 400px;
   object-fit: cover;
   border-radius: 10px;
 }
@@ -277,4 +288,62 @@ html {
   height: 28px;
   flex-shrink: 0;
   order: -1;
+}
+
+@media (max-width: 768px) {
+  .nossos-servicos-inicio,
+  .porque-escolher {
+    flex-direction: column;
+    padding: 30px 20px;
+    gap: 20px;
+  }
+
+  .carrossel,
+  .carrossel2 {
+    max-width: 100%;
+    padding: 0;
+    order: -1;
+  }
+
+  .texto-img-principal {
+    left: 20px;
+    right: 20px;
+    text-align: center;
+  }
+
+  .texto-img-principal h1 {
+    font-size: 2rem;
+  }
+}
+
+.texto-img-principal {
+  left: 5%;
+  right: 5%;
+  text-align: left;
+}
+
+.carrossel,
+.carrossel2 {
+  min-width: 300px;
+}
+
+@media (max-width: 480px) {
+  .icons-inicio-serivcos-grid {
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .item-servicos p {
+    white-space: normal;
+  }
+}
+
+@media (max-width: 768px) {
+  .slick-prev {
+    left: 5px !important;
+  }
+
+  .slick-next {
+    right: 5px !important;
+  }
 }
