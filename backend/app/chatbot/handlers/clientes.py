@@ -32,4 +32,4 @@ def cadastrar_cliente(chatbot_assistant):
     
     except Exception as e:
         print(f"Erro ao processar cliente: {e}")
-        return True  # Continua o fluxo mesmo se houver erro no cadastro
+        return True 
