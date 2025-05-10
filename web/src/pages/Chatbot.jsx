@@ -16,6 +16,7 @@ function Chatbot() {
     },
   ]);
   const [inputValue, setInputValue] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef(null);
 
   const scrollToBottom = () => {
@@ -26,21 +27,56 @@ function Chatbot() {
     scrollToBottom();
   }, [messages]);
 
-  const handleSendMessage = () => {
-    if (inputValue.trim() === "") return;
+  const sendMessageToServer = async (message) => {
+    setIsLoading(true);
+    try {
+      const token = localStorage.getItem("token");
+      const response = await fetch("http://localhost:8000/chatbot/message", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ message }),
+      });
 
-    setMessages((prev) => [...prev, { text: inputValue, sender: "user" }]);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.error("Erro:", error);
+      return {
+        response:
+          "Serviço indisponível no momento. Por favor, tente novamente mais tarde ou entre em contato diretamente pelo WhatsApp.",
+        options: null,
+      };
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleSendMessage = async () => {
+    if (inputValue.trim() === "" || isLoading) return;
+
+    // Adiciona mensagem do usuário
+    const userMessage = { text: inputValue, sender: "user" };
+    setMessages((prev) => [...prev, userMessage]);
     setInputValue("");
 
-    setTimeout(() => {
-      setMessages((prev) => [
-        ...prev,
-        {
-          text: "Claro! Me passe seu nome, email e telefone para que possamos agendar!",
-          sender: "bot",
-        },
-      ]);
-    }, 1000);
+    // Envia para o servidor e obtém resposta
+    const { response, options } = await sendMessageToServer(inputValue);
+
+    // Adiciona resposta do bot
+    setMessages((prev) => [
+      ...prev,
+      {
+        text: response,
+        sender: "bot",
+        options: options,
+      },
+    ]);
   };
 
   const handleKeyDown = (e) => {
@@ -49,30 +85,46 @@ function Chatbot() {
     }
   };
 
-  const handleOptionClick = (option) => {
+  const handleOptionClick = async (option) => {
+    // Adiciona a opção selecionada como mensagem do usuário
     setMessages((prev) => [...prev, { text: option, sender: "user" }]);
 
-    let response;
-    switch (option) {
-      case "Agendar":
-        response =
-          "Claro! Me passe seu nome, email e telefone para que possamos agendar!";
-        break;
-      case "Ver serviços":
-        response =
-          "Trabalhamos com instalações de insulfilm, PPF (película de proteção de pintura), multimídias e caixas de som!";
-        break;
-      case "Tirar dúvida":
-        response = "Estou aqui para ajudar! Qual sua dúvida?";
-        break;
-      default:
-        response = "Como posso te ajudar?";
-    }
+    // Envia para o servidor e obtém resposta
+    const { response, options } = await sendMessageToServer(option);
 
-    setTimeout(() => {
-      setMessages((prev) => [...prev, { text: response, sender: "bot" }]);
-    }, 800);
+    // Adiciona resposta do bot
+    setMessages((prev) => [
+      ...prev,
+      {
+        text: response,
+        sender: "bot",
+        options: options,
+      },
+    ]);
   };
+
+  // // Função para resetar o chatbot (opcional)
+  // const resetChatbot = async () => {
+  //   try {
+  //     const token = localStorage.getItem("token");
+  //     await fetch("http://localhost:8000/chatbot/reset", {
+  //       method: "POST",
+  //       headers: {
+  //         Authorization: `Bearer ${token}`,
+  //       },
+  //     });
+  //     // Reseta as mensagens para o estado inicial
+  //     setMessages([
+  //       {
+  //         text: "Bem vindo(a) à SennaCar, como posso te ajudar hoje?",
+  //         sender: "bot",
+  //         options: ["Agendar", "Ver serviços", "Tirar dúvida"],
+  //       },
+  //     ]);
+  //   } catch (error) {
+  //     console.error("Erro ao resetar chatbot:", error);
+  //   }
+  // };
 
   return (
     <>
@@ -143,6 +195,7 @@ function Chatbot() {
                             key={i}
                             className="option-button"
                             onClick={() => handleOptionClick(option)}
+                            disabled={isLoading}
                           >
                             {option}
                           </button>
@@ -162,8 +215,14 @@ function Chatbot() {
               onChange={(e) => setInputValue(e.target.value)}
               placeholder="Digite sua mensagem..."
               onKeyDown={handleKeyDown}
+              disabled={isLoading}
             />
-            <button onClick={handleSendMessage}>Enviar</button>
+            <button
+              onClick={handleSendMessage}
+              disabled={isLoading || inputValue.trim() === ""}
+            >
+              {isLoading ? "Enviando..." : "Enviar"}
+            </button>
           </div>
         </div>
       </div>

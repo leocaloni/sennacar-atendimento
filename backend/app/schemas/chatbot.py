@@ -1,0 +1,13 @@
+from typing import List, Optional
+from pydantic import BaseModel
+
+
+class ChatbotMessage(BaseModel):
+    message: str
+
+class ChatbotResponse(BaseModel):
+    response: str
+    options: Optional[List[str]]
+
+class ResetResponse(BaseModel):
+    status: str

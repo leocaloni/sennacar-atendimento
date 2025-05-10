@@ -1,91 +1,79 @@
-from datetime import datetime
-from decimal import Decimal
-from typing import List, Optional
-from bson import ObjectId
-from fastapi import APIRouter, HTTPException, status, Depends
-from app.schemas.produto import ProdutoResponse
-from app.models.produto import Produto
-from app.database import get_produtos_collection, get_agendamentos_collection, get_clientes_collection, get_funcionario_collection
-from app.models.cliente import Cliente
-from app.models.agendamento import Agendamento
-from app.models.funcionario import Funcionario
-from app.schemas.funcionario import FuncionarioResponse
-from backend.app.schemas.agendamento import AgendamentoResponse
+from fastapi import APIRouter, HTTPException, Depends, Response
+from fastapi.security import OAuth2PasswordBearer
+from app.chatbot.chatbot import ChatbotAssistant
+from app.chatbot.handlers import *
+import os
+from app.schemas.chatbot import ChatbotMessage, ChatbotResponse, ResetResponse
 
-router = APIRouter(prefix="/chatbot", tags=["Chatbot"])
 
-@router.get("/categoria/{categoria}", response_model=list[ProdutoResponse])
-async def listar_produtos_por_categoria(categoria: str):
-    produtos = Produto.listar_por_categoria(categoria)
-    return [
-        ProdutoResponse(
-            _id=str(produto['_id']),
-            nome=produto['nome'],
-            preco=produto['preco'],
-            preco_mao_obra=produto.get('preco_mao_obra', 0.0),
-            categoria=produto.get('categoria'),
-            descricao=produto.get('descricao')
-        )
-        for produto in produtos
-    ]
+router = APIRouter(
+    prefix="",
+    tags=["Chatbot"]
+)
 
-@router.post("/clientes", status_code=status.HTTP_201_CREATED)
-async def criar_cliente_via_chatbot(
-    nome: str,
-    email: str,
-    telefone: str,
-):
-    novo_cliente = Cliente(nome, email, telefone)
-    cliente_id = novo_cliente.cadastrar_cliente()
 
-    if not cliente_id:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Email ou telefone já cadastrados ou dados inválidos"
-        )
+intents_path = os.path.join(os.path.dirname(__file__), '../chatbot/intents.json')
+function_mappings = {
+    "cadastrar_cliente": cadastrar_cliente,
+    "listar_produtos": listar_produtos_por_categoria,
+    "listar_todos_produtos": listar_todos_produtos,
+    "iniciar_agendamento": iniciar_agendamento
+}
+
+# Inicializa o chatbot
+chatbot = ChatbotAssistant(intents_path, function_mappings)
+chatbot.parse_intents()
+chatbot.load_model('app/chatbot/chatbot_model.pth', 'app/chatbot/dimensions.json')
+
+
+@router.options("/message", include_in_schema=False)
+async def handle_options():
+    return Response(
+        status_code=200,
+        headers={
+            "Access-Control-Allow-Origin": "http://localhost:5173",
+            "Access-Control-Allow-Methods": "POST, OPTIONS",
+            "Access-Control-Allow-Headers": "Content-Type, Authorization",
+            "Access-Control-Allow-Credentials": "true"
+        }
+    )
+
+@router.post("/message", response_model=ChatbotResponse)
+async def process_message(message_data: ChatbotMessage):
+    user_message = message_data.message
     
-    return {"id": cliente_id}
-
-
-@router.post("/", status_code=status.HTTP_201_CREATED)
-async def criar_agendamento(
-    cliente_id: str,
-    data_agendada: datetime,
-    produtos: str,
-    status: Optional[str] = "pendente",
-    observacoes: Optional[str] = "",
-    valor_total: Optional[float] = 0.0
-):
-    lista_produtos = list(set([produto.strip() for produto in produtos.split(",")]))
-    novo_agendamento = Agendamento(cliente_id, data_agendada, lista_produtos, status, observacoes, valor_total)
-    agendamento_id = novo_agendamento.criar_agendamento()
-
-    if not agendamento_id:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Data já reservada ou dados inválidos"
-        )
+    if not user_message:
+        raise HTTPException(status_code=400, detail="Message is required")
     
-    return {"id": agendamento_id}
+    # Processa a mensagem
+    response = chatbot.process_message(user_message)
+    
+    # Verifica se há opções para mostrar
+    options = None
+    if "como posso te ajudar" in response.lower():
+        options = ["Agendar", "Ver serviços", "Tirar dúvida"]
+    
+    return {
+        "response": response,
+        "options": options
+    }
 
-
-@router.get("/", response_model=List[AgendamentoResponse])
-async def listar_agendamentos():
-    agendamentos = Agendamento.listar_todos()
-    if not agendamentos:
-         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Nenhum agendamento encontrado"
-        )
-    return [AgendamentoResponse.from_mongo(agendamento) for agendamento in agendamentos]
-
-
-@router.get("/", response_model=List[FuncionarioResponse])
-async def listar_funcionarios():
-    funcionarios = Funcionario.listar_todos()
-    if not funcionarios:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Nenhum funcionário encontrado"
-        )
-    return [FuncionarioResponse.from_mongo(funcionario) for funcionario in funcionarios]
+@router.post("/reset", response_model=ResetResponse)
+async def reset_chatbot():
+    # Reseta o estado do chatbot para uma nova conversa
+    chatbot.selected_date = []
+    chatbot.client_data = {"nome": None, "email": None, "telefone": None}
+    chatbot.selected_products = []
+    chatbot.awaiting_more_products = False
+    chatbot.produtos_temp = None
+    chatbot.awaiting_product_selection = False
+    chatbot.current_category = None
+    chatbot.selected_product = None
+    chatbot.awaiting_confirmation = False
+    chatbot.client_data_temp = None
+    chatbot.awaiting_scheduling = False
+    chatbot.awaiting_scheduling_confirmation = False
+    chatbot.awaiting_category_selection = False
+    chatbot.temp_agendamento_data = None
+    
+    return {"status": "Chatbot resetado com sucesso"}

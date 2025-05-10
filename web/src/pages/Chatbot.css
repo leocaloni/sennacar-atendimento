@@ -124,7 +124,6 @@ html {
 
 .titulo-chatbot {
   font-size: 1.1rem;
-  padding-top: 15px;
   margin-bottom: 20px;
   color: #000679;
   font-family: Poppins;
@@ -136,12 +135,13 @@ html {
   width: 100%;
   max-width: 1000px;
   height: 600px;
-  border: 1px solid #ddd;
+  border: none;
   border-radius: 10px;
   display: flex;
   flex-direction: column;
   background-color: #b5b5b5;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
 }
 
 .chat-messages {
@@ -231,7 +231,7 @@ html {
 .chat-input {
   display: flex;
   padding: 15px;
-  border-top: 1px solid #ddd;
+  border-top: none;
   background-color: #b5b5b5;
   border-bottom-left-radius: 10px;
   border-bottom-right-radius: 10px;
@@ -240,7 +240,7 @@ html {
 .chat-input input {
   flex: 1;
   padding: 10px 15px;
-  border: 1px solid #ddd;
+  border: none;
   border-radius: 20px;
   outline: none;
   font-size: 1rem;

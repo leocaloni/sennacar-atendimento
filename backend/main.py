@@ -1,6 +1,8 @@
 from fastapi import FastAPI
 from fastapi.security import OAuth2PasswordBearer
-from app.routes import funcionarios, auth, produto, clientes, agendamentos
+from fastapi.middleware.cors import CORSMiddleware
+
+from app.routes import funcionarios, auth, produto, clientes, agendamentos, chatbot
 from fastapi.openapi.utils import get_openapi
 
 app = FastAPI(
@@ -12,8 +14,23 @@ app = FastAPI(
         {"name": "Funcionários", "description": "Operações com funcionários"},
         {"name": "Clientes", "description": "Operações com clientes"},
         {"name": "Agendamentos", "description": "Gestão de agendamentos"},
-        {"name": "Produtos", "description": "Catálogo de produtos"}
+        {"name": "Produtos", "description": "Catálogo de produtos"},
+        {"name": "Chatbot", "description": "Endpoints para o assistente virtual"}
     ]
+)
+
+origins = [
+    "http://localhost",
+    "http://localhost:3000",  # Seu frontend React
+    "http://127.0.0.1:3000",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173", "http://localhost:3000"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
@@ -23,6 +40,7 @@ app.include_router(auth.router, prefix="/auth", tags=["Autenticação"])
 app.include_router(produto.router, prefix="/produtos", tags=["Produtos"])
 app.include_router(clientes.router, prefix="/clientes", tags=["Clientes"])
 app.include_router(agendamentos.router, prefix="/agendamentos", tags=["Agendamentos"])
+app.include_router(chatbot.router, prefix="/chatbot", tags=["Chatbot"])
 
 
 def custom_openapi():
