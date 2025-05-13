@@ -16,7 +16,6 @@ intents_path = os.path.join(os.path.dirname(__file__), '../chatbot/intents.json'
 function_mappings = {
     "cadastrar_cliente": cadastrar_cliente,
     "listar_produtos": listar_produtos_por_categoria,
-    "listar_todos_produtos": listar_todos_produtos,
     "iniciar_agendamento": iniciar_agendamento
 }
 
@@ -45,35 +44,38 @@ async def process_message(message_data: ChatbotMessage):
     if not user_message:
         raise HTTPException(status_code=400, detail="Message is required")
     
-    # Processa a mensagem
+    chatbot.current_message = user_message
+    
+    # Processa a mensagem normalmente primeiro
     response = chatbot.process_message(user_message)
     
-    # Verifica se há opções para mostrar
+    # Se a resposta for um dicionário (já formatado), retorna diretamente
+    if isinstance(response, dict):
+        return response
+    
+    # Verifica se é uma resposta de lista de produtos
+    if "📋 LISTA DE PRODUTOS 📋" in response:
+        return {
+            "response": response,
+            "options": ["Sim", "Não", "Ver outras categorias"]
+        }
+    
+    # Se o usuário respondeu SIM à lista de produtos
+    if user_message.lower() in ['sim', 's'] and chatbot.awaiting_product_selection:
+        product_names = [produto['nome'] for produto in chatbot.produtos_temp]
+        return {
+            "response": "Selecione o produto desejado:",
+            "options": product_names
+        }
+    
+    # Outros casos
     options = None
     if "como posso te ajudar" in response.lower():
         options = ["Agendar", "Ver serviços", "Tirar dúvida"]
+    elif any(phrase in response.lower() for phrase in ["catálogo", "categorias disponíveis"]):
+        options = ["Insulfim", "Multimídia", "Caixas de Som", "PPF"]
     
     return {
         "response": response,
         "options": options
     }
-
-@router.post("/reset", response_model=ResetResponse)
-async def reset_chatbot():
-    # Reseta o estado do chatbot para uma nova conversa
-    chatbot.selected_date = []
-    chatbot.client_data = {"nome": None, "email": None, "telefone": None}
-    chatbot.selected_products = []
-    chatbot.awaiting_more_products = False
-    chatbot.produtos_temp = None
-    chatbot.awaiting_product_selection = False
-    chatbot.current_category = None
-    chatbot.selected_product = None
-    chatbot.awaiting_confirmation = False
-    chatbot.client_data_temp = None
-    chatbot.awaiting_scheduling = False
-    chatbot.awaiting_scheduling_confirmation = False
-    chatbot.awaiting_category_selection = False
-    chatbot.temp_agendamento_data = None
-    
-    return {"status": "Chatbot resetado com sucesso"}

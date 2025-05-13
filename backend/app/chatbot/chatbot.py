@@ -55,27 +55,20 @@ class ChatbotAssistant:
         self.X = None
         self.y = None
 
-        self.selected_date = []
+        self.current_message = ""
         self.client_data = {"nome" : None, "email" : None,"telefone" : None}
         self.selected_products = []
-        self.awaiting_more_products = False
-        self.produtos_por_categoria = {} 
-        self.produtos_por_categoria = {} 
-        self.produtos_temp = None
         self.awaiting_product_selection = False
-        self.current_category = None
-        self.selected_product = None
         self.awaiting_confirmation = False 
         self.client_data_temp = None
         self.awaiting_scheduling = False
         self.awaiting_scheduling_confirmation = False
-        self.awaiting_category_selection = False
-        self.temp_agendamento_data = None
 
     @staticmethod
     def tokenize_and_lemmatize(text):
         lemmatizer = nltk.WordNetLemmatizer()
 
+        text = re.sub(r'[^a-zA-Z0-9áéíóúâêîôûãõç\s]', '', text).lower()
         words = nltk.word_tokenize(text)
         words = [lemmatizer.lemmatize(word.lower()) for word in words]
 
@@ -158,21 +151,10 @@ class ChatbotAssistant:
         self.model.load_state_dict(torch.load(model_path, weights_only=True))
 
     def process_message(self, input_message):
-        category_mapping = {
-        'orcamento_insulfim': 'insulfim',
-        'orcamento_multimidia': 'multimidia',
-        'orcamento_ppf': 'ppf',
-        'orcamento_som': 'som',
-        'agendamento_insulfim': 'insulfim',
-        'agendamento_multimidia': 'multimidia',
-        'agendamento_som': 'som'
-    }
-            
+        self.current_message = input_message
+                
         if self.awaiting_confirmation:
             return self._handle_confirmation(input_message)
-        
-        if self.awaiting_product_selection:
-            return handle_product_selection(self, input_message)
         
         if self.awaiting_scheduling:
             return confirmar_agendamento(self, input_message)
@@ -208,31 +190,19 @@ class ChatbotAssistant:
 
         predicted_class_index = torch.argmax(predictions, dim=1).item()
         predicted_intent = self.intents[predicted_class_index]
-
-        if predicted_intent == 'catalogo_completo':
-            if "listar_todos_produtos" in self.function_mappings:
-                return self.function_mappings["listar_todos_produtos"](self)
-        elif predicted_intent in category_mapping:
-            categoria = category_mapping[predicted_intent]
-            if "listar_produtos" in self.function_mappings:
-                return self.function_mappings["listar_produtos"](self, categoria)
-
-        if predicted_intent in category_mapping:
-            categoria = category_mapping[predicted_intent]
-            if "listar_produtos" in self.function_mappings:
-                return self.function_mappings["listar_produtos"](self, categoria)
-            
+        print(f"Predicted intent: {predicted_intent}")
+        
+        # Se for uma intent de produto, chama a função mas não retorna ainda
         if self.function_mappings and predicted_intent in self.function_mappings:
-            self.function_mappings[predicted_intent](self)
+            response = self.function_mappings[predicted_intent](self)
+            if response:
+                return response
 
-        if self.function_mappings:
-            if predicted_intent in self.function_mappings:
-                self.function_mappings[predicted_intent]()
-
+        # Retorna a resposta padrão da intent
         if self.intents_responses[predicted_intent]:
             return random.choice(self.intents_responses[predicted_intent])
         else:
-            return "Desculpe, não entendi. Poderia reformular sua pergunta? Caso queira falar com um de nossos atendentes, é só chamar no WhatsApp"
+            return "Desculpe, não entendi. Poderia reformular sua pergunta?"
     
     def _generate_confirmation_message(self):
         return (
@@ -269,14 +239,13 @@ class ChatbotAssistant:
 if __name__ == '__main__':
     function_mappings = {
         "cadastrar_cliente": cadastrar_cliente,
-        "listar_produtos": listar_produtos_por_categoria,  
-        "listar_todos_produtos": listar_todos_produtos,    
-        "iniciar_agendamento": iniciar_agendamento
+        "listar_produtos_por_categoria": listar_produtos_por_categoria,
+        "iniciar_agendamento": iniciar_agendamento,
     }
     assistant = ChatbotAssistant('app/chatbot/intents.json', function_mappings=function_mappings)
     assistant.parse_intents()
     assistant.prepare_data()
-    assistant.train_model(batch_size=8, lr=0.001, epochs=100)
+    assistant.train_model(batch_size=8, lr=0.001, epochs=200)
 
     assistant.save_model('app/chatbot/chatbot_model.pth', 'app/chatbot/dimensions.json')
 

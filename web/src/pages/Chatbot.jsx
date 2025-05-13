@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import chatbotimagem from "../assets/chatbot.jpg";
 import telefone from "../assets/telefone-preto.svg";
 import whatsapp from "../assets/whatsapp-preto.svg";
+import enviar from "../assets/enviar.svg";
 
 import "./Chatbot.css";
 
@@ -19,14 +20,6 @@ function Chatbot() {
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef(null);
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
-
-  useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
-
   const sendMessageToServer = async (message) => {
     setIsLoading(true);
     try {
@@ -40,9 +33,8 @@ function Chatbot() {
         body: JSON.stringify({ message }),
       });
 
-      if (!response.ok) {
+      if (!response.ok)
         throw new Error(`HTTP error! status: ${response.status}`);
-      }
 
       return await response.json();
     } catch (error) {
@@ -57,74 +49,49 @@ function Chatbot() {
     }
   };
 
+  const chatMessagesRef = useRef(null);
+  const scrollToBottom = () => {
+    if (chatMessagesRef.current) {
+      chatMessagesRef.current.scrollTo({
+        top: chatMessagesRef.current.scrollHeight,
+        behavior: "smooth",
+      });
+    }
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
   const handleSendMessage = async () => {
     if (inputValue.trim() === "" || isLoading) return;
 
-    // Adiciona mensagem do usuário
     const userMessage = { text: inputValue, sender: "user" };
     setMessages((prev) => [...prev, userMessage]);
     setInputValue("");
 
-    // Envia para o servidor e obtém resposta
     const { response, options } = await sendMessageToServer(inputValue);
 
-    // Adiciona resposta do bot
     setMessages((prev) => [
       ...prev,
-      {
-        text: response,
-        sender: "bot",
-        options: options,
-      },
+      { text: response, sender: "bot", options },
     ]);
   };
 
   const handleKeyDown = (e) => {
-    if (e.key === "Enter") {
-      handleSendMessage();
-    }
+    if (e.key === "Enter") handleSendMessage();
   };
 
   const handleOptionClick = async (option) => {
-    // Adiciona a opção selecionada como mensagem do usuário
     setMessages((prev) => [...prev, { text: option, sender: "user" }]);
 
-    // Envia para o servidor e obtém resposta
     const { response, options } = await sendMessageToServer(option);
 
-    // Adiciona resposta do bot
     setMessages((prev) => [
       ...prev,
-      {
-        text: response,
-        sender: "bot",
-        options: options,
-      },
+      { text: response, sender: "bot", options },
     ]);
   };
-
-  // // Função para resetar o chatbot (opcional)
-  // const resetChatbot = async () => {
-  //   try {
-  //     const token = localStorage.getItem("token");
-  //     await fetch("http://localhost:8000/chatbot/reset", {
-  //       method: "POST",
-  //       headers: {
-  //         Authorization: `Bearer ${token}`,
-  //       },
-  //     });
-  //     // Reseta as mensagens para o estado inicial
-  //     setMessages([
-  //       {
-  //         text: "Bem vindo(a) à SennaCar, como posso te ajudar hoje?",
-  //         sender: "bot",
-  //         options: ["Agendar", "Ver serviços", "Tirar dúvida"],
-  //       },
-  //     ]);
-  //   } catch (error) {
-  //     console.error("Erro ao resetar chatbot:", error);
-  //   }
-  // };
 
   return (
     <>
@@ -155,10 +122,7 @@ function Chatbot() {
           </li>
           <a
             href="https://wa.me/5511940385204"
-            style={{
-              textDecoration: "none",
-              color: "inherit",
-            }}
+            style={{ textDecoration: "none", color: "inherit" }}
             target="_blank"
             rel="noopener noreferrer"
           >
@@ -172,7 +136,7 @@ function Chatbot() {
       <div className="chatbot-container">
         <p className="titulo-chatbot">Nosso assistente virtual está online!</p>
         <div className="chat-box">
-          <div className="chat-messages">
+          <div className="chat-messages" ref={chatMessagesRef}>
             {messages.map((message, index) => (
               <div
                 key={index}
@@ -187,7 +151,12 @@ function Chatbot() {
                 </div>
                 <div className={`message ${message.sender}`}>
                   <div className="message-content">
-                    {message.text}
+                    {message.text.split("\n").map((line, i) => (
+                      <React.Fragment key={i}>
+                        {line}
+                        <br />
+                      </React.Fragment>
+                    ))}
                     {message.sender === "bot" && message.options && (
                       <div className="message-options">
                         {message.options.map((option, i) => (
@@ -221,7 +190,13 @@ function Chatbot() {
               onClick={handleSendMessage}
               disabled={isLoading || inputValue.trim() === ""}
             >
-              {isLoading ? "Enviando..." : "Enviar"}
+              {isLoading ? (
+                "Enviando..."
+              ) : (
+                <>
+                  <img src={enviar} alt="Enviar" />
+                </>
+              )}
             </button>
           </div>
         </div>
