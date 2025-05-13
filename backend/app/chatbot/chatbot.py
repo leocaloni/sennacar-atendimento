@@ -18,7 +18,11 @@ from app.models.agendamento import Agendamento
 from app.chatbot.handlers import *
 from datetime import datetime
 
-from app.chatbot.handlers.produtos import selecionar_produto
+from app.chatbot.handlers.produtos import (
+    selecionar_produto,
+    remover_produto,
+    ver_produtos_selecionados,
+)
 
 
 class ChatbotModel(nn.Module):
@@ -175,6 +179,10 @@ class ChatbotAssistant:
             elif input_message == "Quero comprar":
                 return selecionar_produto(self)
 
+        if input_message == "Ver meus produtos":
+            if "ver_produtos_selecionados" in self.function_mappings:
+                return self.function_mappings["ver_produtos_selecionados"](self)
+
         if self.awaiting_confirmation:
             return self._handle_confirmation(input_message)
 
@@ -266,8 +274,10 @@ class ChatbotAssistant:
 
 if __name__ == "__main__":
     function_mappings = {
-        "listar_produtos_por_categoria": listar_produtos_por_categoria,
+        "listar_produtos": listar_produtos_por_categoria,
         "selecionar_produto": selecionar_produto,
+        "ver_produtos_selecionados": ver_produtos_selecionados,
+        "remover_produto": remover_produto,
         "cadastrar_cliente": cadastrar_cliente,
         "iniciar_agendamento": iniciar_agendamento,
     }

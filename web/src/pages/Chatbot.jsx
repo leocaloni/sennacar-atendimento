@@ -17,11 +17,72 @@ function Chatbot() {
     },
   ]);
 
-  const exibirFormulario = messages.some(
-    (message) =>
-      message.sender == "bot" &&
-      message.text.toLowerCase().includes("coplete com seus dados")
-  );
+  const [formData, setFormData] = useState({
+    nome: "",
+    email: "",
+    telefone: "",
+  });
+
+  const handleFormSubmit = async (e) => {
+    e.preventDefault();
+
+    // Validação básica
+    if (!formData.nome || !formData.email || !formData.telefone) {
+      setMessages((prev) => [
+        ...prev,
+        {
+          text: "Por favor, preencha todos os campos do formulário.",
+          sender: "bot",
+        },
+      ]);
+      return;
+    }
+
+    // Envia os dados para o backend
+    const { response, options } = await sendMessageToServer(
+      JSON.stringify(formData)
+    );
+
+    setMessages((prev) => [
+      ...prev,
+      { text: response, sender: "bot", options },
+    ]);
+
+    // Limpa o formulário
+    setFormData({ nome: "", email: "", telefone: "" });
+  };
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  // Modifique o handleOptionClick para mostrar o formulário quando necessário
+  const handleOptionClick = async (option) => {
+    setMessages((prev) => [...prev, { text: option, sender: "user" }]);
+
+    if (option === "Agendar instalação") {
+      // Adiciona o formulário como uma mensagem do bot
+      setMessages((prev) => [
+        ...prev,
+        {
+          sender: "bot",
+          form: true,
+          text: "Por favor, preencha seus dados para agendar a instalação:",
+        },
+      ]);
+      return;
+    }
+
+    const { response, options } = await sendMessageToServer(option);
+    setMessages((prev) => [
+      ...prev,
+      { text: response, sender: "bot", options },
+    ]);
+  };
 
   const [inputValue, setInputValue] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -89,17 +150,6 @@ function Chatbot() {
     if (e.key === "Enter") handleSendMessage();
   };
 
-  const handleOptionClick = async (option) => {
-    setMessages((prev) => [...prev, { text: option, sender: "user" }]);
-
-    const { response, options } = await sendMessageToServer(option);
-
-    setMessages((prev) => [
-      ...prev,
-      { text: response, sender: "bot", options },
-    ]);
-  };
-
   return (
     <>
       <div className="foto-principal">
@@ -164,6 +214,47 @@ function Chatbot() {
                         <br />
                       </React.Fragment>
                     ))}
+                    {message.form && (
+                      <form
+                        onSubmit={handleFormSubmit}
+                        className="formulario-dados"
+                      >
+                        <div style={{ width: "100%" }}>
+                          {" "}
+                          <input
+                            type="text"
+                            name="nome"
+                            placeholder="Nome"
+                            className="input-form"
+                            value={formData.nome}
+                            onChange={handleInputChange}
+                            required
+                          />
+                          <input
+                            type="email"
+                            name="email"
+                            placeholder="Email"
+                            className="input-form"
+                            value={formData.email}
+                            onChange={handleInputChange}
+                            required
+                          />
+                          <input
+                            type="tel"
+                            name="telefone"
+                            placeholder="Telefone"
+                            className="input-form"
+                            value={formData.telefone}
+                            onChange={handleInputChange}
+                            required
+                          />
+                          <button type="submit" className="botao-enviar-form">
+                            Enviar dados
+                          </button>
+                        </div>
+                      </form>
+                    )}
+
                     {message.sender === "bot" && message.options && (
                       <div className="message-options">
                         {message.options.map((option, i) => (
@@ -184,19 +275,6 @@ function Chatbot() {
             ))}
             <div ref={messagesEndRef} />
           </div>
-          {exibirFormulario && (
-            <div className="formulario-dados">
-              <input type="text" placeholder="Nome" className="input-form" />
-              <input type="email" placeholder="Email" className="input-form" />
-              <input type="tel" placeholder="Telefone" className="input-form" />
-              <button
-                onClick={() => alert("Enviado!")}
-                className="botao-enviar-form"
-              >
-                Enviar dados
-              </button>
-            </div>
-          )}
           <div className="chat-input">
             <input
               type="text"

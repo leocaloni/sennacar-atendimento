@@ -63,7 +63,7 @@ def listar_produtos_por_categoria(chatbot_assistant, categoria=None):
     ):
         resposta += "\n\nVocê já tem produtos selecionados. Selecione uma opção:"
         options = [
-            "Quero comprar",  # Para adicionar produtos desta categoria
+            "Quero comprar",
             "Ver meus produtos",
             "Agendar instalação",
             "Cancelar",
@@ -136,10 +136,80 @@ def selecionar_produto(chatbot_assistant, produto=None):
             "response": resposta,
             "options": [
                 "Adicionar mais produtos",
-                "Ver meus produtos",
                 "Agendar instalação",
                 "Cancelar",
             ],
         }
 
     return "Por favor, selecione um produto válido da lista."
+
+
+def ver_produtos_selecionados(chatbot_assistant):
+    if (
+        not hasattr(chatbot_assistant, "selected_products")
+        or not chatbot_assistant.selected_products
+    ):
+        return {
+            "response": "Você ainda não selecionou nenhum produto.",
+            "options": ["Ver serviços", "Agendar", "Tirar dúvida"],
+        }
+
+    resposta = "📦 SEUS PRODUTOS SELECIONADOS:\n\n"
+    total = 0
+
+    for idx, produto in enumerate(chatbot_assistant.selected_products, 1):
+        preco_total = produto["preco"] + produto.get("preco_mao_obra", 0)
+        resposta += f"{idx}. {produto['nome']} - R${preco_total:.2f}\n"
+        total += preco_total
+
+    resposta += f"\n💰 TOTAL: R${total:.2f}\n\n"
+    resposta += "O que deseja fazer agora?"
+
+    return {
+        "response": resposta,
+        "options": [
+            "Adicionar mais produtos",
+            "Agendar instalação",
+            "Remover produto",
+            "Cancelar tudo",
+        ],
+    }
+
+
+def remover_produto(chatbot_assistant, produto_index=None):
+    if (
+        not hasattr(chatbot_assistant, "selected_products")
+        or not chatbot_assistant.selected_products
+    ):
+        return {
+            "response": "Você não tem produtos para remover.",
+            "options": ["Ver serviços", "Agendar"],
+        }
+
+    if produto_index is None:
+        resposta = "Qual produto deseja remover?\n\n"
+        produtos = [
+            f"{idx}. {p['nome']}"
+            for idx, p in enumerate(chatbot_assistant.selected_products, 1)
+        ]
+        return {"response": resposta, "options": produtos + ["Cancelar"]}
+    else:
+        try:
+            index = int(produto_index.split(".")[0]) - 1
+            if 0 <= index < len(chatbot_assistant.selected_products):
+                produto_removido = chatbot_assistant.selected_products.pop(index)
+                return {
+                    "response": f"✅ Produto removido: {produto_removido['nome']}",
+                    "options": [
+                        "Ver meus produtos",
+                        "Adicionar mais produtos",
+                        "Agendar",
+                    ],
+                }
+        except (ValueError, IndexError):
+            pass
+
+        return {
+            "response": "Índice inválido. Por favor, tente novamente.",
+            "options": ["Ver meus produtos", "Cancelar"],
+        }

@@ -155,6 +155,26 @@
       "responses": [""]
     },
     {
+      "tag": "ver_produtos_selecionados",
+      "patterns": [
+        "ver produtos selecionados",
+        "ver meus produtos",
+        "ver itens selecionados",
+        "ver itens"
+      ],
+      "responses": [""]
+    },
+    {
+      "tag": "remover_produto",
+      "patterns": [
+        "remover produto",
+        "remover item",
+        "remover produto selecionado",
+        "remover item selecionado"
+      ],
+      "responses": [""]
+    },
+    {
       "tag": "selecionar_produtos",
       "patterns": ["Quero comprar"],
       "responses": [""]
