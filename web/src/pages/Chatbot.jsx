@@ -16,6 +16,13 @@ function Chatbot() {
       options: ["Agendar", "Ver serviços", "Tirar dúvida"],
     },
   ]);
+
+  const exibirFormulario = messages.some(
+    (message) =>
+      message.sender == "bot" &&
+      message.text.toLowerCase().includes("coplete com seus dados")
+  );
+
   const [inputValue, setInputValue] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef(null);
@@ -177,6 +184,19 @@ function Chatbot() {
             ))}
             <div ref={messagesEndRef} />
           </div>
+          {exibirFormulario && (
+            <div className="formulario-dados">
+              <input type="text" placeholder="Nome" className="input-form" />
+              <input type="email" placeholder="Email" className="input-form" />
+              <input type="tel" placeholder="Telefone" className="input-form" />
+              <button
+                onClick={() => alert("Enviado!")}
+                className="botao-enviar-form"
+              >
+                Enviar dados
+              </button>
+            </div>
+          )}
           <div className="chat-input">
             <input
               type="text"

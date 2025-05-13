@@ -145,8 +145,18 @@
         "preciso de som automotivo",
         "preciso de caixas de som",
         "quero instalar insulfim",
-        "quero instalar multimídia"
+        "quero instalar multimídia",
+        "quero comprar insulfim",
+        "quero comprar multimídia",
+        "quero comprar som automotivo",
+        "quero comprar caixas de som",
+        "quero comprar insulfime"
       ],
+      "responses": [""]
+    },
+    {
+      "tag": "selecionar_produtos",
+      "patterns": ["Quero comprar"],
       "responses": [""]
     },
     {

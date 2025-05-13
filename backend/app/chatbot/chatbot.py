@@ -18,6 +18,9 @@ from app.models.agendamento import Agendamento
 from app.chatbot.handlers import *
 from datetime import datetime
 
+from app.chatbot.handlers.produtos import selecionar_produto
+
+
 class ChatbotModel(nn.Module):
 
     def __init__(self, input_size, output_size):
@@ -41,7 +44,7 @@ class ChatbotModel(nn.Module):
 
 class ChatbotAssistant:
 
-    def __init__(self, intents_path, function_mappings = None):
+    def __init__(self, intents_path, function_mappings=None):
         self.model = None
         self.intents_path = intents_path
 
@@ -56,11 +59,16 @@ class ChatbotAssistant:
         self.y = None
 
         self.current_message = ""
-        self.client_data = {"nome" : None, "email" : None,"telefone" : None}
+        self.last_user_choice = None
+
         self.selected_products = []
         self.awaiting_product_selection = False
-        self.awaiting_confirmation = False 
+
+        self.awaiting_confirmation = False
+
+        self.client_data = {"nome": None, "email": None, "telefone": None}
         self.client_data_temp = None
+
         self.awaiting_scheduling = False
         self.awaiting_scheduling_confirmation = False
 
@@ -68,7 +76,7 @@ class ChatbotAssistant:
     def tokenize_and_lemmatize(text):
         lemmatizer = nltk.WordNetLemmatizer()
 
-        text = re.sub(r'[^a-zA-Z0-9áéíóúâêîôûãõç\s]', '', text).lower()
+        text = re.sub(r"[^a-zA-Z0-9áéíóúâêîôûãõç\s]", "", text).lower()
         words = nltk.word_tokenize(text)
         words = [lemmatizer.lemmatize(word.lower()) for word in words]
 
@@ -81,18 +89,18 @@ class ChatbotAssistant:
         lemmatizer = nltk.WordNetLemmatizer()
 
         if os.path.exists(self.intents_path):
-            with open(self.intents_path, 'r', encoding="utf-8") as f:
+            with open(self.intents_path, "r", encoding="utf-8") as f:
                 intents_data = json.load(f)
 
-            for intent in intents_data['intents']:
-                if intent['tag'] not in self.intents:
-                    self.intents.append(intent['tag'])
-                    self.intents_responses[intent['tag']] = intent['responses']
+            for intent in intents_data["intents"]:
+                if intent["tag"] not in self.intents:
+                    self.intents.append(intent["tag"])
+                    self.intents_responses[intent["tag"]] = intent["responses"]
 
-                for pattern in intent['patterns']:
+                for pattern in intent["patterns"]:
                     pattern_words = self.tokenize_and_lemmatize(pattern)
                     self.vocabulary.extend(pattern_words)
-                    self.documents.append((pattern_words, intent['tag']))
+                    self.documents.append((pattern_words, intent["tag"]))
 
                 self.vocabulary = sorted(set(self.vocabulary))
 
@@ -119,7 +127,7 @@ class ChatbotAssistant:
         dataset = TensorDataset(X_tensor, y_tensor)
         loader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
 
-        self.model = ChatbotModel(self.X.shape[1], len(self.intents)) 
+        self.model = ChatbotModel(self.X.shape[1], len(self.intents))
 
         criterion = nn.CrossEntropyLoss()
         optimizer = optim.Adam(self.model.parameters(), lr=lr)
@@ -134,47 +142,64 @@ class ChatbotAssistant:
                 loss.backward()
                 optimizer.step()
                 running_loss += loss
-            
+
             print(f"Epoch {epoch+1}: Loss: {running_loss / len(loader):.4f}")
 
     def save_model(self, model_path, dimensions_path):
         torch.save(self.model.state_dict(), model_path)
 
-        with open(dimensions_path, 'w') as f:
-            json.dump({ 'input_size': self.X.shape[1], 'output_size': len(self.intents) }, f)
+        with open(dimensions_path, "w") as f:
+            json.dump(
+                {"input_size": self.X.shape[1], "output_size": len(self.intents)}, f
+            )
 
     def load_model(self, model_path, dimensions_path):
-        with open(dimensions_path, 'r') as f:
+        with open(dimensions_path, "r") as f:
             dimensions = json.load(f)
 
-        self.model = ChatbotModel(dimensions['input_size'], dimensions['output_size'])
+        self.model = ChatbotModel(dimensions["input_size"], dimensions["output_size"])
         self.model.load_state_dict(torch.load(model_path, weights_only=True))
 
     def process_message(self, input_message):
         self.current_message = input_message
-                
+        self.last_user_choice = input_message
+
+        if input_message in ["Adicionar mais produtos", "Continuar comprando"]:
+            return listar_produtos_por_categoria(self)
+
+        if self.awaiting_product_selection:
+            if hasattr(self, "produtos_temp") and any(
+                p["nome"] == input_message for p in self.produtos_temp
+            ):
+                return selecionar_produto(self, input_message)
+            elif input_message == "Quero comprar":
+                return selecionar_produto(self)
+
         if self.awaiting_confirmation:
             return self._handle_confirmation(input_message)
-        
+
         if self.awaiting_scheduling:
             return confirmar_agendamento(self, input_message)
-        
+
         if self.awaiting_scheduling_confirmation:
-            if input_message.lower() in ['sim', 's']:
+            if input_message.lower() in ["sim", "s"]:
                 self.awaiting_scheduling = True
                 self.awaiting_scheduling_confirmation = False
                 return "📅 Por favor, informe a data e horário (DD/MM/AAAA HH:MM):"
             else:
                 self.awaiting_scheduling_confirmation = False
                 return "Agendamento cancelado. Como posso ajudar?"
-                
-        match = re.match(r"([a-zA-Z\s]+),\s*([\w\.-]+@[\w\.-]+\.\w+),\s*(\+?\d{1,3}?[-.\s]?\(?\d{1,4}?\)?[-.\s]?\d{1,4}[-.\s]?\d{1,4})", input_message)
+
+        match = re.match(
+            r"([a-zA-Z\s]+),\s*([\w\.-]+@[\w\.-]+\.\w+),\s*(\+?\d{1,3}?[-.\s]?\(?\d{1,4}?\)?[-.\s]?\d{1,4}[-.\s]?\d{1,4})",
+            input_message,
+        )
         if match:
             nome, email, telefone = match.groups()
             self.client_data_temp = {
                 "nome": nome.strip(),
                 "email": email.strip(),
-                "telefone": telefone.strip()
+                "telefone": telefone.strip(),
             }
             self.awaiting_confirmation = True
             return self._generate_confirmation_message()
@@ -191,7 +216,7 @@ class ChatbotAssistant:
         predicted_class_index = torch.argmax(predictions, dim=1).item()
         predicted_intent = self.intents[predicted_class_index]
         print(f"Predicted intent: {predicted_intent}")
-        
+
         # Se for uma intent de produto, chama a função mas não retorna ainda
         if self.function_mappings and predicted_intent in self.function_mappings:
             response = self.function_mappings[predicted_intent](self)
@@ -203,7 +228,7 @@ class ChatbotAssistant:
             return random.choice(self.intents_responses[predicted_intent])
         else:
             return "Desculpe, não entendi. Poderia reformular sua pergunta?"
-    
+
     def _generate_confirmation_message(self):
         return (
             "Por favor, confirme seus dados:\n"
@@ -214,49 +239,55 @@ class ChatbotAssistant:
         )
 
     def _handle_confirmation(self, input_message):
-        if input_message.lower() == 'dados corretos':
+        if input_message.lower() == "dados corretos":
             self.client_data = self.client_data_temp
             self.client_data_temp = None
             self.awaiting_confirmation = False
-            
+
             if "cadastrar_cliente" in self.function_mappings:
                 success = self.function_mappings["cadastrar_cliente"](self)
                 if success and self.selected_products:
                     self.awaiting_scheduling = True
-                    return ("✅ Dados confirmados!\n\n"
-                        "📅 Informe a data e horário (DD/MM/AAAA HH:MM):")
+                    return (
+                        "✅ Dados confirmados!\n\n"
+                        "📅 Informe a data e horário (DD/MM/AAAA HH:MM):"
+                    )
                 elif success:
                     return "✅ Dados confirmados com sucesso!"
                 return "⚠️ Dados confirmados (cliente já existia)"
-            
-        elif input_message.lower() == 'dados incorretos':
+
+        elif input_message.lower() == "dados incorretos":
             self.client_data_temp = None
             self.awaiting_confirmation = False
             return "↩️ Por favor, reenvie seus dados: Nome, Email, Telefone"
-        
+
         return "⚠️ Digite 'dados corretos' para confirmar ou 'dados incorretos' para corrigir"
-    
-if __name__ == '__main__':
+
+
+if __name__ == "__main__":
     function_mappings = {
-        "cadastrar_cliente": cadastrar_cliente,
         "listar_produtos_por_categoria": listar_produtos_por_categoria,
+        "selecionar_produto": selecionar_produto,
+        "cadastrar_cliente": cadastrar_cliente,
         "iniciar_agendamento": iniciar_agendamento,
     }
-    assistant = ChatbotAssistant('app/chatbot/intents.json', function_mappings=function_mappings)
+    assistant = ChatbotAssistant(
+        "app/chatbot/intents.json", function_mappings=function_mappings
+    )
     assistant.parse_intents()
     assistant.prepare_data()
     assistant.train_model(batch_size=8, lr=0.001, epochs=200)
 
-    assistant.save_model('app/chatbot/chatbot_model.pth', 'app/chatbot/dimensions.json')
+    assistant.save_model("app/chatbot/chatbot_model.pth", "app/chatbot/dimensions.json")
 
     # assistant = ChatbotAssistant('intents.json', function_mappings = {'stocks': get_stocks})
     # assistant.parse_intents()
     # assistant.load_model('chatbot_model.pth', 'dimensions.json')
 
     while True:
-        message = input('Enter your message:')
+        message = input("Enter your message:")
 
-        if message == '/quit':
+        if message == "/quit":
             break
 
         print(assistant.process_message(message))

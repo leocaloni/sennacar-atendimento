@@ -267,3 +267,47 @@ html {
 .chat-input button:hover {
   background-color: #0005a0;
 }
+
+.formulario-dados {
+  background-color: white;
+  padding: 20px;
+  border-radius: 18px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  margin: 20px auto;
+  max-width: 400px;
+  width: 90%;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  font-family: Poppins;
+}
+
+.input-form {
+  padding: 10px 15px;
+  border: 2px solid #000679;
+  border-radius: 20px;
+  font-size: 1rem;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.input-form:focus {
+  border-color: #0005a0;
+  box-shadow: 0 0 0 2px rgba(0, 5, 160, 0.2);
+}
+
+.botao-enviar-form {
+  padding: 10px 20px;
+  background-color: #01913f;
+  color: white;
+  border: none;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: bold;
+  transition: background-color 0.2s;
+}
+
+.botao-enviar-form:hover {
+  background-color: #017b36;
+}
