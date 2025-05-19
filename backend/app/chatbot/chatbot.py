@@ -20,7 +20,6 @@ from datetime import datetime
 
 from app.chatbot.handlers.produtos import (
     selecionar_produto,
-    remover_produto,
     ver_produtos_selecionados,
 )
 
@@ -277,7 +276,6 @@ if __name__ == "__main__":
         "listar_produtos": listar_produtos_por_categoria,
         "selecionar_produto": selecionar_produto,
         "ver_produtos_selecionados": ver_produtos_selecionados,
-        "remover_produto": remover_produto,
         "cadastrar_cliente": cadastrar_cliente,
         "iniciar_agendamento": iniciar_agendamento,
     }

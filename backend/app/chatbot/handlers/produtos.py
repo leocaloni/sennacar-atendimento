@@ -170,46 +170,6 @@ def ver_produtos_selecionados(chatbot_assistant):
         "options": [
             "Adicionar mais produtos",
             "Agendar instalação",
-            "Remover produto",
             "Cancelar tudo",
         ],
     }
-
-
-def remover_produto(chatbot_assistant, produto_index=None):
-    if (
-        not hasattr(chatbot_assistant, "selected_products")
-        or not chatbot_assistant.selected_products
-    ):
-        return {
-            "response": "Você não tem produtos para remover.",
-            "options": ["Ver serviços", "Agendar"],
-        }
-
-    if produto_index is None:
-        resposta = "Qual produto deseja remover?\n\n"
-        produtos = [
-            f"{idx}. {p['nome']}"
-            for idx, p in enumerate(chatbot_assistant.selected_products, 1)
-        ]
-        return {"response": resposta, "options": produtos + ["Cancelar"]}
-    else:
-        try:
-            index = int(produto_index.split(".")[0]) - 1
-            if 0 <= index < len(chatbot_assistant.selected_products):
-                produto_removido = chatbot_assistant.selected_products.pop(index)
-                return {
-                    "response": f"✅ Produto removido: {produto_removido['nome']}",
-                    "options": [
-                        "Ver meus produtos",
-                        "Adicionar mais produtos",
-                        "Agendar",
-                    ],
-                }
-        except (ValueError, IndexError):
-            pass
-
-        return {
-            "response": "Índice inválido. Por favor, tente novamente.",
-            "options": ["Ver meus produtos", "Cancelar"],
-        }

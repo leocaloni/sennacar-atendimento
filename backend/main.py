@@ -15,19 +15,20 @@ app = FastAPI(
         {"name": "Clientes", "description": "Operações com clientes"},
         {"name": "Agendamentos", "description": "Gestão de agendamentos"},
         {"name": "Produtos", "description": "Catálogo de produtos"},
-        {"name": "Chatbot", "description": "Endpoints para o assistente virtual"}
-    ]
+        {"name": "Chatbot", "description": "Endpoints para o assistente virtual"},
+    ],
 )
 
 origins = [
     "http://localhost",
-    "http://localhost:3000",  # Seu frontend React
+    "http://localhost:3000",
     "http://127.0.0.1:3000",
+    "http://localhost:5173",
 ]
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://localhost:3000"],
+    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -64,5 +65,6 @@ def custom_openapi():
             method.setdefault("security", []).append({"BearerAuth": []})
     app.openapi_schema = openapi_schema
     return app.openapi_schema
+
 
 app.openapi = custom_openapi

@@ -23,6 +23,9 @@ function Chatbot() {
     telefone: "",
   });
 
+  // Estado para armazenar se o cliente está cadastrado
+  const [clienteCadastrado, setClienteCadastrado] = useState(false);
+
   const handleFormSubmit = async (e) => {
     e.preventDefault();
 
@@ -39,14 +42,19 @@ function Chatbot() {
     }
 
     // Envia os dados para o backend
-    const { response, options } = await sendMessageToServer(
-      JSON.stringify(formData)
-    );
-
+    const res = await sendMessageToServer(JSON.stringify(formData));
     setMessages((prev) => [
       ...prev,
-      { text: response, sender: "bot", options },
+      {
+        text: res.response,
+        sender: "bot",
+        options: res.options,
+        form: res.form,
+        calendar: res.calendar,
+      },
     ]);
+
+    setClienteCadastrado(true);
 
     // Limpa o formulário
     setFormData({ nome: "", email: "", telefone: "" });
@@ -64,23 +72,57 @@ function Chatbot() {
   const handleOptionClick = async (option) => {
     setMessages((prev) => [...prev, { text: option, sender: "user" }]);
 
-    if (option === "Agendar instalação") {
-      // Adiciona o formulário como uma mensagem do bot
+    // Trata horário escolhido do calendário
+    if (option.startsWith("calendar|")) {
+      const res = await sendMessageToServer(option);
       setMessages((prev) => [
         ...prev,
         {
+          text: res.response,
           sender: "bot",
-          form: true,
-          text: "Por favor, preencha seus dados para agendar a instalação:",
+          options: res.options,
+          form: res.form,
+          calendar: res.calendar,
         },
       ]);
       return;
     }
 
-    const { response, options } = await sendMessageToServer(option);
+    // Trata clique "Agendar instalação"
+    if (option === "Agendar instalação") {
+      if (!clienteCadastrado) {
+        setMessages((prev) => [
+          ...prev,
+          {
+            sender: "bot",
+            form: true,
+            text: "Por favor, preencha seus dados para agendar a instalação:",
+          },
+        ]);
+      } else {
+        setMessages((prev) => [
+          ...prev,
+          {
+            sender: "bot",
+            calendar: true,
+            text: "Selecione a data e horário para o agendamento:",
+          },
+        ]);
+      }
+      return;
+    }
+
+    // 🔥 Aqui trata qualquer outra opção, incluindo "Dados corretos"
+    const res = await sendMessageToServer(option);
     setMessages((prev) => [
       ...prev,
-      { text: response, sender: "bot", options },
+      {
+        text: res.response,
+        sender: "bot",
+        options: res.options,
+        form: res.form,
+        calendar: res.calendar,
+      },
     ]);
   };
 
@@ -92,12 +134,11 @@ function Chatbot() {
     setIsLoading(true);
     try {
       const token = localStorage.getItem("token");
+      const headers = { "Content-Type": "application/json" };
+      if (token) headers.Authorization = `Bearer ${token}`;
       const response = await fetch("http://localhost:8000/chatbot/message", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
+        headers,
         body: JSON.stringify({ message }),
       });
 
@@ -138,16 +179,124 @@ function Chatbot() {
     setMessages((prev) => [...prev, userMessage]);
     setInputValue("");
 
-    const { response, options } = await sendMessageToServer(inputValue);
+    const res = await sendMessageToServer(inputValue);
 
     setMessages((prev) => [
       ...prev,
-      { text: response, sender: "bot", options },
+      {
+        text: res.response,
+        sender: "bot",
+        options: res.options,
+        form: res.form,
+        calendar: res.calendar,
+      },
     ]);
   };
 
   const handleKeyDown = (e) => {
     if (e.key === "Enter") handleSendMessage();
+  };
+  // Adicione este componente no início do arquivo
+  const CalendarPicker = ({ onDateSelect }) => {
+    const [currentDate, setCurrentDate] = useState(new Date());
+    const [selectedTime, setSelectedTime] = useState(null);
+    const [horariosDisponiveis, setHorariosDisponiveis] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+      const fetchHorarios = async () => {
+        try {
+          setLoading(true);
+          const dataFormatada = currentDate.toISOString().split("T")[0];
+          const response = await fetch(
+            `http://localhost:8000/chatbot/api/horarios?data=${encodeURIComponent(
+              dataFormatada
+            )}`
+          );
+
+          if (!response.ok) {
+            throw new Error("Erro ao buscar horários");
+          }
+
+          const data = await response.json();
+          setHorariosDisponiveis(data.horarios || []);
+        } catch (error) {
+          console.error("Erro ao buscar horários:", error);
+          setHorariosDisponiveis([]);
+          // Adicione uma mensagem de erro se desejar
+        } finally {
+          setLoading(false);
+        }
+      };
+
+      fetchHorarios();
+    }, [currentDate]);
+
+    const handlePrevDay = () => {
+      const newDate = new Date(currentDate);
+      newDate.setDate(newDate.getDate() - 1);
+      setCurrentDate(newDate);
+      setSelectedTime(null);
+    };
+
+    const handleNextDay = () => {
+      const newDate = new Date(currentDate);
+      newDate.setDate(newDate.getDate() + 1);
+      setCurrentDate(newDate);
+      setSelectedTime(null);
+    };
+
+    const handleTimeSelect = (time) => {
+      setSelectedTime(time);
+      const dataHora = new Date(currentDate);
+      const [hours, minutes] = time.split(":");
+      dataHora.setHours(parseInt(hours, 10));
+      dataHora.setMinutes(parseInt(minutes, 10));
+
+      const dataFormatada = dataHora.toISOString().split("T")[0];
+      const horaFormatada = `${hours}:${minutes}`;
+
+      onDateSelect(`${dataFormatada}|${horaFormatada}`);
+    };
+
+    const formatDay = (date) => {
+      const options = { weekday: "long", day: "numeric", month: "long" };
+      return date.toLocaleDateString("pt-BR", options);
+    };
+
+    return (
+      <div className="calendar-picker">
+        <div className="calendar-header">
+          <button onClick={handlePrevDay} disabled={loading}>
+            &lt;
+          </button>
+          <h3>{formatDay(currentDate)}</h3>
+          <button onClick={handleNextDay} disabled={loading}>
+            &gt;
+          </button>
+        </div>
+
+        {loading ? (
+          <p>Carregando horários disponíveis...</p>
+        ) : horariosDisponiveis.length > 0 ? (
+          <div className="time-slots">
+            {horariosDisponiveis.map((time, index) => (
+              <button
+                key={index}
+                className={`time-slot ${
+                  selectedTime === time ? "selected" : ""
+                }`}
+                onClick={() => handleTimeSelect(time)}
+              >
+                {time}
+              </button>
+            ))}
+          </div>
+        ) : (
+          <p>Não há horários disponíveis para este dia.</p>
+        )}
+      </div>
+    );
   };
 
   return (
@@ -208,7 +357,7 @@ function Chatbot() {
                 </div>
                 <div className={`message ${message.sender}`}>
                   <div className="message-content">
-                    {message.text.split("\n").map((line, i) => (
+                    {(message.text || "").split("\n").map((line, i) => (
                       <React.Fragment key={i}>
                         {line}
                         <br />
@@ -255,7 +404,17 @@ function Chatbot() {
                       </form>
                     )}
 
-                    {message.sender === "bot" && message.options && (
+                    {Boolean(message.calendar) && (
+                      <div className="calendar-wrapper">
+                        <CalendarPicker
+                          onDateSelect={(dateTime) =>
+                            handleOptionClick(`calendar|${dateTime}`)
+                          }
+                        />
+                      </div>
+                    )}
+
+                    {message.options && (
                       <div className="message-options">
                         {message.options.map((option, i) => (
                           <button
