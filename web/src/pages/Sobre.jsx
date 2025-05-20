@@ -91,10 +91,28 @@ function Sobre() {
                       />
                     ))}
                   {item.video && (
-                    <video controls className="video-linha-tempo">
-                      <source src={item.video} type="video/mp4" />
-                      Seu navegador não suporta vídeo.
-                    </video>
+                    <div className="video-wrapper">
+                      <video
+                        className="video-linha-tempo"
+                        src={item.video}
+                        muted
+                        autoPlay
+                        playsInline
+                        loop
+                        onClick={(e) => {
+                          if (e.target.paused) {
+                            e.target.play();
+                            e.target.nextElementSibling.style.display = "none";
+                          } else {
+                            e.target.pause();
+                            e.target.nextElementSibling.style.display = "flex";
+                          }
+                        }}
+                      />
+                      <div className="play-overlay" style={{ display: "none" }}>
+                        ▶
+                      </div>
+                    </div>
                   )}
                 </div>
                 <div className="texto-linha-tempo">
