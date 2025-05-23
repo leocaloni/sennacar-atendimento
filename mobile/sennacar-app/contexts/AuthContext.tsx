@@ -1,16 +1,19 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import * as SecureStore from "expo-secure-store";
 import { jwtDecode } from "jwt-decode";
+import { router } from "expo-router";
 
-// Tipagem do payload JWT esperado
 interface JwtPayload {
   sub: string;
   isAdmin?: boolean;
-  is_admin?: boolean;
+  email?: string;
+  nome?: string;
 }
 
 type User = {
+  id: string;
   email: string;
+  nome: string;
   isAdmin: boolean;
 };
 
@@ -41,9 +44,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const login = async (newToken: string) => {
     try {
       const decoded = jwtDecode<JwtPayload>(newToken);
+      console.log("Decoded JWT:", decoded);
 
       const usuario: User = {
-        email: decoded.sub,
+        id: decoded.sub,
+        email: decoded.email || "",
+        nome: decoded.nome || "",
         isAdmin: !!decoded.isAdmin,
       };
 
@@ -57,9 +63,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   // Logout: limpa token do estado e do SecureStore
   const logout = async () => {
-    setUser(null);
-    setToken(null);
     await SecureStore.deleteItemAsync("token");
+    setUser(null);
+    router.replace("/login"); // 👈 força a ida pra tela de login
   };
 
   // Restaura token ao abrir o app

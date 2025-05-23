@@ -31,6 +31,8 @@ async def login(login_data: AuthLogin):
         {
             "sub": str(funcionario["_id"]),
             "isAdmin": funcionario.get("isAdmin", False),
+            "email": funcionario.get("email"),
+            "nome": funcionario.get("nome"),
         }
     )
 

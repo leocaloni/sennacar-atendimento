@@ -12,11 +12,6 @@ import {
 } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import { styles, textInputProps } from "../styles/styles";
-import {
-  useFonts,
-  Poppins_700Bold,
-  Poppins_400Regular,
-} from "@expo-google-fonts/poppins";
 import { TextInput, Button } from "react-native-paper";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -48,7 +43,6 @@ export default function Login({ navigation }: LoginProps) {
   const { login } = useAuth();
 
   const handleLogin = async () => {
-    // ✅ Verificações antes de enviar pro backend
     if (!email || !senha) {
       setLoginErro("Todos os campos devem ser preenchidos.");
       return;
@@ -60,7 +54,7 @@ export default function Login({ navigation }: LoginProps) {
     }
 
     try {
-      const response = await fetch("http://192.168.15.3:8000/auth/login", {
+      const response = await fetch("http://192.168.15.2:8000/auth/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -90,15 +84,6 @@ export default function Login({ navigation }: LoginProps) {
   const toggleShowSenha = () => {
     setShowSenha(!showSenha);
   };
-
-  const [fontsLoaded] = useFonts({
-    Poppins_700Bold,
-    Poppins_400Regular,
-  });
-
-  if (!fontsLoaded) {
-    return null;
-  }
 
   return (
     <TouchableWithoutFeedback onPress={dismissKeyboard}>
