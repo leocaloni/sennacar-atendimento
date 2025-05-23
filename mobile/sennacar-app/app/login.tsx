@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   View,
   KeyboardAvoidingView,
@@ -18,6 +18,9 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { router } from "expo-router";
 import { useAuth } from "../contexts/AuthContext";
+import { api } from "./services/api";
+import EmailIcon from "../assets/icons/email.svg";
+import SenhaIcon from "../assets/icons/senha.svg";
 
 type RootStackParamList = {
   Login: undefined;
@@ -54,26 +57,13 @@ export default function Login({ navigation }: LoginProps) {
     }
 
     try {
-      const response = await fetch("http://192.168.15.2:8000/auth/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email, senha }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        setLoginErro(data.detail || "Erro ao fazer login.");
-        return;
-      }
-
-      await login(data.access_token);
+      const response = await api.post("/auth/login", { email, senha });
+      await login(response.data.access_token);
       router.replace("/(tabs)/agendamentos");
-    } catch (err) {
-      setLoginErro("Erro de conexão com o servidor.");
-      console.error("Erro ao conectar com o servidor:", err);
+    } catch (err: any) {
+      const msg =
+        err?.response?.data?.detail || "Erro ao conectar com o servidor.";
+      setLoginErro(msg);
     }
   };
 
@@ -126,7 +116,13 @@ export default function Login({ navigation }: LoginProps) {
                   placeholder="Email"
                   value={email}
                   onChangeText={(text) => setEmail(text)}
+                  left={
+                    <TextInput.Icon
+                      icon={() => <EmailIcon width={20} height={20} />}
+                    />
+                  }
                 />
+
                 <TextInput
                   style={styles.input}
                   {...textInputProps}
@@ -134,6 +130,11 @@ export default function Login({ navigation }: LoginProps) {
                   secureTextEntry={!showSenha}
                   value={senha}
                   onChangeText={(text) => setSenha(text)}
+                  left={
+                    <TextInput.Icon
+                      icon={() => <SenhaIcon width={20} height={20} />}
+                    />
+                  }
                   right={
                     <TextInput.Icon
                       icon={showSenha ? "eye-off" : "eye"}
@@ -141,6 +142,7 @@ export default function Login({ navigation }: LoginProps) {
                     />
                   }
                 />
+
                 <TouchableOpacity>
                   <Text
                     style={styles.esqueceuSenha}

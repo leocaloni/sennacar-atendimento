@@ -96,7 +96,7 @@ export default function TabLayout() {
       })}
     >
       <Tabs.Screen name="agendamentos" options={{ title: "Agendamentos" }} />
-      <Tabs.Screen name="busca" options={{ title: "Buscar" }} />
+      <Tabs.Screen name="busca" options={{ title: "Buscar Clientes" }} />
       <Tabs.Screen name="perfil" options={{ title: "Perfil" }} />
       <Tabs.Screen
         name="admin"
