@@ -44,14 +44,22 @@ export default function BuscaScreen() {
     setLoading(true);
 
     try {
-      const endpoint =
-        metodo === "telefone"
-          ? `/clientes/telefone/${valor}`
-          : `/clientes/?${metodo}=${valor}`;
+      let url = "/clientes";
+      const params = new URLSearchParams();
 
-      const response = await api.get(endpoint);
+      if (metodo && valor) {
+        params.append(metodo, valor);
+        url = `${url}?${params.toString()}`;
+      }
+
+      console.log("URL completa:", url);
+      console.log("Headers:", api.defaults.headers);
+
+      const response = await api.get("/clientes/clientes/", { params });
+      console.log("Resposta:", response);
       setCliente(response.data);
     } catch (err) {
+      console.error("Erro completo:", err);
       setErro("Cliente não encontrado.");
     } finally {
       setLoading(false);
@@ -134,9 +142,7 @@ export default function BuscaScreen() {
           buttonColor="#017b36"
           textColor="white"
           style={styles.botaoCadastrar}
-          onPress={() => {
-            // router.push("/clientes/cadastrar") ← futuro
-          }}
+          onPress={() => {}}
         >
           Cadastrar cliente
         </Button>
