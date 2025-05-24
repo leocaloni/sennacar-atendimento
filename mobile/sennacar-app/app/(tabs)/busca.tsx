@@ -13,6 +13,7 @@ import UserIcon from "../../assets/icons/user-grey.svg";
 import EmailIcon from "../../assets/icons/email.svg";
 import PhoneIcon from "../../assets/icons/phone.svg";
 import SearchIcon from "../../assets/icons/search-white.svg";
+import { router } from "expo-router";
 
 export default function BuscaScreen() {
   const [metodo, setMetodo] = useState("nome");
@@ -104,6 +105,13 @@ export default function BuscaScreen() {
               value={valor}
               onChangeText={setValor}
               placeholderTextColor="#A0A0A0"
+              keyboardType={
+                metodo === "email"
+                  ? "email-address"
+                  : metodo === "telefone"
+                  ? "phone-pad"
+                  : "default"
+              }
             />
           </View>
 
@@ -142,7 +150,7 @@ export default function BuscaScreen() {
           buttonColor="#017b36"
           textColor="white"
           style={styles.botaoCadastrar}
-          onPress={() => {}}
+          onPress={() => router.push("/cadastroCliente")}
         >
           Cadastrar cliente
         </Button>
