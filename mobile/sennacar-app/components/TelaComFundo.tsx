@@ -25,21 +25,19 @@ export const TelaComFundo = ({ children }: TelaComFundoProps) => {
 
   return (
     <TouchableWithoutFeedback onPress={dismissKeyboard}>
-      <SafeAreaView style={{ flex: 1 }}>
+      <SafeAreaView style={{ flexGrow: 1 }}>
         <KeyboardAvoidingView
-          style={{ flex: 1 }}
+          style={{ flexGrow: 1 }}
           behavior={Platform.OS === "ios" ? "padding" : undefined}
         >
           <StatusBar style="light" />
 
-          {/* 🔵 IMAGEM COMPLETA FIXA NO TOPO */}
           <ImageBackground
             source={require("../assets/images/loja-camera.jpg")}
             resizeMode="cover"
             style={localStyles.imagemFixa}
           >
             <View style={localStyles.mascara} />
-            {/* LOGO DENTRO DA IMAGEM */}
             <View style={localStyles.logoWrapper}>
               <Image
                 source={require("../assets/images/logo-completa.png")}
@@ -48,10 +46,7 @@ export const TelaComFundo = ({ children }: TelaComFundoProps) => {
             </View>
           </ImageBackground>
 
-          {/* 🟦 ÁREA AZUL SOBRE A IMAGEM COM BORDA */}
-          <View style={localStyles.backgroundWrapper}>
-            <View style={localStyles.container}>{children}</View>
-          </View>
+          <View style={localStyles.backgroundWrapper}>{children}</View>
         </KeyboardAvoidingView>
       </SafeAreaView>
     </TouchableWithoutFeedback>
@@ -61,11 +56,11 @@ export const TelaComFundo = ({ children }: TelaComFundoProps) => {
 const localStyles = StyleSheet.create({
   imagemFixa: {
     width: width,
-    height: 200, // a imagem cobre até onde quiser (pode ser maior que ALTURA_VISÍVEL)
+    height: 200,
     position: "absolute",
     top: 0,
     left: 0,
-    zIndex: -1, // FICA NO FUNDO!
+    zIndex: -1,
   },
   mascara: {
     ...StyleSheet.absoluteFillObject,
@@ -83,8 +78,8 @@ const localStyles = StyleSheet.create({
     resizeMode: "contain",
   },
   backgroundWrapper: {
-    flex: 1,
-    marginTop: ALTURA_IMAGEM - 40, // sobe pra SOBREPOR A IMAGEM!
+    flexGrow: 1,
+    marginTop: ALTURA_IMAGEM - 40,
     backgroundColor: "#000679",
     borderTopRightRadius: 100,
     borderTopLeftRadius: 0,
@@ -92,8 +87,8 @@ const localStyles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingBottom: 40,
   },
-  container: {
-    flex: 1,
-    justifyContent: "center",
+  scrollContent: {
+    flexGrow: 1,
+    paddingBottom: 100,
   },
 });

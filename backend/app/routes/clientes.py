@@ -61,6 +61,14 @@ async def buscar_clientes(
     return ClienteResponse.from_mongo(cliente)
 
 
+@router.get("/{cliente_id}", response_model=ClienteResponse)
+async def obter_cliente_por_id(cliente_id: str, user: dict = Depends(get_current_user)):
+    cliente = Cliente.buscar_por_id(cliente_id)
+    if not cliente:
+        raise HTTPException(status_code=404, detail="Cliente não encontrado")
+    return ClienteResponse.from_mongo(cliente)
+
+
 @router.put("/{cliente_id}")
 async def atualizar_cliente(
     cliente_id: str,
