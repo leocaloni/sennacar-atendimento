@@ -3,10 +3,6 @@ import {
   View,
   Image,
   ImageBackground,
-  KeyboardAvoidingView,
-  Platform,
-  TouchableWithoutFeedback,
-  Keyboard,
   StyleSheet,
   Dimensions,
 } from "react-native";
@@ -21,35 +17,25 @@ const { width } = Dimensions.get("window");
 const ALTURA_IMAGEM = 140;
 
 export const TelaComFundo = ({ children }: TelaComFundoProps) => {
-  const dismissKeyboard = () => Keyboard.dismiss();
-
   return (
-    <TouchableWithoutFeedback onPress={dismissKeyboard}>
-      <SafeAreaView style={{ flexGrow: 1 }}>
-        <KeyboardAvoidingView
-          style={{ flexGrow: 1 }}
-          behavior={Platform.OS === "ios" ? "padding" : undefined}
-        >
-          <StatusBar style="light" />
+    <SafeAreaView style={{ flex: 1 }}>
+      <StatusBar style="light" />
+      <ImageBackground
+        source={require("../assets/images/loja-camera.jpg")}
+        resizeMode="cover"
+        style={localStyles.imagemFixa}
+      >
+        <View style={localStyles.mascara} />
+        <View style={localStyles.logoWrapper}>
+          <Image
+            source={require("../assets/images/logo-completa.png")}
+            style={localStyles.logo}
+          />
+        </View>
+      </ImageBackground>
 
-          <ImageBackground
-            source={require("../assets/images/loja-camera.jpg")}
-            resizeMode="cover"
-            style={localStyles.imagemFixa}
-          >
-            <View style={localStyles.mascara} />
-            <View style={localStyles.logoWrapper}>
-              <Image
-                source={require("../assets/images/logo-completa.png")}
-                style={localStyles.logo}
-              />
-            </View>
-          </ImageBackground>
-
-          <View style={localStyles.backgroundWrapper}>{children}</View>
-        </KeyboardAvoidingView>
-      </SafeAreaView>
-    </TouchableWithoutFeedback>
+      <View style={localStyles.backgroundWrapper}>{children}</View>
+    </SafeAreaView>
   );
 };
 
@@ -78,17 +64,13 @@ const localStyles = StyleSheet.create({
     resizeMode: "contain",
   },
   backgroundWrapper: {
-    flexGrow: 1,
-    marginTop: ALTURA_IMAGEM - 40,
+    flex: 1,
+    marginTop: ALTURA_IMAGEM - 100,
     backgroundColor: "#000679",
     borderTopRightRadius: 100,
     borderTopLeftRadius: 0,
     paddingTop: 30,
     paddingHorizontal: 20,
-    paddingBottom: 40,
-  },
-  scrollContent: {
-    flexGrow: 1,
-    paddingBottom: 100,
+    paddingBottom: 80,
   },
 });

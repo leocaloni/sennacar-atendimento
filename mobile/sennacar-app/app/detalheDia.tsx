@@ -4,6 +4,7 @@ import {
   StyleSheet,
   TouchableOpacity,
   ActivityIndicator,
+  FlatList,
 } from "react-native";
 import { Text } from "react-native-paper";
 import { useLocalSearchParams, useRouter } from "expo-router";
@@ -133,37 +134,48 @@ export default function DetalheDiaScreen() {
       {loading ? (
         <ActivityIndicator size="large" color="#fff" />
       ) : (
-        gerarHorarios().map((horaInicio, index) => {
-          const horaFim = addMinutes(horaInicio, 30);
-          const agendamento = obterAgendamento(horaInicio);
+        <View style={styles.cardScrollContainer}>
+          <FlatList
+            data={gerarHorarios()} // Passando os horários gerados diretamente
+            keyExtractor={(item, index) => index.toString()}
+            renderItem={({ item: horaInicio }) => {
+              const horaFim = addMinutes(horaInicio, 30);
+              const agendamento = obterAgendamento(horaInicio);
 
-          return (
-            <View key={index} style={styles.card}>
-              <Text style={styles.horario}>
-                {format(horaInicio, "HH:mm")} - {format(horaFim, "HH:mm")}
-              </Text>
-
-              {agendamento ? (
-                <View>
-                  <Text style={styles.label}>Produtos</Text>
-                  <Text style={styles.valor}>
-                    {agendamento.produtos_nomes.join(", ")}
+              return (
+                <View style={styles.card}>
+                  <Text style={styles.horario}>
+                    {format(horaInicio, "HH:mm")} - {format(horaFim, "HH:mm")}
                   </Text>
 
-                  <Text style={styles.label}>Cliente</Text>
-                  <Text style={styles.valor}>{agendamento.cliente_nome}</Text>
+                  {agendamento ? (
+                    <View>
+                      <Text style={styles.label}>Produtos</Text>
+                      <Text style={styles.valor}>
+                        {agendamento.produtos_nomes.join(", ")}
+                      </Text>
 
-                  <Text style={styles.label}>Valor total</Text>
-                  <Text style={styles.valor}>
-                    R$ {agendamento.valor_total.toFixed(2)}
-                  </Text>
+                      <Text style={styles.label}>Cliente</Text>
+                      <Text style={styles.valor}>
+                        {agendamento.cliente_nome}
+                      </Text>
+
+                      <Text style={styles.label}>Valor total</Text>
+                      <Text style={styles.valor}>
+                        R$ {agendamento.valor_total.toFixed(2)}
+                      </Text>
+                    </View>
+                  ) : (
+                    <Text style={styles.disponivel}>⏳ Horário disponível</Text>
+                  )}
                 </View>
-              ) : (
-                <Text style={styles.disponivel}>⏳ Horário disponível</Text>
-              )}
-            </View>
-          );
-        })
+              );
+            }}
+            showsVerticalScrollIndicator={true}
+            keyboardShouldPersistTaps="handled"
+            nestedScrollEnabled={true}
+          />
+        </View>
       )}
     </TelaComFundo>
   );
@@ -172,8 +184,8 @@ export default function DetalheDiaScreen() {
 const styles = StyleSheet.create({
   botaoVoltar: {
     position: "absolute",
-    top: 10,
-    left: 10,
+    top: 20,
+    left: 20,
     zIndex: 10,
     backgroundColor: "#017b36",
     borderRadius: 12,
@@ -196,6 +208,12 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: "white",
     fontFamily: "Poppins_500Medium",
+  },
+  cardScrollContainer: {
+    flex: 1,
+  },
+  cardScrollContent: {
+    paddingBottom: 20,
   },
   card: {
     backgroundColor: "white",
