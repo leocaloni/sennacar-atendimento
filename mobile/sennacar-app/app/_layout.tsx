@@ -26,7 +26,6 @@ export default function RootLayout() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <PaperProvider>
-        {" "}
         <AuthProvider>
           <Stack>
             <Stack.Screen name="login" options={{ headerShown: false }} />

@@ -233,7 +233,7 @@ const styles = StyleSheet.create({
     backgroundColor: "white",
     borderRadius: 16,
     paddingHorizontal: 12,
-    marginBottom: 8, // menor
+    marginBottom: 8,
   },
   input: {
     flex: 1,
@@ -251,11 +251,11 @@ const styles = StyleSheet.create({
   resultado: {
     padding: 10,
     fontFamily: "Poppins_400Regular",
-    color: "#333",
+    color: "white",
   },
   subtitulo: {
     fontFamily: "Poppins_600SemiBold",
-    color: "#fff",
+    color: "white",
     marginBottom: 4,
   },
   pergunta: { textAlign: "center", color: "#fff", marginTop: 20 },
