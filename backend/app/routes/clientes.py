@@ -61,6 +61,15 @@ async def buscar_clientes(
     return ClienteResponse.from_mongo(cliente)
 
 
+@router.get("/busca", response_model=List[ClienteResponse])
+async def buscar_clientes_parcial(
+    nome: str = Query(..., min_length=1),
+    user: dict = Depends(get_current_user),
+):
+    clientes = Cliente.listar_por_nome_regex(nome)  # novo método
+    return [ClienteResponse.from_mongo(c) for c in clientes]
+
+
 @router.get("/{cliente_id}", response_model=ClienteResponse)
 async def obter_cliente_por_id(cliente_id: str, user: dict = Depends(get_current_user)):
     cliente = Cliente.buscar_por_id(cliente_id)

@@ -7,6 +7,7 @@ import {
 } from "@expo-google-fonts/poppins";
 import { View, ActivityIndicator } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { Provider as PaperProvider } from "react-native-paper";
 
 export default function RootLayout() {
   const [fontsLoaded] = useFonts({
@@ -24,17 +25,24 @@ export default function RootLayout() {
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <AuthProvider>
-        <Stack>
-          <Stack.Screen name="login" options={{ headerShown: false }} />
-          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-          <Stack.Screen
-            name="cadastroCliente"
-            options={{ headerShown: false }}
-          />
-          <Stack.Screen name="detalheDia" options={{ headerShown: false }} />
-        </Stack>
-      </AuthProvider>
+      <PaperProvider>
+        {" "}
+        <AuthProvider>
+          <Stack>
+            <Stack.Screen name="login" options={{ headerShown: false }} />
+            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+            <Stack.Screen
+              name="cadastroCliente"
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen name="detalheDia" options={{ headerShown: false }} />
+            <Stack.Screen
+              name="novoAgendamento"
+              options={{ headerShown: false }}
+            />
+          </Stack>
+        </AuthProvider>
+      </PaperProvider>
     </GestureHandlerRootView>
   );
 }

@@ -65,7 +65,7 @@ const localStyles = StyleSheet.create({
   },
   backgroundWrapper: {
     flex: 1,
-    marginTop: ALTURA_IMAGEM - 100,
+    marginTop: ALTURA_IMAGEM - 80,
     backgroundColor: "#000679",
     borderTopRightRadius: 100,
     borderTopLeftRadius: 0,

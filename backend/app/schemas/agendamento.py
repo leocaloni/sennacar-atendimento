@@ -2,6 +2,7 @@ from pydantic import BaseModel, Field
 from datetime import datetime
 from typing import List, Optional
 
+
 class AgendamentoBase(BaseModel):
     cliente_id: str
     data_agendada: datetime
@@ -10,8 +11,10 @@ class AgendamentoBase(BaseModel):
     observacoes: Optional[str] = ""
     valor_total: Optional[float] = 0.0
 
+
 class AgendamentoCreate(AgendamentoBase):
     pass
+
 
 class AgendamentoUpdate(BaseModel):
     data_agendada: Optional[datetime] = None
@@ -19,14 +22,16 @@ class AgendamentoUpdate(BaseModel):
     status: Optional[str] = None
     observacoes: Optional[str] = None
 
+
 class AgendamentoResponse(AgendamentoBase):
     id: str = Field(alias="_id")
+    google_event_id: Optional[str] = None
 
     class Config:
         orm_mode = True
 
     @classmethod
     def from_mongo(cls, data):
-        if '_id' in data:
-            data['_id'] = str(data['_id'])
+        if "_id" in data:
+            data["_id"] = str(data["_id"])
         return cls(**data)

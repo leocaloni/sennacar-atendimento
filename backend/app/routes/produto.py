@@ -1,7 +1,7 @@
 from decimal import Decimal
-from typing import Optional
+from typing import List, Optional
 from bson import ObjectId
-from fastapi import APIRouter, HTTPException, status, Depends
+from fastapi import APIRouter, HTTPException, Query, status, Depends
 from app.schemas.produto import ProdutoResponse
 from app.models.produto import Produto
 from app.auth.auth_utils import verificar_admin, get_current_user
@@ -32,6 +32,15 @@ async def criar_produto(
 
 
 from app.schemas.produto import ProdutoResponse
+
+
+@router.get("/filtrar", response_model=List[ProdutoResponse])
+async def filtrar_produtos_por_nome(
+    nome: str = Query(..., min_length=1),
+    user: dict = Depends(get_current_user),
+):
+    produtos = Produto.listar_por_nome_regex(nome)
+    return [ProdutoResponse.from_mongo(p) for p in produtos]
 
 
 @router.get("/{produto_id}", response_model=ProdutoResponse)

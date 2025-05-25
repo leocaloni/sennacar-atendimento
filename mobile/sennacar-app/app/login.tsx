@@ -113,6 +113,7 @@ export default function Login({ navigation }: LoginProps) {
                 <TextInput
                   style={styles.input}
                   {...textInputProps}
+                  textColor="black"
                   placeholder="Email"
                   value={email}
                   onChangeText={(text) => setEmail(text)}
@@ -127,6 +128,7 @@ export default function Login({ navigation }: LoginProps) {
                   style={styles.input}
                   {...textInputProps}
                   placeholder="Senha"
+                  textColor="black"
                   secureTextEntry={!showSenha}
                   value={senha}
                   onChangeText={(text) => setSenha(text)}
@@ -159,6 +161,7 @@ export default function Login({ navigation }: LoginProps) {
                 <Button
                   style={styles.botao}
                   mode="contained"
+                  textColor="white"
                   onPress={handleLogin}
                 >
                   Entrar

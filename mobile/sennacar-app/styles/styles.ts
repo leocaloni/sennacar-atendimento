@@ -61,6 +61,8 @@ export const styles = StyleSheet.create({
   input: {
     marginTop: 20,
     fontFamily: "Poppins_400Regular",
+    backgroundColor: "white",
+    color: "black",
   },
 
   esqueceuSenha: {
@@ -75,6 +77,7 @@ export const styles = StyleSheet.create({
     backgroundColor: "#017b36",
     fontFamily: "Poppins_700Bold",
     alignSelf: "center",
+    color: "white",
     padding: 2,
     paddingLeft: 10,
     paddingRight: 10,
@@ -91,6 +94,13 @@ export const textInputProps = {
   },
   activeOutlineColor: "#017b36",
   outlineColor: "#000679",
-  textColor: "black",
   placeholderTextColor: "#A0A0A0",
+
+  theme: {
+    colors: {
+      text: "black",
+      placeholder: "#A0A0A0",
+      primary: "#017b36",
+    },
+  },
 };

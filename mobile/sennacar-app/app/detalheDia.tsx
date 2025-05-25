@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from "react";
+import { useState, useMemo, useCallback } from "react";
 import {
   View,
   StyleSheet,
@@ -6,8 +6,8 @@ import {
   ActivityIndicator,
   FlatList,
 } from "react-native";
-import { Text } from "react-native-paper";
-import { useLocalSearchParams, useRouter } from "expo-router";
+import { Text, Portal, Dialog, Button } from "react-native-paper";
+import { useLocalSearchParams, useRouter, useFocusEffect } from "expo-router";
 import { api } from "./services/api";
 import { TelaComFundo } from "../components/TelaComFundo";
 import { Ionicons } from "@expo/vector-icons";
@@ -29,57 +29,67 @@ export default function DetalheDiaScreen() {
   const [agendamentos, setAgendamentos] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchAgendamentosComDetalhes = async () => {
-      setLoading(true);
-      try {
-        const dataStr = format(dataSelecionada, "yyyy-MM-dd");
+  const [popupVisivel, setPopupVisivel] = useState(false);
+  const [idParaCancelar, setIdParaCancelar] = useState<string | null>(null);
 
-        const { data: ags } = await api.get(
-          "/agendamentos/agendamentos/periodo",
-          {
-            params: { data_inicio: dataStr, data_fim: dataStr },
-          }
-        );
+  const abrirConfirmacaoCancelamento = (id: string) => {
+    setIdParaCancelar(id);
+    setPopupVisivel(true);
+  };
 
-        const agsComDetalhes = await Promise.all(
-          ags.map(async (ag: any) => {
-            let clienteNome = ag.cliente_id;
-            try {
-              const { data } = await api.get(
-                `/clientes/clientes/${ag.cliente_id}`
-              );
-              clienteNome = data.nome;
-            } catch {}
+  const fetchAgendamentos = useCallback(async () => {
+    setLoading(true);
+    try {
+      const dataStr = format(dataSelecionada, "yyyy-MM-dd");
 
-            let nomesProdutos: string[] = [];
-            try {
-              nomesProdutos = await Promise.all(
-                ag.produtos.map(async (id: string) => {
-                  const { data } = await api.get(`/produtos/produtos/${id}`);
-                  return data.nome;
-                })
-              );
-            } catch {}
+      const { data: ags } = await api.get(
+        "/agendamentos/agendamentos/periodo",
+        {
+          params: { data_inicio: dataStr, data_fim: dataStr },
+        }
+      );
 
-            return {
-              ...ag,
-              cliente_nome: clienteNome,
-              produtos_nomes: nomesProdutos,
-            };
-          })
-        );
+      const agsComDetalhes = await Promise.all(
+        ags.map(async (ag: any) => {
+          let clienteNome = ag.cliente_id;
+          try {
+            const { data } = await api.get(
+              `/clientes/clientes/${ag.cliente_id}`
+            );
+            clienteNome = data.nome;
+          } catch {}
 
-        setAgendamentos(agsComDetalhes);
-      } catch (err) {
-        console.error("Erro ao buscar agendamentos:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
+          let nomesProdutos: string[] = [];
+          try {
+            nomesProdutos = await Promise.all(
+              ag.produtos.map(async (id: string) => {
+                const { data } = await api.get(`/produtos/produtos/${id}`);
+                return data.nome;
+              })
+            );
+          } catch {}
 
-    fetchAgendamentosComDetalhes();
+          return {
+            ...ag,
+            cliente_nome: clienteNome,
+            produtos_nomes: nomesProdutos,
+          };
+        })
+      );
+
+      setAgendamentos(agsComDetalhes);
+    } catch (err) {
+      console.error("Erro ao buscar agendamentos:", err);
+    } finally {
+      setLoading(false);
+    }
   }, [dataSelecionada]);
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchAgendamentos();
+    }, [fetchAgendamentos])
+  );
 
   const gerarHorarios = () => {
     const horarios = [];
@@ -103,9 +113,13 @@ export default function DetalheDiaScreen() {
   const corStatus = statusDia === "CHEIO" ? "#C62828" : "#017b36";
 
   const obterAgendamento = (hora: Date) => {
-    return agendamentos.find((a) =>
-      isSameMinute(new Date(a.data_agendada), hora)
-    );
+    return agendamentos.find((a) => {
+      const dataAgendada = new Date(a.data_agendada);
+      const localDate = new Date(
+        dataAgendada.getTime() - dataAgendada.getTimezoneOffset() * 60000
+      );
+      return isSameMinute(localDate, hora);
+    });
   };
 
   return (
@@ -136,7 +150,7 @@ export default function DetalheDiaScreen() {
       ) : (
         <View style={styles.cardScrollContainer}>
           <FlatList
-            data={gerarHorarios()} // Passando os horários gerados diretamente
+            data={gerarHorarios()}
             keyExtractor={(item, index) => index.toString()}
             renderItem={({ item: horaInicio }) => {
               const horaFim = addMinutes(horaInicio, 30);
@@ -147,7 +161,6 @@ export default function DetalheDiaScreen() {
                   <Text style={styles.horario}>
                     {format(horaInicio, "HH:mm")} - {format(horaFim, "HH:mm")}
                   </Text>
-
                   {agendamento ? (
                     <View>
                       <Text style={styles.label}>Produtos</Text>
@@ -164,9 +177,37 @@ export default function DetalheDiaScreen() {
                       <Text style={styles.valor}>
                         R$ {agendamento.valor_total.toFixed(2)}
                       </Text>
+
+                      <TouchableOpacity
+                        onPress={() =>
+                          abrirConfirmacaoCancelamento(agendamento._id)
+                        }
+                        style={styles.botaoCancelar}
+                      >
+                        <Text style={styles.textoBotaoCancelar}>
+                          Cancelar Agendamento
+                        </Text>
+                      </TouchableOpacity>
                     </View>
                   ) : (
-                    <Text style={styles.disponivel}>⏳ Horário disponível</Text>
+                    <>
+                      <Text style={styles.disponivel}>
+                        ⏳ Horário disponível
+                      </Text>
+                      <TouchableOpacity
+                        onPress={() =>
+                          router.push({
+                            pathname: "/novoAgendamento",
+                            params: {
+                              horario: horaInicio.toISOString(),
+                            },
+                          })
+                        }
+                        style={styles.botaoAgendar}
+                      >
+                        <Text style={styles.textoBotaoAgendar}>Agendar</Text>
+                      </TouchableOpacity>
+                    </>
                   )}
                 </View>
               );
@@ -177,6 +218,56 @@ export default function DetalheDiaScreen() {
           />
         </View>
       )}
+
+      <Portal>
+        <Dialog
+          visible={popupVisivel}
+          onDismiss={() => setPopupVisivel(false)}
+          style={{ backgroundColor: "white", borderRadius: 16 }}
+        >
+          <Dialog.Title
+            style={{ fontFamily: "Poppins_700Bold", color: "#000" }}
+          >
+            Cancelar agendamento
+          </Dialog.Title>
+          <Dialog.Content>
+            <Text style={{ fontFamily: "Poppins_400Regular", color: "#333" }}>
+              Tem certeza que deseja cancelar este agendamento?
+            </Text>
+          </Dialog.Content>
+          <Dialog.Actions>
+            <Button
+              onPress={() => setPopupVisivel(false)}
+              textColor="#017b36"
+              style={{ borderRadius: 10 }}
+            >
+              Não
+            </Button>
+            <Button
+              textColor="#C62828"
+              style={{ borderRadius: 10 }}
+              onPress={async () => {
+                if (!idParaCancelar) return;
+                try {
+                  await api.delete(
+                    `/agendamentos/agendamentos/agendamento/${idParaCancelar}`
+                  );
+                  setAgendamentos((prev) =>
+                    prev.filter((a) => a._id !== idParaCancelar)
+                  );
+                } catch (e) {
+                  console.error("Erro ao cancelar agendamento", e);
+                } finally {
+                  setPopupVisivel(false);
+                  setIdParaCancelar(null);
+                }
+              }}
+            >
+              Sim
+            </Button>
+          </Dialog.Actions>
+        </Dialog>
+      </Portal>
     </TelaComFundo>
   );
 }
@@ -212,17 +303,14 @@ const styles = StyleSheet.create({
   cardScrollContainer: {
     flex: 1,
   },
-  cardScrollContent: {
-    paddingBottom: 20,
-  },
   card: {
     backgroundColor: "white",
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 16,
-    borderWidth: 2,
+    borderRadius: 16,
+    padding: 20,
+    marginBottom: 40,
+    marginHorizontal: 10,
     borderColor: "#017b36",
-    marginHorizontal: 4,
+    borderWidth: 2,
   },
   horario: {
     fontSize: 16,
@@ -232,20 +320,44 @@ const styles = StyleSheet.create({
     fontFamily: "Poppins_700Bold",
   },
   label: {
-    fontSize: 13,
-    color: "#555",
+    fontSize: 14,
+    color: "#666",
     fontFamily: "Poppins_400Regular",
-    marginTop: 4,
+    marginTop: 10,
   },
   valor: {
-    fontSize: 15,
+    fontSize: 16,
     color: "#000",
-    fontFamily: "Poppins_500Medium",
+    fontFamily: "Poppins_700Bold",
   },
   disponivel: {
     fontStyle: "italic",
     fontSize: 14,
     color: "#888",
     marginTop: 4,
+  },
+  botaoCancelar: {
+    marginTop: 12,
+    backgroundColor: "#C62828",
+    borderRadius: 12,
+    paddingVertical: 8,
+    alignItems: "center",
+  },
+  textoBotaoCancelar: {
+    color: "#fff",
+    fontFamily: "Poppins_700Bold",
+    fontSize: 14,
+  },
+  botaoAgendar: {
+    marginTop: 10,
+    backgroundColor: "#017b36",
+    borderRadius: 12,
+    paddingVertical: 8,
+    alignItems: "center",
+  },
+  textoBotaoAgendar: {
+    color: "white",
+    fontFamily: "Poppins_700Bold",
+    fontSize: 14,
   },
 });
