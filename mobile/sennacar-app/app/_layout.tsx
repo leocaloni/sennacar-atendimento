@@ -39,6 +39,34 @@ export default function RootLayout() {
               name="novoAgendamento"
               options={{ headerShown: false }}
             />
+            <Stack.Screen
+              name="adminClientes"
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="adminAgendamentos"
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="adminProdutos"
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="adminFuncionarios"
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="cadastroFuncionario"
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="listaFuncionarios"
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="editarFuncionario"
+              options={{ headerShown: false }}
+            />
           </Stack>
         </AuthProvider>
       </PaperProvider>

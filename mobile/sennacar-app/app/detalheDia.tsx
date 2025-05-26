@@ -212,7 +212,7 @@ export default function DetalheDiaScreen() {
                 </View>
               );
             }}
-            showsVerticalScrollIndicator={true}
+            showsVerticalScrollIndicator={false}
             keyboardShouldPersistTaps="handled"
             nestedScrollEnabled={true}
           />

@@ -1,29 +1,22 @@
-// app/novoAgendamento.tsx
 import { useState, useRef } from "react";
-import {
-  View,
-  StyleSheet,
-  TextInput as RNTextInput,
-  FlatList,
-  TouchableOpacity,
-} from "react-native";
-import { Button, Text } from "react-native-paper";
+import { View, StyleSheet, FlatList, TouchableOpacity } from "react-native";
+import { Button, Text, TextInput } from "react-native-paper";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { TelaComFundo } from "../components/TelaComFundo";
 import { api } from "./services/api";
 import UserIcon from "../assets/icons/user-grey.svg";
 import ToolsIcon from "../assets/icons/tools-grey.svg";
 import { Ionicons } from "@expo/vector-icons";
+import {
+  textInputPropsComLista,
+  textInputPropsComListaAtiva,
+} from "../styles/styles";
 
-// ----- tipos -----
 type Cliente = { _id: string; nome: string; email?: string; telefone?: string };
 type Produto = { _id: string; nome: string; preco?: number };
 
-// ----- debounce util -----
-// ----- debounce util -----
-const useDebounce = (cb: (...a: any[]) => void, delay = 400) => {
-  const timer = useRef<NodeJS.Timeout | null>(null); // ✅ Corrigido
-
+const useDebounce = (cb: (...a: any[]) => void, delay = 100) => {
+  const timer = useRef<NodeJS.Timeout | null>(null);
   return (...args: any[]) => {
     if (timer.current) clearTimeout(timer.current);
     timer.current = setTimeout(() => cb(...args), delay);
@@ -36,7 +29,6 @@ export default function NovoAgendamento() {
   const dataSelecionada = new Date(horarioISO as string);
   const router = useRouter();
 
-  // --- estados -----
   const [clienteInput, setClienteInput] = useState("");
   const [clientes, setClientes] = useState<Cliente[]>([]);
   const [clienteSelecionado, setClienteSelecionado] = useState<Cliente | null>(
@@ -49,7 +41,6 @@ export default function NovoAgendamento() {
     []
   );
 
-  // ----- buscas -----
   const debouncedBuscaClientes = useDebounce(async (texto: string) => {
     if (!texto) return setClientes([]);
     try {
@@ -74,7 +65,6 @@ export default function NovoAgendamento() {
     }
   });
 
-  // ----- submit -----
   const confirmarAgendamento = async () => {
     if (!clienteSelecionado || produtosSelecionados.length === 0) return;
     await api.post("/agendamentos/agendamentos", null, {
@@ -87,20 +77,11 @@ export default function NovoAgendamento() {
     router.back();
   };
 
-  // ----- UI -----
   return (
     <TelaComFundo>
       <TouchableOpacity
         onPress={() => router.back()}
-        style={{
-          position: "absolute",
-          top: 20,
-          left: 20,
-          zIndex: 10,
-          backgroundColor: "#017b36",
-          borderRadius: 12,
-          padding: 5,
-        }}
+        style={styles.botaoVoltar}
       >
         <Ionicons name="arrow-back" size={24} color="white" />
       </TouchableOpacity>
@@ -115,84 +96,108 @@ export default function NovoAgendamento() {
         </Text>
 
         {/* CLIENTE */}
-        <View style={styles.inputWrapper}>
-          <UserIcon width={20} height={20} style={{ marginRight: 8 }} />
-          <RNTextInput
-            style={styles.input}
+        <View style={{ marginBottom: 16 }}>
+          <TextInput
+            {...(clientes.length > 0
+              ? textInputPropsComListaAtiva
+              : textInputPropsComLista)}
             placeholder="Buscar cliente"
-            placeholderTextColor="#A0A0A0"
             value={clienteInput}
+            textColor="black"
             onChangeText={(t) => {
               setClienteInput(t);
               debouncedBuscaClientes(t);
             }}
+            left={
+              <TextInput.Icon
+                icon={() => <UserIcon width={20} height={20} />}
+              />
+            }
           />
+
+          {clientes.length > 0 && (
+            <FlatList
+              style={styles.lista}
+              data={clientes}
+              keyExtractor={(i) => i._id}
+              renderItem={({ item }) => (
+                <TouchableOpacity
+                  onPress={() => {
+                    setClienteSelecionado(item);
+                    setClienteInput(item.nome);
+                    setClientes([]);
+                  }}
+                  style={styles.sugestaoItem}
+                >
+                  <Text style={styles.resultadoSugestao}>{item.nome}</Text>
+                </TouchableOpacity>
+              )}
+            />
+          )}
         </View>
 
-        {clientes.length > 0 && (
-          <FlatList
-            style={styles.lista}
-            data={clientes}
-            keyExtractor={(i) => i._id}
-            renderItem={({ item }) => (
-              <TouchableOpacity
-                onPress={() => {
-                  setClienteSelecionado(item);
-                  setClienteInput(item.nome);
-                  setClientes([]);
-                }}
-              >
-                <Text style={styles.resultado}>{item.nome}</Text>
-              </TouchableOpacity>
-            )}
-          />
-        )}
-
         {/* PRODUTO */}
-        <View style={styles.inputWrapper}>
-          <ToolsIcon width={20} height={20} style={{ marginRight: 8 }} />
-          <RNTextInput
-            style={styles.input}
+        <View style={{ marginBottom: 16 }}>
+          <TextInput
+            {...(sugestoesProdutos.length > 0
+              ? textInputPropsComListaAtiva
+              : textInputPropsComLista)}
             placeholder="Buscar produto"
-            placeholderTextColor="#A0A0A0"
+            textColor="black"
             value={produtoInput}
             onChangeText={(t) => {
               setProdutoInput(t);
               debouncedBuscaProdutos(t);
             }}
+            left={
+              <TextInput.Icon
+                icon={() => <ToolsIcon width={20} height={20} />}
+              />
+            }
           />
+
+          {sugestoesProdutos.length > 0 && (
+            <FlatList
+              style={styles.lista}
+              data={sugestoesProdutos}
+              keyExtractor={(i) => i._id}
+              renderItem={({ item }) => (
+                <TouchableOpacity
+                  onPress={() => {
+                    if (!produtosSelecionados.some((p) => p._id === item._id))
+                      setProdutosSelecionados((prev) => [...prev, item]);
+                    setProdutoInput("");
+                    setSugestoesProdutos([]);
+                  }}
+                  style={styles.sugestaoItem}
+                >
+                  <Text style={styles.resultadoSugestao}>{item.nome}</Text>
+                </TouchableOpacity>
+              )}
+            />
+          )}
         </View>
 
-        {sugestoesProdutos.length > 0 && (
-          <FlatList
-            style={styles.lista}
-            data={sugestoesProdutos}
-            keyExtractor={(i) => i._id}
-            renderItem={({ item }) => (
-              <TouchableOpacity
-                onPress={() => {
-                  if (!produtosSelecionados.some((p) => p._id === item._id))
-                    setProdutosSelecionados((prev) => [...prev, item]);
-                  setProdutoInput("");
-                  setSugestoesProdutos([]);
-                }}
-              >
-                <Text style={styles.resultado}>{item.nome}</Text>
-              </TouchableOpacity>
-            )}
-          />
-        )}
-
         {produtosSelecionados.length > 0 && (
-          <View style={{ marginTop: 8 }}>
+          <View style={styles.produtosSelecionados}>
             <Text style={styles.subtitulo}>Selecionados:</Text>
             {produtosSelecionados.map((p) => (
-              <Text key={p._id} style={styles.resultado}>
+              <Text key={p._id} style={styles.resultadoSelecionado}>
                 • {p.nome}
               </Text>
             ))}
           </View>
         )}
+
+        <Button
+          mode="contained"
+          buttonColor="#017b36"
+          textColor="white"
+          style={styles.botaoConfirmar}
+          onPress={confirmarAgendamento}
+        >
+          Confirmar agendamento
+        </Button>
 
         <Text style={styles.pergunta}>Cliente sem cadastro?</Text>
         <Button
@@ -204,51 +209,51 @@ export default function NovoAgendamento() {
         >
           Cadastrar cliente
         </Button>
-
-        <Button
-          mode="contained"
-          buttonColor="#01913F"
-          textColor="white"
-          style={styles.botaoConfirmar}
-          onPress={confirmarAgendamento}
-        >
-          Confirmar agendamento
-        </Button>
       </View>
     </TelaComFundo>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 20 },
+  container: {
+    flex: 1,
+    alignContent: "center",
+    justifyContent: "center",
+    paddingHorizontal: 20,
+    paddingTop: 60,
+  },
   titulo: {
     fontSize: 22,
     fontFamily: "Poppins_700Bold",
     color: "#fff",
     marginBottom: 20,
-  },
-  inputWrapper: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "white",
-    borderRadius: 16,
-    paddingHorizontal: 12,
-    marginBottom: 8,
-  },
-  input: {
-    flex: 1,
-    height: 50,
-    fontFamily: "Poppins_400Regular",
-    color: "#000",
+    marginTop: 40,
   },
   lista: {
     backgroundColor: "white",
-    borderRadius: 12,
-    maxHeight: 150,
-    marginBottom: 8,
-    zIndex: 5,
+    borderBottomLeftRadius: 16,
+    borderBottomRightRadius: 16,
+    maxHeight: 200,
+    marginBottom: 16,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+    overflow: "hidden",
   },
-  resultado: {
+  sugestaoItem: {
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: "#eee",
+  },
+  resultadoSugestao: {
+    fontFamily: "Poppins_400Regular",
+    fontSize: 15,
+    color: "#333",
+  },
+  resultadoSelecionado: {
     padding: 10,
     fontFamily: "Poppins_400Regular",
     color: "white",
@@ -258,7 +263,14 @@ const styles = StyleSheet.create({
     color: "white",
     marginBottom: 4,
   },
-  pergunta: { textAlign: "center", color: "#fff", marginTop: 20 },
+  produtosSelecionados: {
+    marginTop: 8,
+  },
+  pergunta: {
+    textAlign: "center",
+    color: "#fff",
+    marginTop: 20,
+  },
   botaoCadastrar: {
     alignSelf: "center",
     borderRadius: 30,
@@ -270,5 +282,15 @@ const styles = StyleSheet.create({
     borderRadius: 30,
     width: 220,
     marginTop: 16,
+    marginBottom: 20,
+  },
+  botaoVoltar: {
+    position: "absolute",
+    top: 20,
+    left: 20,
+    zIndex: 10,
+    backgroundColor: "#017b36",
+    borderRadius: 12,
+    padding: 5,
   },
 });

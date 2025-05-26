@@ -115,6 +115,7 @@ export default function Login({ navigation }: LoginProps) {
                   {...textInputProps}
                   textColor="black"
                   placeholder="Email"
+                  keyboardType="email-address"
                   value={email}
                   onChangeText={(text) => setEmail(text)}
                   left={

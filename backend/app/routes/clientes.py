@@ -61,12 +61,25 @@ async def buscar_clientes(
     return ClienteResponse.from_mongo(cliente)
 
 
+# app/routers/clientes.py
 @router.get("/busca", response_model=List[ClienteResponse])
 async def buscar_clientes_parcial(
-    nome: str = Query(..., min_length=1),
+    nome: Optional[str] = Query(None, min_length=1),
+    email: Optional[str] = Query(None, min_length=1),
+    telefone: Optional[str] = Query(None, min_length=1),
     user: dict = Depends(get_current_user),
 ):
-    clientes = Cliente.listar_por_nome_regex(nome)  # novo método
+    if nome:
+        clientes = Cliente.listar_por_nome_regex(nome)
+    elif email:
+        clientes = Cliente.listar_por_email_regex(email)
+    elif telefone:
+        clientes = Cliente.listar_por_telefone_regex(telefone)
+    else:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Informe nome, email ou telefone para busca",
+        )
     return [ClienteResponse.from_mongo(c) for c in clientes]
 
 

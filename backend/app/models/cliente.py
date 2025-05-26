@@ -62,12 +62,20 @@ class Cliente:
             print(f"Erro ao buscar cliente por email: {e}")
             return None
 
-    # app/models/cliente.py
-
     @staticmethod
     def listar_por_nome_regex(texto: str) -> List[Dict]:
         regex = {"$regex": f".*{texto}.*", "$options": "i"}
         return list(get_clientes_collection().find({"nome": regex}).limit(10))
+
+    @staticmethod
+    def listar_por_email_regex(texto: str) -> List[Dict]:
+        regex = {"$regex": f".*{texto}.*", "$options": "i"}
+        return list(get_clientes_collection().find({"email": regex}).limit(10))
+
+    @staticmethod
+    def listar_por_telefone_regex(texto: str) -> List[Dict]:
+        regex = {"$regex": f".*{texto}.*", "$options": "i"}
+        return list(get_clientes_collection().find({"telefone": regex}).limit(10))
 
     @staticmethod
     def listar_todos() -> List[Dict]:

@@ -92,8 +92,8 @@ export const textInputProps = {
     borderRadius: 15,
     borderWidth: 1,
   },
-  activeOutlineColor: "#017b36",
-  outlineColor: "#000679",
+  activeOutlineColor: "#000679",
+  outlineColor: "transparent",
   placeholderTextColor: "#A0A0A0",
 
   theme: {
@@ -102,5 +102,43 @@ export const textInputProps = {
       placeholder: "#A0A0A0",
       primary: "#017b36",
     },
+  },
+};
+
+export const textInputPropsComLista = {
+  mode: "outlined" as const,
+  textColor: "transparent",
+  outlineColor: "#ccc",
+  activeOutlineColor: "white",
+  theme: {
+    roundness: 16,
+    colors: {
+      background: "white",
+      surfaceVariant: "white",
+      outline: "#ccc",
+    },
+  },
+  outlineStyle: {
+    borderRadius: 16,
+    backgroundColor: "white",
+  },
+  style: {
+    fontFamily: "Poppins_400Regular",
+    marginBottom: 20,
+  },
+};
+
+export const textInputPropsComListaAtiva = {
+  ...textInputPropsComLista,
+  outlineStyle: {
+    borderTopLeftRadius: 16,
+    borderTopRightRadius: 16,
+    borderBottomLeftRadius: 0,
+    borderBottomRightRadius: 0,
+    backgroundColor: "white",
+  },
+  style: {
+    fontFamily: "Poppins_400Regular",
+    marginBottom: 0,
   },
 };

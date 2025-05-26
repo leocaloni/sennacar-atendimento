@@ -62,6 +62,7 @@ const localStyles = StyleSheet.create({
     width: 150,
     height: 52,
     resizeMode: "contain",
+    marginTop: 15,
   },
   backgroundWrapper: {
     flex: 1,
@@ -71,6 +72,6 @@ const localStyles = StyleSheet.create({
     borderTopLeftRadius: 0,
     paddingTop: 30,
     paddingHorizontal: 20,
-    paddingBottom: 80,
+    paddingBottom: 0,
   },
 });

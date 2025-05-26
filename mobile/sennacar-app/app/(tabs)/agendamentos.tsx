@@ -182,6 +182,7 @@ const styles = StyleSheet.create({
     color: "white",
     marginBottom: 30,
     fontFamily: "Poppins_400Regular",
+    marginTop: 30,
   },
   diasContainer: {
     flexDirection: "row",

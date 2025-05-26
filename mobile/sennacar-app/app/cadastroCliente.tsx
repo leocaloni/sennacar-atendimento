@@ -1,16 +1,12 @@
 import { useState } from "react";
-import {
-  View,
-  StyleSheet,
-  TextInput as RNTextInput,
-  Alert,
-  TouchableOpacity,
-} from "react-native";
-import { Button, Text } from "react-native-paper";
+import { StyleSheet, Alert, TouchableOpacity } from "react-native";
+import { Button, Text, TextInput } from "react-native-paper";
 import { TelaComFundo } from "../components/TelaComFundo";
 import { api } from "./services/api";
 import { router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
+import { textInputProps } from "../styles/styles";
+import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 
 import UserIcon from "../assets/icons/user-grey.svg";
 import EmailIcon from "../assets/icons/email.svg";
@@ -46,7 +42,12 @@ export default function CadastroCliente() {
 
   return (
     <TelaComFundo>
-      <View style={styles.container}>
+      <KeyboardAwareScrollView
+        contentContainerStyle={styles.container}
+        enableOnAndroid
+        extraScrollHeight={20}
+        keyboardShouldPersistTaps="handled"
+      >
         <TouchableOpacity
           onPress={() => router.back()}
           style={styles.botaoVoltar}
@@ -56,40 +57,43 @@ export default function CadastroCliente() {
 
         <Text style={styles.titulo}>Cadastro de Cliente</Text>
 
-        <View style={styles.inputWrapper}>
-          <UserIcon width={20} height={20} style={{ marginRight: 8 }} />
-          <RNTextInput
-            style={styles.input}
-            placeholder="Nome"
-            value={nome}
-            onChangeText={setNome}
-            placeholderTextColor="#A0A0A0"
-          />
-        </View>
+        <TextInput
+          {...textInputProps}
+          style={styles.input}
+          placeholder="Nome"
+          value={nome}
+          textColor="black"
+          onChangeText={setNome}
+          left={
+            <TextInput.Icon icon={() => <UserIcon width={20} height={20} />} />
+          }
+        />
 
-        <View style={styles.inputWrapper}>
-          <EmailIcon width={20} height={20} style={{ marginRight: 8 }} />
-          <RNTextInput
-            style={styles.input}
-            placeholder="Email"
-            value={email}
-            onChangeText={setEmail}
-            keyboardType="email-address"
-            placeholderTextColor="#A0A0A0"
-          />
-        </View>
+        <TextInput
+          {...textInputProps}
+          style={styles.input}
+          placeholder="Email"
+          value={email}
+          textColor="black"
+          onChangeText={setEmail}
+          keyboardType="email-address"
+          left={
+            <TextInput.Icon icon={() => <EmailIcon width={20} height={20} />} />
+          }
+        />
 
-        <View style={styles.inputWrapper}>
-          <PhoneIcon width={20} height={20} style={{ marginRight: 8 }} />
-          <RNTextInput
-            style={styles.input}
-            placeholder="Telefone"
-            value={telefone}
-            onChangeText={setTelefone}
-            keyboardType="phone-pad"
-            placeholderTextColor="#A0A0A0"
-          />
-        </View>
+        <TextInput
+          {...textInputProps}
+          style={styles.input}
+          placeholder="Telefone"
+          value={telefone}
+          textColor="black"
+          onChangeText={setTelefone}
+          keyboardType="phone-pad"
+          left={
+            <TextInput.Icon icon={() => <PhoneIcon width={20} height={20} />} />
+          }
+        />
 
         <Button
           mode="contained"
@@ -101,7 +105,7 @@ export default function CadastroCliente() {
         >
           Cadastrar
         </Button>
-      </View>
+      </KeyboardAwareScrollView>
     </TelaComFundo>
   );
 }
@@ -115,6 +119,8 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: 20,
     paddingTop: 60,
+    alignContent: "center",
+    justifyContent: "center",
   },
   botaoVoltar: {
     position: "absolute",
@@ -132,19 +138,11 @@ const styles = StyleSheet.create({
     fontFamily: "Poppins_700Bold",
     alignSelf: "center",
   },
-  inputWrapper: {
-    flexDirection: "row",
-    alignItems: "center",
+  input: {
+    marginBottom: 20,
     backgroundColor: "white",
     borderRadius: 16,
-    paddingHorizontal: 12,
-    marginBottom: 20,
-  },
-  input: {
-    flex: 1,
-    height: 50,
     fontFamily: "Poppins_400Regular",
-    color: "#000",
   },
   botaoCadastrar: {
     alignSelf: "center",
