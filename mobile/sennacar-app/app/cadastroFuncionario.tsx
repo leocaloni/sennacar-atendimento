@@ -8,7 +8,7 @@ import { router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { textInputProps } from "../styles/styles";
 
-import UserIcon from "../assets/icons/user-grey.svg";
+import MechanicIcon from "../assets/icons/mechanic-grey.svg";
 import EmailIcon from "../assets/icons/email.svg";
 import SenhaIcon from "../assets/icons/senha.svg";
 
@@ -77,7 +77,9 @@ export default function CadastroFuncionario() {
           value={nome}
           onChangeText={setNome}
           left={
-            <TextInput.Icon icon={() => <UserIcon width={20} height={20} />} />
+            <TextInput.Icon
+              icon={() => <MechanicIcon width={20} height={20} />}
+            />
           }
         />
 

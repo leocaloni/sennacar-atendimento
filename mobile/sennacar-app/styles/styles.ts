@@ -108,8 +108,8 @@ export const textInputProps = {
 export const textInputPropsComLista = {
   mode: "outlined" as const,
   textColor: "transparent",
-  outlineColor: "#ccc",
-  activeOutlineColor: "white",
+  outlineColor: "transparent",
+  activeOutlineColor: "#A0A0A0",
   theme: {
     roundness: 16,
     colors: {

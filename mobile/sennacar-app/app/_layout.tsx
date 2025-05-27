@@ -67,6 +67,14 @@ export default function RootLayout() {
               name="editarFuncionario"
               options={{ headerShown: false }}
             />
+            <Stack.Screen
+              name="editarCliente"
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="listaClientes"
+              options={{ headerShown: false }}
+            />
           </Stack>
         </AuthProvider>
       </PaperProvider>

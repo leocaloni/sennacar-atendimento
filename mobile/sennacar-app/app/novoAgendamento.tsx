@@ -4,8 +4,8 @@ import { Button, Text, TextInput } from "react-native-paper";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { TelaComFundo } from "../components/TelaComFundo";
 import { api } from "./services/api";
-import UserIcon from "../assets/icons/user-grey.svg";
-import ToolsIcon from "../assets/icons/tools-grey.svg";
+import CostumerIcon from "../assets/icons/costumer-grey.svg";
+import ProductIcon from "../assets/icons/product-grey.svg";
 import { Ionicons } from "@expo/vector-icons";
 import {
   textInputPropsComLista,
@@ -110,7 +110,7 @@ export default function NovoAgendamento() {
             }}
             left={
               <TextInput.Icon
-                icon={() => <UserIcon width={20} height={20} />}
+                icon={() => <CostumerIcon width={20} height={20} />}
               />
             }
           />
@@ -151,7 +151,7 @@ export default function NovoAgendamento() {
             }}
             left={
               <TextInput.Icon
-                icon={() => <ToolsIcon width={20} height={20} />}
+                icon={() => <ProductIcon width={20} height={20} />}
               />
             }
           />

@@ -8,7 +8,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { textInputProps } from "../styles/styles";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 
-import UserIcon from "../assets/icons/user-grey.svg";
+import CostumerIcon from "../assets/icons/costumer-grey.svg";
 import EmailIcon from "../assets/icons/email.svg";
 import PhoneIcon from "../assets/icons/phone.svg";
 
@@ -65,7 +65,9 @@ export default function CadastroCliente() {
           textColor="black"
           onChangeText={setNome}
           left={
-            <TextInput.Icon icon={() => <UserIcon width={20} height={20} />} />
+            <TextInput.Icon
+              icon={() => <CostumerIcon width={20} height={20} />}
+            />
           }
         />
 

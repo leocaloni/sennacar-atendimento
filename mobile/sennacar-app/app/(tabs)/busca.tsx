@@ -13,7 +13,7 @@ import {
   textInputPropsComLista,
   textInputPropsComListaAtiva,
 } from "../../styles/styles";
-import UserIcon from "../../assets/icons/user-grey.svg";
+import CostumerIcon from "../../assets/icons/costumer-grey.svg";
 import EmailIcon from "../../assets/icons/email.svg";
 import PhoneIcon from "../../assets/icons/phone.svg";
 import SearchIcon from "../../assets/icons/search-white.svg";
@@ -84,7 +84,7 @@ export default function BuscaScreen() {
 
   const IconComponent =
     metodo === "nome"
-      ? () => <UserIcon width={20} height={20} />
+      ? () => <CostumerIcon width={20} height={20} />
       : metodo === "email"
       ? () => <EmailIcon width={20} height={20} />
       : () => <PhoneIcon width={20} height={20} />;

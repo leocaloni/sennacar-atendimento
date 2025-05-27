@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from app.models.cliente import Cliente
-from app.schemas.cliente import ClienteResponse
+from app.schemas.cliente import ClienteResponse, ClienteUpdate
 from typing import List, Optional
 from app.auth.auth_utils import get_current_user
 
@@ -25,6 +25,12 @@ async def criar_cliente(
 
 @router.get("/debug", response_model=List[ClienteResponse])
 async def debug_busca_geral():
+    clientes = Cliente.listar_todos()
+    return [ClienteResponse.from_mongo(c) for c in clientes]
+
+
+@router.get("/todos", response_model=List[ClienteResponse])
+async def listar_todos_clientes(user: dict = Depends(get_current_user)):
     clientes = Cliente.listar_todos()
     return [ClienteResponse.from_mongo(c) for c in clientes]
 
@@ -61,7 +67,6 @@ async def buscar_clientes(
     return ClienteResponse.from_mongo(cliente)
 
 
-# app/routers/clientes.py
 @router.get("/busca", response_model=List[ClienteResponse])
 async def buscar_clientes_parcial(
     nome: Optional[str] = Query(None, min_length=1),
@@ -94,18 +99,10 @@ async def obter_cliente_por_id(cliente_id: str, user: dict = Depends(get_current
 @router.put("/{cliente_id}")
 async def atualizar_cliente(
     cliente_id: str,
-    nome: Optional[str] = None,
-    email: Optional[str] = None,
-    telefone: Optional[str] = None,
+    dados: ClienteUpdate,
     user: dict = Depends(get_current_user),
 ):
-    dados_atualizacao = {}
-    if nome:
-        dados_atualizacao["nome"] = nome
-    if email:
-        dados_atualizacao["email"] = email
-    if telefone:
-        dados_atualizacao["telefone"] = telefone
+    dados_atualizacao = dados.dict(exclude_unset=True)
 
     if not dados_atualizacao:
         raise HTTPException(
@@ -115,10 +112,8 @@ async def atualizar_cliente(
 
     sucesso = Cliente.atualizar_cliente(cliente_id, dados_atualizacao)
     if not sucesso:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Cliente não encontrado",
-        )
+        raise HTTPException(status_code=404, detail="Cliente não encontrado")
+
     return {"message": "Cliente atualizado"}
 
 

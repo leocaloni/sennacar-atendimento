@@ -11,14 +11,16 @@ import { api } from "./services/api";
 import { Ionicons } from "@expo/vector-icons";
 import { TelaComFundo } from "../components/TelaComFundo";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
-import UserIcon from "../assets/icons/user-grey.svg";
+import CostumerIcon from "../assets/icons/costumer-grey.svg";
 import EmailIcon from "../assets/icons/email.svg";
+import PhoneIcon from "../assets/icons/phone.svg";
 import { textInputProps } from "../styles/styles";
 
-export default function EditarFuncionarioScreen() {
+export default function EditarClienteScreen() {
   const { id } = useLocalSearchParams();
   const [nome, setNome] = useState("");
   const [email, setEmail] = useState("");
+  const [telefone, setTelefone] = useState("");
   const [loading, setLoading] = useState(false);
   const [erro, setErro] = useState("");
   const [confirmarEdicao, setConfirmarEdicao] = useState(false);
@@ -26,34 +28,37 @@ export default function EditarFuncionarioScreen() {
   const router = useRouter();
 
   useEffect(() => {
-    const carregarFuncionario = async () => {
+    const carregarCliente = async () => {
       setLoading(true);
       try {
-        const { data } = await api.get(`/funcionarios/funcionarios/${id}`);
+        const { data } = await api.get(`/clientes/clientes/${id}`);
         setNome(data.nome);
         setEmail(data.email);
+        setTelefone(data.telefone);
       } catch (err) {
-        setErro("Erro ao carregar dados do funcionário.");
-        console.error("Erro ao carregar dados do funcionário:", err);
+        setErro("Erro ao carregar dados do cliente.");
+        console.error("Erro ao carregar dados do cliente:", err);
       } finally {
         setLoading(false);
       }
     };
 
     if (id) {
-      carregarFuncionario();
+      carregarCliente();
     }
   }, [id]);
 
-  interface AtualizacaoFuncionario {
+  interface AtualizacaoCliente {
     nome?: string;
     email?: string;
+    telefone?: string;
   }
 
   const confirmarAtualizacao = async () => {
-    const dadosAtualizados: AtualizacaoFuncionario = {};
+    const dadosAtualizados: AtualizacaoCliente = {};
     if (nome) dadosAtualizados.nome = nome;
     if (email) dadosAtualizados.email = email;
+    if (telefone) dadosAtualizados.telefone = telefone;
 
     if (Object.keys(dadosAtualizados).length === 0) {
       setErro("Por favor, forneça pelo menos um campo para atualização.");
@@ -63,11 +68,11 @@ export default function EditarFuncionarioScreen() {
 
     setLoading(true);
     try {
-      await api.put(`/funcionarios/funcionarios/${id}`, dadosAtualizados);
+      await api.put(`/clientes/clientes/${id}`, dadosAtualizados);
       setFeedbackEdicao(true);
     } catch (err) {
-      setErro("Erro ao atualizar funcionário.");
-      console.error("Erro ao atualizar funcionário:", err);
+      setErro("Erro ao atualizar cliente.");
+      console.error("Erro ao atualizar cliente:", err);
     } finally {
       setLoading(false);
       setConfirmarEdicao(false);
@@ -90,7 +95,7 @@ export default function EditarFuncionarioScreen() {
           <Ionicons name="arrow-back" size={24} color="white" />
         </TouchableOpacity>
 
-        <Text style={styles.titulo}>Editar Funcionário</Text>
+        <Text style={styles.titulo}>Editar Cliente</Text>
 
         {loading && (
           <ActivityIndicator style={{ marginTop: 20 }} color="#017b36" />
@@ -107,7 +112,7 @@ export default function EditarFuncionarioScreen() {
             onChangeText={setNome}
             left={
               <TextInput.Icon
-                icon={() => <UserIcon width={20} height={20} />}
+                icon={() => <CostumerIcon width={20} height={20} />}
               />
             }
             textColor="black"
@@ -123,6 +128,21 @@ export default function EditarFuncionarioScreen() {
             left={
               <TextInput.Icon
                 icon={() => <EmailIcon width={20} height={20} />}
+              />
+            }
+            textColor="black"
+          />
+
+          <TextInput
+            {...textInputProps}
+            style={styles.input}
+            placeholder="Telefone"
+            value={telefone}
+            onChangeText={setTelefone}
+            keyboardType="phone-pad"
+            left={
+              <TextInput.Icon
+                icon={() => <PhoneIcon width={20} height={20} />}
               />
             }
             textColor="black"
@@ -177,7 +197,7 @@ export default function EditarFuncionarioScreen() {
           </Dialog.Title>
           <Dialog.Content>
             <Text style={{ fontFamily: "Poppins_400Regular", color: "#333" }}>
-              Tem certeza que deseja atualizar os dados deste funcionário?
+              Tem certeza que deseja atualizar os dados deste cliente?
             </Text>
           </Dialog.Content>
           <Dialog.Actions>

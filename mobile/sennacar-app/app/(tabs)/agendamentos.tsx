@@ -194,7 +194,7 @@ const styles = StyleSheet.create({
   },
   botaoDia: {
     backgroundColor: "white",
-    width: 80,
+    width: 85,
     height: 90,
     borderRadius: 20,
     paddingVertical: 10,

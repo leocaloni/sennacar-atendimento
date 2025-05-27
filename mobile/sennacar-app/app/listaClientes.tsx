@@ -1,4 +1,3 @@
-// listaFuncionarios.tsx
 import {
   View,
   StyleSheet,
@@ -13,33 +12,31 @@ import { api } from "./services/api";
 import { Ionicons } from "@expo/vector-icons";
 import { router, useFocusEffect } from "expo-router";
 
-export default function ListaFuncionariosScreen() {
-  const [funcionarios, setFuncionarios] = useState<any[]>([]);
+export default function ListaClientesScreen() {
+  const [clientes, setClientes] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [verIdCompleto, setVerIdCompleto] = useState<string | null>(null);
   const [confirmarExclusao, setConfirmarExclusao] = useState(false);
   const [feedbackExclusao, setFeedbackExclusao] = useState(false);
   const [idParaExcluir, setIdParaExcluir] = useState<string | null>(null);
 
-  const carregarFuncionarios = async () => {
+  const carregarClientes = async () => {
     setLoading(true);
     try {
-      const { data } = await api.get("/funcionarios/funcionarios/");
-      setFuncionarios(data);
+      const { data } = await api.get("/clientes/clientes/todos");
+      setClientes(data);
     } catch (err) {
-      console.error("Erro ao buscar funcionários", err);
+      console.error("Erro ao buscar clientes", err);
     } finally {
       setLoading(false);
     }
   };
 
-  const excluirFuncionario = async () => {
+  const excluirCliente = async () => {
     if (!idParaExcluir) return;
     try {
-      await api.delete(`/funcionarios/funcionarios/${idParaExcluir}`);
-      setFuncionarios((prev) =>
-        prev.filter((func) => func._id !== idParaExcluir)
-      );
+      await api.delete(`/clientes/${idParaExcluir}`);
+      setClientes((prev) => prev.filter((func) => func._id !== idParaExcluir));
       setFeedbackExclusao(true);
     } catch (e) {
       console.error("Erro ao excluir", e);
@@ -51,7 +48,7 @@ export default function ListaFuncionariosScreen() {
 
   useFocusEffect(
     useCallback(() => {
-      carregarFuncionarios();
+      carregarClientes();
     }, [])
   );
 
@@ -64,13 +61,13 @@ export default function ListaFuncionariosScreen() {
         <Ionicons name="arrow-back" size={24} color="white" />
       </TouchableOpacity>
 
-      <Text style={styles.titulo}>Todos os Funcionários</Text>
+      <Text style={styles.titulo}>Todos os Clientes</Text>
 
       {loading ? (
         <ActivityIndicator style={{ marginTop: 40 }} color="#fff" />
       ) : (
         <FlatList
-          data={funcionarios}
+          data={clientes}
           showsVerticalScrollIndicator={false}
           keyExtractor={(item) => item._id}
           renderItem={({ item }) => (
@@ -94,8 +91,8 @@ export default function ListaFuncionariosScreen() {
               <Text style={styles.label}>Email</Text>
               <Text style={styles.valor}>{item.email}</Text>
 
-              <Text style={styles.label}>Administrador</Text>
-              <Text style={styles.valor}>{item.is_admin ? "Sim" : "Não"}</Text>
+              <Text style={styles.label}>Telefone</Text>
+              <Text style={styles.valor}>{item.telefone}</Text>
 
               <View style={styles.acoes}>
                 <Button
@@ -104,7 +101,7 @@ export default function ListaFuncionariosScreen() {
                   textColor="white"
                   onPress={() =>
                     router.push({
-                      pathname: "/editarFuncionario",
+                      pathname: "/editarCliente",
                       params: { id: item._id },
                     })
                   }
@@ -153,7 +150,7 @@ export default function ListaFuncionariosScreen() {
             >
               Cancelar
             </Button>
-            <Button onPress={excluirFuncionario} textColor="#C62828">
+            <Button onPress={excluirCliente} textColor="#C62828">
               Excluir
             </Button>
           </Dialog.Actions>

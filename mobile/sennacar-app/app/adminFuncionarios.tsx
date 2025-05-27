@@ -16,7 +16,7 @@ import {
 } from "react-native-paper";
 import { TelaComFundo } from "../components/TelaComFundo";
 import { api } from "./services/api";
-import UserIcon from "../assets/icons/user-grey.svg";
+import MechanicIcon from "../assets/icons/mechanic-grey.svg";
 import EmailIcon from "../assets/icons/email.svg";
 import SearchIcon from "../assets/icons/search-white.svg";
 import { Ionicons } from "@expo/vector-icons";
@@ -98,7 +98,7 @@ export default function AdminFuncionariosScreen() {
 
   const IconComponent =
     metodo === "nome"
-      ? () => <UserIcon width={20} height={20} />
+      ? () => <MechanicIcon width={20} height={20} />
       : () => <EmailIcon width={20} height={20} />;
 
   const placeholder = metodo === "nome" ? "Nome" : "Email";
