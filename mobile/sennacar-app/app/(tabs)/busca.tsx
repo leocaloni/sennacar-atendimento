@@ -1,9 +1,9 @@
 import {
   View,
-  StyleSheet,
   TouchableOpacity,
   ActivityIndicator,
   FlatList,
+  StyleSheet,
 } from "react-native";
 import { useState, useRef } from "react";
 import { RadioButton, Button, Text, TextInput } from "react-native-paper";
@@ -13,13 +13,14 @@ import {
   textInputPropsComLista,
   textInputPropsComListaAtiva,
 } from "../../styles/styles";
+import { estilosGlobais } from "../../styles/estilosGlobais";
+
 import CostumerIcon from "../../assets/icons/costumer-grey.svg";
 import EmailIcon from "../../assets/icons/email.svg";
 import PhoneIcon from "../../assets/icons/phone.svg";
 import SearchIcon from "../../assets/icons/search-white.svg";
 import { router } from "expo-router";
 
-// -------- tipo cliente --------
 type Cliente = {
   _id: string;
   nome: string;
@@ -27,7 +28,6 @@ type Cliente = {
   telefone: string;
 };
 
-// -------- debounce util --------
 const useDebounce = (cb: (...a: any[]) => void, delay = 100) => {
   const timer = useRef<NodeJS.Timeout | null>(null);
   return (...args: any[]) => {
@@ -45,7 +45,6 @@ export default function BuscaScreen() {
   const [erro, setErro] = useState("");
   const [verIdCompleto, setVerIdCompleto] = useState(false);
 
-  // ------------- busca parcial -------------
   const debouncedBuscaParcial = useDebounce(async (texto: string) => {
     if (!texto) return setSugestoes([]);
     try {
@@ -58,7 +57,6 @@ export default function BuscaScreen() {
     }
   });
 
-  // ------------- busca exata -------------
   const buscarCliente = async () => {
     setErro("");
     setCliente(null);
@@ -78,7 +76,6 @@ export default function BuscaScreen() {
     }
   };
 
-  // ------------- ícones & placeholder -------------
   const placeholder =
     metodo === "nome" ? "Nome" : metodo === "email" ? "Email" : "Telefone";
 
@@ -92,9 +89,8 @@ export default function BuscaScreen() {
   return (
     <TelaComFundo>
       <View style={styles.container}>
-        <Text style={styles.titulo}>Consultar clientes</Text>
+        <Text style={estilosGlobais.tituloTela}>Consultar clientes</Text>
 
-        {/* ----- selecção de método ----- */}
         <RadioButton.Group
           onValueChange={(val) => {
             setMetodo(val as any);
@@ -119,9 +115,7 @@ export default function BuscaScreen() {
           </View>
         </RadioButton.Group>
 
-        {/* ----- campo de busca + botão ----- */}
         <View style={{ flexDirection: "row", alignItems: "flex-start" }}>
-          {/* CAMPO + LISTA DENTRO DE UM BLOCO SÓ */}
           <View style={{ flex: 1 }}>
             <TextInput
               {...(sugestoes.length > 0
@@ -144,15 +138,14 @@ export default function BuscaScreen() {
               left={<TextInput.Icon icon={IconComponent} />}
             />
 
-            {/* LISTA FICA EMPILHADA EMBAIXO DO TEXTINPUT */}
             {sugestoes.length > 0 && (
               <FlatList
-                style={styles.lista}
+                style={estilosGlobais.listaSugestoes}
                 data={sugestoes}
                 keyExtractor={(c) => c._id}
                 renderItem={({ item }) => (
                   <TouchableOpacity
-                    style={styles.sugestaoItem}
+                    style={estilosGlobais.sugestaoItem}
                     onPress={() => {
                       setCliente(item);
                       setValor(
@@ -166,7 +159,7 @@ export default function BuscaScreen() {
                       setVerIdCompleto(false);
                     }}
                   >
-                    <Text style={styles.sugestaoTexto}>
+                    <Text style={estilosGlobais.sugestaoTexto}>
                       {metodo === "nome"
                         ? item.nome
                         : metodo === "email"
@@ -179,9 +172,11 @@ export default function BuscaScreen() {
             )}
           </View>
 
-          {/* BOTÃO FIXO DO LADO, FORA DO BLOCÃO */}
           <TouchableOpacity
-            style={[styles.botaoBusca, { marginLeft: 10, marginTop: 4 }]}
+            style={[
+              estilosGlobais.botaoBusca,
+              { marginLeft: 10, marginTop: 4 },
+            ]}
             onPress={buscarCliente}
           >
             <SearchIcon width={24} height={24} />
@@ -190,9 +185,8 @@ export default function BuscaScreen() {
 
         {loading && <ActivityIndicator style={{ marginTop: 20 }} />}
 
-        {/* ----- cartão resultado ----- */}
         {cliente && (
-          <View style={styles.card}>
+          <View style={estilosGlobais.cardPadrao}>
             <Text style={styles.label}>Nome</Text>
             <Text style={styles.valor}>{cliente.nome}</Text>
 
@@ -218,10 +212,9 @@ export default function BuscaScreen() {
         <Text style={styles.pergunta}>Não encontrou o cliente?</Text>
         <Button
           mode="contained"
-          buttonColor="#017b36"
-          textColor="white"
-          style={styles.botaoCadastrar}
+          style={estilosGlobais.botaoPadrao}
           onPress={() => router.push("/cadastroCliente")}
+          textColor="white"
         >
           Cadastrar cliente
         </Button>
@@ -230,15 +223,8 @@ export default function BuscaScreen() {
   );
 }
 
-/* ---------- estilos ---------- */
 const styles = StyleSheet.create({
-  container: { flex: 1 },
-  titulo: {
-    fontSize: 26,
-    color: "white",
-    marginBottom: 30,
-    fontFamily: "Poppins_700Bold",
-  },
+  container: { flex: 1, paddingHorizontal: 0, paddingTop: 40 },
   radioRow: {
     flexDirection: "row",
     justifyContent: "space-around",
@@ -250,45 +236,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontFamily: "Poppins_400Regular",
     marginLeft: 4,
-  },
-  botaoBusca: {
-    backgroundColor: "#017b36",
-    padding: 10,
-    borderRadius: 12,
-    marginLeft: 10,
-  },
-  /* ----- lista drop‑down ----- */
-  lista: {
-    backgroundColor: "white",
-    borderBottomLeftRadius: 16,
-    borderBottomRightRadius: 16,
-    maxHeight: 200,
-    marginBottom: 16,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  sugestaoItem: {
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: "#eee",
-  },
-  sugestaoTexto: {
-    fontFamily: "Poppins_400Regular",
-    fontSize: 15,
-    color: "#333",
-  },
-  /* ----- cartão resultado ----- */
-  card: {
-    backgroundColor: "white",
-    borderRadius: 16,
-    padding: 20,
-    marginBottom: 10,
-    borderWidth: 2,
-    borderColor: "#017b36",
   },
   label: {
     fontSize: 14,
@@ -313,12 +260,5 @@ const styles = StyleSheet.create({
     marginBottom: 8,
     fontFamily: "Poppins_400Regular",
     marginTop: 20,
-  },
-  botaoCadastrar: {
-    alignSelf: "center",
-    borderRadius: 30,
-    paddingVertical: 6,
-    width: 200,
-    marginBottom: 30,
   },
 });

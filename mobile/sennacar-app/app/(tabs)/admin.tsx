@@ -2,6 +2,7 @@ import { View, StyleSheet } from "react-native";
 import { Text, Button } from "react-native-paper";
 import { useRouter } from "expo-router";
 import { TelaComFundo } from "../../components/TelaComFundo";
+import { estilosGlobais } from "../../styles/estilosGlobais"; // importa estilos globais
 
 // Ícones SVG
 import MechanicIcon from "../../assets/icons/mechanic-green.svg";
@@ -15,16 +16,12 @@ export default function AdminScreen() {
   return (
     <TelaComFundo>
       <View style={styles.container}>
-        <Text style={styles.titulo}>Gerenciamento do sistema</Text>
-        <View
-          style={{
-            justifyContent: "center",
-            alignContent: "center",
-            alignItems: "center",
-            marginTop: 20,
-          }}
-        >
-          <Text style={styles.subtitulo}>
+        <Text style={estilosGlobais.tituloTela}>
+          Gerenciamento {"\n"} do sistema
+        </Text>
+
+        <View style={styles.centralizar}>
+          <Text style={estilosGlobais.subtituloTela}>
             Selecione uma opção para gerenciar:
           </Text>
 
@@ -74,25 +71,16 @@ export default function AdminScreen() {
   );
 }
 
-// ... tudo igual acima até o styles:
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingHorizontal: 0,
     paddingTop: 40,
   },
-  titulo: {
-    fontSize: 26,
-    color: "white",
-    fontFamily: "Poppins_700Bold",
-  },
-  subtitulo: {
-    fontSize: 16,
-    color: "white",
-    fontFamily: "Poppins_400Regular",
-    marginVertical: 20,
-    textAlign: "center",
+  centralizar: {
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 20,
   },
   grid: {
     flexDirection: "row",

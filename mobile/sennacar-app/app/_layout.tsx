@@ -75,6 +75,18 @@ export default function RootLayout() {
               name="listaClientes"
               options={{ headerShown: false }}
             />
+            <Stack.Screen
+              name="cadastroProduto"
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="edtiarProduto"
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="listaProdutos"
+              options={{ headerShown: false }}
+            />
           </Stack>
         </AuthProvider>
       </PaperProvider>

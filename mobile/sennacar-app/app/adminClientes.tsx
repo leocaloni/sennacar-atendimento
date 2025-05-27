@@ -26,6 +26,8 @@ import EmailIcon from "../assets/icons/email.svg";
 import PhoneIcon from "../assets/icons/phone.svg";
 import SearchIcon from "../assets/icons/search-white.svg";
 import { Ionicons } from "@expo/vector-icons";
+import { cores } from "../styles/cores";
+import { fontes } from "../styles/fontes";
 
 export default function AdminClientesScreen() {
   const [metodo, setMetodo] = useState<"nome" | "email" | "telefone">("nome");
@@ -126,7 +128,7 @@ export default function AdminClientesScreen() {
                 {["nome", "email", "telefone"].map((item) => (
                   <View key={item} style={styles.radioOption}>
                     <RadioButton
-                      color="#01913F"
+                      color={cores.verdePrincipal}
                       uncheckedColor="white"
                       value={item}
                     />
@@ -244,7 +246,7 @@ export default function AdminClientesScreen() {
                   </Button>
                   <Button
                     mode="contained"
-                    buttonColor="#C62828"
+                    buttonColor={cores.vermelho}
                     textColor="white"
                     style={styles.botaoCard}
                     onPress={() => setConfirmarExclusao(true)}
@@ -259,7 +261,7 @@ export default function AdminClientesScreen() {
 
             <Button
               mode="contained"
-              buttonColor="#017b36"
+              buttonColor={cores.verdePrincipal}
               textColor="white"
               style={styles.botao}
               onPress={() => router.push("/cadastroCliente")}
@@ -269,7 +271,7 @@ export default function AdminClientesScreen() {
 
             <Button
               mode="contained"
-              buttonColor="#017b36"
+              buttonColor={cores.verdePrincipal}
               textColor="white"
               style={styles.botao}
               onPress={() => router.push("/listaClientes")}
@@ -303,11 +305,11 @@ export default function AdminClientesScreen() {
           <Dialog.Actions>
             <Button
               onPress={() => setConfirmarExclusao(false)}
-              textColor="#017b36"
+              textColor={cores.verdePrincipal}
             >
               Cancelar
             </Button>
-            <Button onPress={excluirCliente} textColor="#C62828">
+            <Button onPress={excluirCliente} textColor={cores.vermelho}>
               Excluir
             </Button>
           </Dialog.Actions>
@@ -331,7 +333,7 @@ export default function AdminClientesScreen() {
           <Dialog.Actions>
             <Button
               onPress={() => setFeedbackExclusao(false)}
-              textColor="#017b36"
+              textColor={cores.verdePrincipal}
             >
               Ok
             </Button>
@@ -349,14 +351,14 @@ const styles = StyleSheet.create({
     top: 20,
     left: 20,
     zIndex: 10,
-    backgroundColor: "#017b36",
+    backgroundColor: cores.verdePrincipal,
     borderRadius: 12,
     padding: 5,
   },
   titulo: {
     fontSize: 26,
     color: "white",
-    fontFamily: "Poppins_700Bold",
+    fontFamily: fontes.bold,
     marginBottom: 30,
     marginTop: 40,
   },
@@ -372,11 +374,11 @@ const styles = StyleSheet.create({
   radioLabel: {
     color: "white",
     fontSize: 16,
-    fontFamily: "Poppins_400Regular",
+    fontFamily: fontes.regular,
     marginLeft: 4,
   },
   botaoBusca: {
-    backgroundColor: "#017b36",
+    backgroundColor: cores.verdePrincipal,
     padding: 10,
     borderRadius: 12,
     alignItems: "center",
@@ -390,18 +392,18 @@ const styles = StyleSheet.create({
     padding: 20,
     marginBottom: 30,
     borderWidth: 2,
-    borderColor: "#017b36",
+    borderColor: cores.verdePrincipal,
   },
   label: {
     fontSize: 14,
     color: "#666",
     marginTop: 10,
-    fontFamily: "Poppins_400Regular",
+    fontFamily: fontes.regular,
   },
   valor: {
     fontSize: 16,
     color: "#000",
-    fontFamily: "Poppins_700Bold",
+    fontFamily: fontes.bold,
   },
   acoes: {
     flexDirection: "row",
@@ -417,7 +419,7 @@ const styles = StyleSheet.create({
     color: "white",
     marginBottom: 20,
     textAlign: "center",
-    fontFamily: "Poppins_400Regular",
+    fontFamily: fontes.regular,
   },
   botao: {
     alignSelf: "center",
@@ -428,6 +430,10 @@ const styles = StyleSheet.create({
   },
   listaSugestoes: {
     backgroundColor: "white",
+    borderLeftWidth: 1.5,
+    borderRightWidth: 1.5,
+    borderBottomWidth: 1.5,
+    borderColor: "#A0A0A0",
     maxHeight: 250,
     borderTopLeftRadius: 0,
     borderTopRightRadius: 0,
@@ -448,7 +454,7 @@ const styles = StyleSheet.create({
     borderBottomColor: "#eee",
   },
   sugestaoTexto: {
-    fontFamily: "Poppins_400Regular",
+    fontFamily: fontes.regular,
     fontSize: 15,
     color: "#333",
   },

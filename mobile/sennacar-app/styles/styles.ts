@@ -92,7 +92,7 @@ export const textInputProps = {
     borderRadius: 15,
     borderWidth: 1,
   },
-  activeOutlineColor: "#000679",
+  activeOutlineColor: "#A0A0A0",
   outlineColor: "transparent",
   placeholderTextColor: "#A0A0A0",
 

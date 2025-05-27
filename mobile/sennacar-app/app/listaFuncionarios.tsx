@@ -1,4 +1,3 @@
-// listaFuncionarios.tsx
 import {
   View,
   StyleSheet,
@@ -12,6 +11,8 @@ import { TelaComFundo } from "../components/TelaComFundo";
 import { api } from "./services/api";
 import { Ionicons } from "@expo/vector-icons";
 import { router, useFocusEffect } from "expo-router";
+import { fontes } from "../styles/fontes";
+import { cores } from "../styles/cores";
 
 export default function ListaFuncionariosScreen() {
   const [funcionarios, setFuncionarios] = useState<any[]>([]);
@@ -134,22 +135,20 @@ export default function ListaFuncionariosScreen() {
         <Dialog
           visible={confirmarExclusao}
           onDismiss={() => setConfirmarExclusao(false)}
-          style={{ backgroundColor: "white", borderRadius: 16 }}
+          style={styles.dialog}
         >
-          <Dialog.Title
-            style={{ fontFamily: "Poppins_700Bold", color: "#000" }}
-          >
+          <Dialog.Title style={styles.dialogTitulo}>
             Confirmar exclusão
           </Dialog.Title>
           <Dialog.Content>
-            <Text style={{ fontFamily: "Poppins_400Regular", color: "#333" }}>
+            <Text style={styles.dialogTexto}>
               Tem certeza que deseja excluir este funcionário?
             </Text>
           </Dialog.Content>
           <Dialog.Actions>
             <Button
               onPress={() => setConfirmarExclusao(false)}
-              textColor="#017b36"
+              textColor={cores.verdePrincipal}
             >
               Cancelar
             </Button>
@@ -162,22 +161,18 @@ export default function ListaFuncionariosScreen() {
         <Dialog
           visible={feedbackExclusao}
           onDismiss={() => setFeedbackExclusao(false)}
-          style={{ backgroundColor: "white", borderRadius: 16 }}
+          style={styles.dialog}
         >
-          <Dialog.Title
-            style={{ fontFamily: "Poppins_700Bold", color: "#000" }}
-          >
-            Sucesso!
-          </Dialog.Title>
+          <Dialog.Title style={styles.dialogTitulo}>Sucesso!</Dialog.Title>
           <Dialog.Content>
-            <Text style={{ fontFamily: "Poppins_400Regular", color: "#333" }}>
+            <Text style={styles.dialogTexto}>
               O funcionário foi excluído com sucesso.
             </Text>
           </Dialog.Content>
           <Dialog.Actions>
             <Button
               onPress={() => setFeedbackExclusao(false)}
-              textColor="#017b36"
+              textColor={cores.verdePrincipal}
             >
               Ok
             </Button>
@@ -194,14 +189,14 @@ const styles = StyleSheet.create({
     top: 20,
     left: 20,
     zIndex: 10,
-    backgroundColor: "#017b36",
+    backgroundColor: cores.verdePrincipal,
     borderRadius: 12,
     padding: 5,
   },
   titulo: {
     fontSize: 26,
     color: "white",
-    fontFamily: "Poppins_700Bold",
+    fontFamily: fontes.bold,
     marginBottom: 30,
     marginTop: 60,
     alignSelf: "center",
@@ -212,18 +207,18 @@ const styles = StyleSheet.create({
     padding: 20,
     marginBottom: 30,
     borderWidth: 2,
-    borderColor: "#017b36",
+    borderColor: cores.verdePrincipal,
   },
   label: {
     fontSize: 14,
     color: "#666",
     marginTop: 10,
-    fontFamily: "Poppins_400Regular",
+    fontFamily: fontes.regular,
   },
   valor: {
     fontSize: 16,
     color: "#000",
-    fontFamily: "Poppins_700Bold",
+    fontFamily: fontes.bold,
   },
   acoes: {
     flexDirection: "row",
@@ -234,5 +229,17 @@ const styles = StyleSheet.create({
     flex: 1,
     marginHorizontal: 4,
     borderRadius: 30,
+  },
+  dialog: {
+    backgroundColor: "white",
+    borderRadius: 16,
+  },
+  dialogTitulo: {
+    fontFamily: fontes.bold,
+    color: "#000",
+  },
+  dialogTexto: {
+    fontFamily: fontes.regular,
+    color: "#333",
   },
 });

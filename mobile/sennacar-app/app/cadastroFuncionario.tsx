@@ -7,6 +7,8 @@ import { api } from "./services/api";
 import { router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { textInputProps } from "../styles/styles";
+import { fontes } from "../styles/fontes";
+import { cores } from "../styles/cores";
 
 import MechanicIcon from "../assets/icons/mechanic-grey.svg";
 import EmailIcon from "../assets/icons/email.svg";
@@ -138,7 +140,7 @@ export default function CadastroFuncionario() {
 
         <Button
           mode="contained"
-          buttonColor="#017b36"
+          buttonColor={cores.verdePrincipal}
           textColor="white"
           style={styles.botaoCadastrar}
           loading={loading}
@@ -155,21 +157,17 @@ export default function CadastroFuncionario() {
             setMostrarSucesso(false);
             router.back();
           }}
-          style={{ backgroundColor: "white", borderRadius: 16 }}
+          style={styles.dialog}
         >
-          <Dialog.Title
-            style={{ fontFamily: "Poppins_700Bold", color: "#000" }}
-          >
-            Sucesso!
-          </Dialog.Title>
+          <Dialog.Title style={styles.dialogTitulo}>Sucesso!</Dialog.Title>
           <Dialog.Content>
-            <Text style={{ fontFamily: "Poppins_400Regular", color: "#333" }}>
+            <Text style={styles.dialogTexto}>
               O funcionário foi cadastrado com sucesso.
             </Text>
           </Dialog.Content>
           <Dialog.Actions>
             <Button
-              textColor="#017b36"
+              textColor={cores.verdePrincipal}
               onPress={() => {
                 setMostrarSucesso(false);
                 router.back();
@@ -197,7 +195,7 @@ const styles = StyleSheet.create({
     top: 20,
     left: 20,
     zIndex: 10,
-    backgroundColor: "#017b36",
+    backgroundColor: cores.verdePrincipal,
     borderRadius: 12,
     padding: 5,
   },
@@ -205,20 +203,20 @@ const styles = StyleSheet.create({
     fontSize: 26,
     color: "white",
     marginBottom: 30,
-    fontFamily: "Poppins_700Bold",
+    fontFamily: fontes.bold,
     alignSelf: "center",
   },
   input: {
     marginBottom: 20,
     backgroundColor: "white",
     borderRadius: 16,
-    fontFamily: "Poppins_400Regular",
+    fontFamily: fontes.regular,
   },
   erro: {
     color: "white",
     marginBottom: 12,
     textAlign: "center",
-    fontFamily: "Poppins_400Regular",
+    fontFamily: fontes.regular,
   },
   botaoCadastrar: {
     alignSelf: "center",
@@ -226,5 +224,17 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
     width: 200,
     marginTop: 20,
+  },
+  dialog: {
+    backgroundColor: "white",
+    borderRadius: 16,
+  },
+  dialogTitulo: {
+    fontFamily: fontes.bold,
+    color: "#000",
+  },
+  dialogTexto: {
+    fontFamily: fontes.regular,
+    color: "#333",
   },
 });

@@ -43,6 +43,20 @@ async def filtrar_produtos_por_nome(
     return [ProdutoResponse.from_mongo(p) for p in produtos]
 
 
+@router.get("/categorias/sugestoes", response_model=List[str])
+async def sugerir_categorias(descricao: str = Query(..., min_length=1)):
+    categorias = get_produtos_collection().distinct(
+        "descricao", {"descricao": {"$regex": f".*{descricao}.*", "$options": "i"}}
+    )
+    return sorted(filter(None, categorias))
+
+
+@router.get("/", response_model=List[ProdutoResponse])
+async def listar_todos_produtos(user=Depends(get_current_user)):
+    produtos = get_produtos_collection().find().sort("nome", 1)
+    return [ProdutoResponse.from_mongo(p) for p in produtos]
+
+
 @router.get("/{produto_id}", response_model=ProdutoResponse)
 async def obter_produto(produto_id: str, user=Depends(get_current_user)):
     produto = Produto.buscar_por_id(produto_id)

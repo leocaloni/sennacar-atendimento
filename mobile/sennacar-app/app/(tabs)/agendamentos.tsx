@@ -20,6 +20,7 @@ import {
   isSameDay,
 } from "date-fns";
 import { useRouter } from "expo-router";
+import { estilosGlobais } from "../../styles/estilosGlobais";
 
 type DiaSemana = {
   data: Date;
@@ -101,7 +102,7 @@ export default function AgendamentosScreen() {
   return (
     <TelaComFundo>
       <View style={styles.container}>
-        <Text style={styles.titulo}>Gerenciar Agendamentos</Text>
+        <Text style={estilosGlobais.tituloTela}>Gerenciar Agendamentos</Text>
         <Text style={styles.subtitulo}>Agendamentos da semana</Text>
 
         <View style={styles.diasContainer}>
@@ -170,12 +171,7 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     paddingHorizontal: 16,
-  },
-  titulo: {
-    fontSize: 26,
-    color: "white",
-    marginBottom: 4,
-    fontFamily: "Poppins_700Bold",
+    paddingTop: 40,
   },
   subtitulo: {
     fontSize: 16,
@@ -183,6 +179,7 @@ const styles = StyleSheet.create({
     marginBottom: 30,
     fontFamily: "Poppins_400Regular",
     marginTop: 30,
+    textAlign: "center",
   },
   diasContainer: {
     flexDirection: "row",

@@ -25,6 +25,8 @@ import {
   textInputPropsComLista,
   textInputPropsComListaAtiva,
 } from "../styles/styles";
+import { fontes } from "../styles/fontes";
+import { cores } from "../styles/cores";
 
 export default function AdminFuncionariosScreen() {
   const [metodo, setMetodo] = useState<"nome" | "email">("nome");
@@ -132,7 +134,7 @@ export default function AdminFuncionariosScreen() {
                 {["nome", "email"].map((item) => (
                   <View key={item} style={styles.radioOption}>
                     <RadioButton
-                      color="#01913F"
+                      color={cores.verdePrincipal}
                       uncheckedColor="white"
                       value={item}
                     />
@@ -253,7 +255,7 @@ export default function AdminFuncionariosScreen() {
 
             <Button
               mode="contained"
-              buttonColor="#017b36"
+              buttonColor={cores.verdePrincipal}
               textColor="white"
               style={styles.botao}
               onPress={() => router.push("/cadastroFuncionario")}
@@ -263,7 +265,7 @@ export default function AdminFuncionariosScreen() {
 
             <Button
               mode="contained"
-              buttonColor="#017b36"
+              buttonColor={cores.verdePrincipal}
               textColor="white"
               style={styles.botao}
               onPress={() => router.push("/listaFuncionarios")}
@@ -282,22 +284,20 @@ export default function AdminFuncionariosScreen() {
         <Dialog
           visible={confirmarExclusao}
           onDismiss={() => setConfirmarExclusao(false)}
-          style={{ backgroundColor: "white", borderRadius: 16 }}
+          style={styles.dialog}
         >
-          <Dialog.Title
-            style={{ fontFamily: "Poppins_700Bold", color: "#000" }}
-          >
+          <Dialog.Title style={styles.dialogTitulo}>
             Confirmar exclusão
           </Dialog.Title>
           <Dialog.Content>
-            <Text style={{ fontFamily: "Poppins_400Regular", color: "#333" }}>
+            <Text style={styles.dialogTexto}>
               Tem certeza que deseja excluir este funcionário?
             </Text>
           </Dialog.Content>
           <Dialog.Actions>
             <Button
               onPress={() => setConfirmarExclusao(false)}
-              textColor="#017b36"
+              textColor={cores.verdePrincipal}
             >
               Cancelar
             </Button>
@@ -310,22 +310,18 @@ export default function AdminFuncionariosScreen() {
         <Dialog
           visible={feedbackExclusao}
           onDismiss={() => setFeedbackExclusao(false)}
-          style={{ backgroundColor: "white", borderRadius: 16 }}
+          style={styles.dialog}
         >
-          <Dialog.Title
-            style={{ fontFamily: "Poppins_700Bold", color: "#000" }}
-          >
-            Sucesso!
-          </Dialog.Title>
+          <Dialog.Title style={styles.dialogTitulo}>Sucesso!</Dialog.Title>
           <Dialog.Content>
-            <Text style={{ fontFamily: "Poppins_400Regular", color: "#333" }}>
+            <Text style={styles.dialogTexto}>
               O funcionário foi excluído com sucesso.
             </Text>
           </Dialog.Content>
           <Dialog.Actions>
             <Button
               onPress={() => setFeedbackExclusao(false)}
-              textColor="#017b36"
+              textColor={cores.verdePrincipal}
             >
               Ok
             </Button>
@@ -335,6 +331,7 @@ export default function AdminFuncionariosScreen() {
     </TelaComFundo>
   );
 }
+
 const styles = StyleSheet.create({
   container: { flexGrow: 1 },
   botaoVoltar: {
@@ -342,14 +339,14 @@ const styles = StyleSheet.create({
     top: 20,
     left: 20,
     zIndex: 10,
-    backgroundColor: "#017b36",
+    backgroundColor: cores.verdePrincipal,
     borderRadius: 12,
     padding: 5,
   },
   titulo: {
     fontSize: 26,
     color: "white",
-    fontFamily: "Poppins_700Bold",
+    fontFamily: fontes.bold,
     marginBottom: 30,
     marginTop: 40,
   },
@@ -365,11 +362,11 @@ const styles = StyleSheet.create({
   radioLabel: {
     color: "white",
     fontSize: 16,
-    fontFamily: "Poppins_400Regular",
+    fontFamily: fontes.regular,
     marginLeft: 4,
   },
   botaoBusca: {
-    backgroundColor: "#017b36",
+    backgroundColor: cores.verdePrincipal,
     padding: 10,
     borderRadius: 12,
     alignItems: "center",
@@ -383,18 +380,18 @@ const styles = StyleSheet.create({
     padding: 20,
     marginBottom: 30,
     borderWidth: 2,
-    borderColor: "#017b36",
+    borderColor: cores.verdePrincipal,
   },
   label: {
     fontSize: 14,
     color: "#666",
     marginTop: 10,
-    fontFamily: "Poppins_400Regular",
+    fontFamily: fontes.regular,
   },
   valor: {
     fontSize: 16,
     color: "#000",
-    fontFamily: "Poppins_700Bold",
+    fontFamily: fontes.bold,
   },
   acoes: {
     flexDirection: "row",
@@ -410,7 +407,7 @@ const styles = StyleSheet.create({
     color: "white",
     marginBottom: 20,
     textAlign: "center",
-    fontFamily: "Poppins_400Regular",
+    fontFamily: fontes.regular,
   },
   botao: {
     alignSelf: "center",
@@ -441,8 +438,20 @@ const styles = StyleSheet.create({
     borderBottomColor: "#eee",
   },
   sugestaoTexto: {
-    fontFamily: "Poppins_400Regular",
+    fontFamily: fontes.regular,
     fontSize: 15,
+    color: "#333",
+  },
+  dialog: {
+    backgroundColor: "white",
+    borderRadius: 16,
+  },
+  dialogTitulo: {
+    fontFamily: fontes.bold,
+    color: "#000",
+  },
+  dialogTexto: {
+    fontFamily: fontes.regular,
     color: "#333",
   },
 });

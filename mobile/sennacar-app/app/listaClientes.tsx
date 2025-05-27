@@ -35,7 +35,7 @@ export default function ListaClientesScreen() {
   const excluirCliente = async () => {
     if (!idParaExcluir) return;
     try {
-      await api.delete(`/clientes/${idParaExcluir}`);
+      await api.delete(`/clientes/clientes/${idParaExcluir}`);
       setClientes((prev) => prev.filter((func) => func._id !== idParaExcluir));
       setFeedbackExclusao(true);
     } catch (e) {

@@ -3,6 +3,7 @@ import { Button } from "react-native-paper";
 import { TelaComFundo } from "../../components/TelaComFundo";
 import { useAuth } from "../../contexts/AuthContext";
 import { useState } from "react";
+import { estilosGlobais } from "../../styles/estilosGlobais";
 
 export default function PerfilScreen() {
   const { user, logout } = useAuth();
@@ -11,30 +12,29 @@ export default function PerfilScreen() {
   return (
     <TelaComFundo>
       <View style={styles.container}>
-        <Text style={styles.titulo}>Meu perfil</Text>
+        <Text style={estilosGlobais.tituloTela}>Meu perfil</Text>
 
-        <View style={styles.card}>
-          <Text style={styles.label}>Nome</Text>
-          <Text style={styles.valor}>{user?.nome || "-"}</Text>
+        <View style={estilosGlobais.cardPadrao}>
+          <Text style={estilosGlobais.textoLabel}>Nome</Text>
+          <Text style={estilosGlobais.textoValor}>{user?.nome || "-"}</Text>
 
-          <Text style={styles.label}>ID</Text>
+          <Text style={estilosGlobais.textoLabel}>ID</Text>
           <TouchableOpacity onPress={() => setVerIdCompleto(!verIdCompleto)}>
-            <Text style={styles.valor}>
+            <Text style={estilosGlobais.textoValor}>
               {verIdCompleto
                 ? user?.id
                 : user?.id?.substring(0, 8) + "... (toque para ver)"}
             </Text>
           </TouchableOpacity>
 
-          <Text style={styles.label}>Email</Text>
-          <Text style={styles.valor}>{user?.email || "-"}</Text>
+          <Text style={estilosGlobais.textoLabel}>Email</Text>
+          <Text style={estilosGlobais.textoValor}>{user?.email || "-"}</Text>
         </View>
 
         <Button
           mode="contained"
-          buttonColor="#C62828"
           textColor="white"
-          style={styles.botaoSair}
+          style={[estilosGlobais.botaoSecundario, { width: 160 }]}
           onPress={logout}
         >
           Sair
@@ -48,37 +48,5 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: "center",
-  },
-  titulo: {
-    fontSize: 26,
-    color: "white",
-    fontFamily: "Poppins_700Bold",
-    marginBottom: 30,
-  },
-  card: {
-    backgroundColor: "white",
-    borderRadius: 16,
-    padding: 20,
-    marginBottom: 40,
-    marginHorizontal: 10,
-    borderColor: "#017b36",
-    borderWidth: 2,
-  },
-  label: {
-    fontSize: 14,
-    color: "#666",
-    fontFamily: "Poppins_400Regular",
-    marginTop: 10,
-  },
-  valor: {
-    fontSize: 16,
-    color: "#000",
-    fontFamily: "Poppins_700Bold",
-  },
-  botaoSair: {
-    borderRadius: 30,
-    paddingVertical: 6,
-    alignSelf: "center",
-    width: 160,
   },
 });

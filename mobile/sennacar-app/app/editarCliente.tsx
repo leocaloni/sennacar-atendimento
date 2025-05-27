@@ -15,6 +15,8 @@ import CostumerIcon from "../assets/icons/costumer-grey.svg";
 import EmailIcon from "../assets/icons/email.svg";
 import PhoneIcon from "../assets/icons/phone.svg";
 import { textInputProps } from "../styles/styles";
+import { cores } from "../styles/cores";
+import { fontes } from "../styles/fontes";
 
 export default function EditarClienteScreen() {
   const { id } = useLocalSearchParams();
@@ -98,7 +100,10 @@ export default function EditarClienteScreen() {
         <Text style={styles.titulo}>Editar Cliente</Text>
 
         {loading && (
-          <ActivityIndicator style={{ marginTop: 20 }} color="#017b36" />
+          <ActivityIndicator
+            style={{ marginTop: 20 }}
+            color={cores.verdePrincipal}
+          />
         )}
 
         <View style={styles.formContainer}>
@@ -167,18 +172,19 @@ export default function EditarClienteScreen() {
           onDismiss={() => setErro("")}
           style={{ backgroundColor: "white", borderRadius: 16 }}
         >
-          <Dialog.Title
-            style={{ fontFamily: "Poppins_700Bold", color: "#000" }}
-          >
+          <Dialog.Title style={{ fontFamily: fontes.bold, color: "#000" }}>
             Erro
           </Dialog.Title>
           <Dialog.Content>
-            <Text style={{ fontFamily: "Poppins_400Regular", color: "#333" }}>
+            <Text style={{ fontFamily: fontes.regular, color: "#333" }}>
               {erro}
             </Text>
           </Dialog.Content>
           <Dialog.Actions>
-            <Button textColor="#017b36" onPress={() => setErro("")}>
+            <Button
+              textColor={cores.verdePrincipal}
+              onPress={() => setErro("")}
+            >
               OK
             </Button>
           </Dialog.Actions>
@@ -190,20 +196,18 @@ export default function EditarClienteScreen() {
           onDismiss={() => setConfirmarEdicao(false)}
           style={{ backgroundColor: "white", borderRadius: 16 }}
         >
-          <Dialog.Title
-            style={{ fontFamily: "Poppins_700Bold", color: "#000" }}
-          >
+          <Dialog.Title style={{ fontFamily: fontes.bold, color: "#000" }}>
             Confirmar edição
           </Dialog.Title>
           <Dialog.Content>
-            <Text style={{ fontFamily: "Poppins_400Regular", color: "#333" }}>
+            <Text style={{ fontFamily: fontes.regular, color: "#333" }}>
               Tem certeza que deseja atualizar os dados deste cliente?
             </Text>
           </Dialog.Content>
           <Dialog.Actions>
             <Button
               onPress={() => setConfirmarEdicao(false)}
-              textColor="#017b36"
+              textColor={cores.verdePrincipal}
             >
               Cancelar
             </Button>
@@ -222,13 +226,11 @@ export default function EditarClienteScreen() {
           }}
           style={{ backgroundColor: "white", borderRadius: 16 }}
         >
-          <Dialog.Title
-            style={{ fontFamily: "Poppins_700Bold", color: "#000" }}
-          >
+          <Dialog.Title style={{ fontFamily: fontes.bold, color: "#000" }}>
             Sucesso!
           </Dialog.Title>
           <Dialog.Content>
-            <Text style={{ fontFamily: "Poppins_400Regular", color: "#333" }}>
+            <Text style={{ fontFamily: fontes.regular, color: "#333" }}>
               Os dados foram atualizados com sucesso.
             </Text>
           </Dialog.Content>
@@ -238,7 +240,7 @@ export default function EditarClienteScreen() {
                 setFeedbackEdicao(false);
                 router.back();
               }}
-              textColor="#017b36"
+              textColor={cores.verdePrincipal}
             >
               Ok
             </Button>
@@ -262,14 +264,14 @@ const styles = StyleSheet.create({
     top: 20,
     left: 20,
     zIndex: 10,
-    backgroundColor: "#017b36",
+    backgroundColor: cores.verdePrincipal,
     borderRadius: 12,
     padding: 5,
   },
   titulo: {
     fontSize: 26,
     color: "white",
-    fontFamily: "Poppins_700Bold",
+    fontFamily: fontes.bold,
     marginBottom: 30,
     textAlign: "center",
   },
@@ -280,7 +282,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     backgroundColor: "white",
     borderRadius: 16,
-    fontFamily: "Poppins_400Regular",
+    fontFamily: fontes.regular,
   },
   erro: {
     color: "white",
@@ -293,6 +295,6 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
     width: 200,
     marginTop: 20,
-    backgroundColor: "#017b36",
+    backgroundColor: cores.verdePrincipal,
   },
 });

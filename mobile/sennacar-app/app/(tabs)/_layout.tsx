@@ -3,13 +3,13 @@ import { useAuth } from "../../contexts/AuthContext";
 
 // Ícones SVG
 import CalendarWhite from "../../assets/icons/calendar-white.svg";
-import CalendarBlue from "../../assets/icons/calendar-blue.svg";
+import CalendarGreen from "../../assets/icons/calendar-navbar-green.svg";
 import SearchWhite from "../../assets/icons/search-white.svg";
-import SearchBlue from "../../assets/icons/search-blue.svg";
+import SearchGreen from "../../assets/icons/search-green.svg";
 import UserWhite from "../../assets/icons/user-white.svg";
-import UserBlue from "../../assets/icons/user-blue.svg";
+import UserGreen from "../../assets/icons/user-green.svg";
 import ToolsWhite from "../../assets/icons/tools-white.svg";
-import ToolsBlue from "../../assets/icons/tools-blue.svg";
+import ToolsGreen from "../../assets/icons/tools-green.svg";
 
 export default function TabLayout() {
   const { user } = useAuth();
@@ -32,14 +32,14 @@ export default function TabLayout() {
           marginTop: 4,
           marginBottom: 10,
         },
-        tabBarActiveTintColor: "#000679",
+        tabBarActiveTintColor: "#005725",
         tabBarInactiveTintColor: "#ffffff",
         tabBarIcon: ({ focused }) => {
           const size = 32;
           switch (route.name) {
             case "agendamentos":
               return focused ? (
-                <CalendarBlue
+                <CalendarGreen
                   width={size}
                   height={size}
                   style={{ marginTop: 6 }}
@@ -53,7 +53,7 @@ export default function TabLayout() {
               );
             case "busca":
               return focused ? (
-                <SearchBlue
+                <SearchGreen
                   width={size}
                   height={size}
                   style={{ marginTop: 6 }}
@@ -67,7 +67,11 @@ export default function TabLayout() {
               );
             case "perfil":
               return focused ? (
-                <UserBlue width={size} height={size} style={{ marginTop: 6 }} />
+                <UserGreen
+                  width={size}
+                  height={size}
+                  style={{ marginTop: 6 }}
+                />
               ) : (
                 <UserWhite
                   width={size}
@@ -77,7 +81,7 @@ export default function TabLayout() {
               );
             case "admin":
               return focused ? (
-                <ToolsBlue
+                <ToolsGreen
                   width={size}
                   height={size}
                   style={{ marginTop: 6 }}

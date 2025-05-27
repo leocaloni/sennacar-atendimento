@@ -1,5 +1,11 @@
-import { useState, useRef } from "react";
-import { View, StyleSheet, FlatList, TouchableOpacity } from "react-native";
+import { useState, useRef, useEffect } from "react";
+import {
+  View,
+  StyleSheet,
+  FlatList,
+  TouchableOpacity,
+  Keyboard,
+} from "react-native";
 import { Button, Text, TextInput } from "react-native-paper";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { TelaComFundo } from "../components/TelaComFundo";
@@ -11,6 +17,7 @@ import {
   textInputPropsComLista,
   textInputPropsComListaAtiva,
 } from "../styles/styles";
+import { estilosGlobais } from "../styles/estilosGlobais";
 
 type Cliente = { _id: string; nome: string; email?: string; telefone?: string };
 type Produto = { _id: string; nome: string; preco?: number };
@@ -40,6 +47,8 @@ export default function NovoAgendamento() {
   const [produtosSelecionados, setProdutosSelecionados] = useState<Produto[]>(
     []
   );
+
+  const [keyboardOffset, setKeyboardOffset] = useState(0);
 
   const debouncedBuscaClientes = useDebounce(async (texto: string) => {
     if (!texto) return setClientes([]);
@@ -77,6 +86,26 @@ export default function NovoAgendamento() {
     router.back();
   };
 
+  useEffect(() => {
+    const keyboardDidShowListener = Keyboard.addListener(
+      "keyboardDidShow",
+      (e) => {
+        setKeyboardOffset(e.endCoordinates.height);
+      }
+    );
+    const keyboardDidHideListener = Keyboard.addListener(
+      "keyboardDidHide",
+      () => {
+        setKeyboardOffset(0);
+      }
+    );
+
+    return () => {
+      keyboardDidShowListener.remove();
+      keyboardDidHideListener.remove();
+    };
+  }, []);
+
   return (
     <TelaComFundo>
       <TouchableOpacity
@@ -86,7 +115,7 @@ export default function NovoAgendamento() {
         <Ionicons name="arrow-back" size={24} color="white" />
       </TouchableOpacity>
 
-      <View style={styles.container}>
+      <View style={[styles.container, { paddingBottom: keyboardOffset }]}>
         <Text style={styles.titulo}>
           Agendar em{" "}
           {dataSelecionada.toLocaleDateString("pt-BR", {
@@ -117,7 +146,7 @@ export default function NovoAgendamento() {
 
           {clientes.length > 0 && (
             <FlatList
-              style={styles.lista}
+              style={estilosGlobais.listaSugestoes}
               data={clientes}
               keyExtractor={(i) => i._id}
               renderItem={({ item }) => (
@@ -127,11 +156,12 @@ export default function NovoAgendamento() {
                     setClienteInput(item.nome);
                     setClientes([]);
                   }}
-                  style={styles.sugestaoItem}
+                  style={estilosGlobais.sugestaoItem}
                 >
-                  <Text style={styles.resultadoSugestao}>{item.nome}</Text>
+                  <Text style={estilosGlobais.sugestaoTexto}>{item.nome}</Text>
                 </TouchableOpacity>
               )}
+              keyboardShouldPersistTaps="handled"
             />
           )}
         </View>
@@ -158,7 +188,7 @@ export default function NovoAgendamento() {
 
           {sugestoesProdutos.length > 0 && (
             <FlatList
-              style={styles.lista}
+              style={estilosGlobais.listaSugestoes}
               data={sugestoesProdutos}
               keyExtractor={(i) => i._id}
               renderItem={({ item }) => (
@@ -169,11 +199,12 @@ export default function NovoAgendamento() {
                     setProdutoInput("");
                     setSugestoesProdutos([]);
                   }}
-                  style={styles.sugestaoItem}
+                  style={estilosGlobais.sugestaoItem}
                 >
-                  <Text style={styles.resultadoSugestao}>{item.nome}</Text>
+                  <Text style={estilosGlobais.sugestaoTexto}>{item.nome}</Text>
                 </TouchableOpacity>
               )}
+              keyboardShouldPersistTaps="handled"
             />
           )}
         </View>
@@ -228,30 +259,6 @@ const styles = StyleSheet.create({
     color: "#fff",
     marginBottom: 20,
     marginTop: 40,
-  },
-  lista: {
-    backgroundColor: "white",
-    borderBottomLeftRadius: 16,
-    borderBottomRightRadius: 16,
-    maxHeight: 200,
-    marginBottom: 16,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-    overflow: "hidden",
-  },
-  sugestaoItem: {
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: "#eee",
-  },
-  resultadoSugestao: {
-    fontFamily: "Poppins_400Regular",
-    fontSize: 15,
-    color: "#333",
   },
   resultadoSelecionado: {
     padding: 10,

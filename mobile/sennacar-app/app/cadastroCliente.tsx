@@ -1,22 +1,31 @@
 import { useState } from "react";
-import { StyleSheet, Alert, TouchableOpacity } from "react-native";
-import { Button, Text, TextInput } from "react-native-paper";
+import {
+  StyleSheet,
+  Alert,
+  TouchableOpacity,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+} from "react-native";
+import { Text, TextInput, Button, Portal, Dialog } from "react-native-paper";
 import { TelaComFundo } from "../components/TelaComFundo";
 import { api } from "./services/api";
-import { router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
 import { textInputProps } from "../styles/styles";
-import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
+import { estilosGlobais } from "../styles/estilosGlobais";
 
 import CostumerIcon from "../assets/icons/costumer-grey.svg";
 import EmailIcon from "../assets/icons/email.svg";
 import PhoneIcon from "../assets/icons/phone.svg";
 
-export default function CadastroCliente() {
+export default function CadastroClienteScreen() {
   const [nome, setNome] = useState("");
   const [email, setEmail] = useState("");
   const [telefone, setTelefone] = useState("");
   const [loading, setLoading] = useState(false);
+  const [mostrarSucesso, setMostrarSucesso] = useState(false);
+  const router = useRouter();
 
   const handleCadastrar = async () => {
     if (!nome || !email || !telefone) {
@@ -30,8 +39,7 @@ export default function CadastroCliente() {
         params: { nome, email, telefone },
       });
 
-      Alert.alert("Sucesso", "Cliente cadastrado com sucesso!");
-      router.back();
+      setMostrarSucesso(true);
     } catch (err) {
       console.error(err);
       Alert.alert("Erro", "Erro ao cadastrar cliente.");
@@ -42,103 +50,129 @@ export default function CadastroCliente() {
 
   return (
     <TelaComFundo>
-      <KeyboardAwareScrollView
-        contentContainerStyle={styles.container}
-        enableOnAndroid
-        extraScrollHeight={20}
-        keyboardShouldPersistTaps="handled"
+      <TouchableOpacity
+        onPress={() => router.back()}
+        style={styles.botaoVoltar}
       >
-        <TouchableOpacity
-          onPress={() => router.back()}
-          style={styles.botaoVoltar}
+        <Ionicons name="arrow-back" size={24} color="white" />
+      </TouchableOpacity>
+
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        style={{ flex: 1 }}
+        keyboardVerticalOffset={Platform.OS === "ios" ? 100 : 0} // Ajuste fino se necessário
+      >
+        <ScrollView
+          contentContainerStyle={styles.container}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
         >
-          <Ionicons name="arrow-back" size={24} color="white" />
-        </TouchableOpacity>
+          <Text
+            style={[
+              estilosGlobais.tituloTela,
+              { textAlign: "center", marginTop: 100 },
+            ]}
+          >
+            Cadastro de Cliente
+          </Text>
 
-        <Text style={styles.titulo}>Cadastro de Cliente</Text>
+          <TextInput
+            {...textInputProps}
+            placeholder="Nome"
+            value={nome}
+            onChangeText={setNome}
+            left={
+              <TextInput.Icon
+                icon={() => <CostumerIcon width={20} height={20} />}
+              />
+            }
+            textColor="black"
+            style={styles.input}
+          />
 
-        <TextInput
-          {...textInputProps}
-          style={styles.input}
-          placeholder="Nome"
-          value={nome}
-          textColor="black"
-          onChangeText={setNome}
-          left={
-            <TextInput.Icon
-              icon={() => <CostumerIcon width={20} height={20} />}
-            />
-          }
-        />
+          <TextInput
+            {...textInputProps}
+            placeholder="Email"
+            value={email}
+            onChangeText={setEmail}
+            keyboardType="email-address"
+            left={
+              <TextInput.Icon
+                icon={() => <EmailIcon width={20} height={20} />}
+              />
+            }
+            textColor="black"
+            style={styles.input}
+          />
 
-        <TextInput
-          {...textInputProps}
-          style={styles.input}
-          placeholder="Email"
-          value={email}
-          textColor="black"
-          onChangeText={setEmail}
-          keyboardType="email-address"
-          left={
-            <TextInput.Icon icon={() => <EmailIcon width={20} height={20} />} />
-          }
-        />
+          <TextInput
+            {...textInputProps}
+            placeholder="Telefone"
+            value={telefone}
+            onChangeText={setTelefone}
+            keyboardType="phone-pad"
+            left={
+              <TextInput.Icon
+                icon={() => <PhoneIcon width={20} height={20} />}
+              />
+            }
+            textColor="black"
+            style={styles.input}
+          />
 
-        <TextInput
-          {...textInputProps}
-          style={styles.input}
-          placeholder="Telefone"
-          value={telefone}
-          textColor="black"
-          onChangeText={setTelefone}
-          keyboardType="phone-pad"
-          left={
-            <TextInput.Icon icon={() => <PhoneIcon width={20} height={20} />} />
-          }
-        />
+          <Button
+            mode="contained"
+            style={[estilosGlobais.botaoPadrao, { marginTop: 20 }]}
+            textColor="white"
+            onPress={handleCadastrar}
+            loading={loading}
+          >
+            Cadastrar
+          </Button>
+        </ScrollView>
+      </KeyboardAvoidingView>
 
-        <Button
-          mode="contained"
-          buttonColor="#017b36"
-          textColor="white"
-          style={styles.botaoCadastrar}
-          loading={loading}
-          onPress={handleCadastrar}
+      <Portal>
+        <Dialog
+          visible={mostrarSucesso}
+          onDismiss={() => {
+            setMostrarSucesso(false);
+            router.back();
+          }}
+          style={{ backgroundColor: "white", borderRadius: 16 }}
         >
-          Cadastrar
-        </Button>
-      </KeyboardAwareScrollView>
+          <Dialog.Title
+            style={[estilosGlobais.tituloTela, { fontSize: 20, color: "#000" }]}
+          >
+            Sucesso!
+          </Dialog.Title>
+          <Dialog.Content>
+            <Text style={estilosGlobais.sugestaoTexto}>
+              O cliente foi cadastrado com sucesso.
+            </Text>
+          </Dialog.Content>
+          <Dialog.Actions>
+            <Button
+              textColor="#017b36"
+              onPress={() => {
+                setMostrarSucesso(false);
+                router.back();
+              }}
+            >
+              OK
+            </Button>
+          </Dialog.Actions>
+        </Dialog>
+      </Portal>
     </TelaComFundo>
   );
 }
 
-export const options = {
-  headerShown: false,
-};
-
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
     paddingHorizontal: 20,
-    paddingTop: 60,
-    alignContent: "center",
-    justifyContent: "center",
-  },
-  botaoVoltar: {
-    position: "absolute",
-    top: 10,
-    left: 10,
-    zIndex: 10,
-    backgroundColor: "#017b36",
-    borderRadius: 12,
-    padding: 5,
-  },
-  titulo: {
-    fontSize: 26,
-    color: "white",
-    marginBottom: 30,
-    fontFamily: "Poppins_700Bold",
-    alignSelf: "center",
+    paddingTop: 40,
+    paddingBottom: 80,
   },
   input: {
     marginBottom: 20,
@@ -146,11 +180,13 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     fontFamily: "Poppins_400Regular",
   },
-  botaoCadastrar: {
-    alignSelf: "center",
-    borderRadius: 30,
-    paddingVertical: 6,
-    width: 200,
-    marginTop: 30,
+  botaoVoltar: {
+    position: "absolute",
+    top: 20,
+    left: 20,
+    zIndex: 10,
+    backgroundColor: "#017b36",
+    borderRadius: 12,
+    padding: 5,
   },
 });

@@ -14,6 +14,8 @@ import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view
 import UserIcon from "../assets/icons/user-grey.svg";
 import EmailIcon from "../assets/icons/email.svg";
 import { textInputProps } from "../styles/styles";
+import { cores } from "../styles/cores";
+import { fontes } from "../styles/fontes";
 
 export default function EditarFuncionarioScreen() {
   const { id } = useLocalSearchParams();
@@ -45,13 +47,8 @@ export default function EditarFuncionarioScreen() {
     }
   }, [id]);
 
-  interface AtualizacaoFuncionario {
-    nome?: string;
-    email?: string;
-  }
-
   const confirmarAtualizacao = async () => {
-    const dadosAtualizados: AtualizacaoFuncionario = {};
+    const dadosAtualizados: { nome?: string; email?: string } = {};
     if (nome) dadosAtualizados.nome = nome;
     if (email) dadosAtualizados.email = email;
 
@@ -93,7 +90,10 @@ export default function EditarFuncionarioScreen() {
         <Text style={styles.titulo}>Editar Funcionário</Text>
 
         {loading && (
-          <ActivityIndicator style={{ marginTop: 20 }} color="#017b36" />
+          <ActivityIndicator
+            style={{ marginTop: 20 }}
+            color={cores.verdePrincipal}
+          />
         )}
 
         <View style={styles.formContainer}>
@@ -141,49 +141,42 @@ export default function EditarFuncionarioScreen() {
       </KeyboardAwareScrollView>
 
       <Portal>
-        {/* Modal de erro */}
         <Dialog
           visible={!!erro}
           onDismiss={() => setErro("")}
-          style={{ backgroundColor: "white", borderRadius: 16 }}
+          style={styles.dialog}
         >
-          <Dialog.Title
-            style={{ fontFamily: "Poppins_700Bold", color: "#000" }}
-          >
-            Erro
-          </Dialog.Title>
+          <Dialog.Title style={styles.dialogTitulo}>Erro</Dialog.Title>
           <Dialog.Content>
-            <Text style={{ fontFamily: "Poppins_400Regular", color: "#333" }}>
-              {erro}
-            </Text>
+            <Text style={styles.dialogTexto}>{erro}</Text>
           </Dialog.Content>
           <Dialog.Actions>
-            <Button textColor="#017b36" onPress={() => setErro("")}>
+            <Button
+              textColor={cores.verdePrincipal}
+              onPress={() => setErro("")}
+            >
               OK
             </Button>
           </Dialog.Actions>
         </Dialog>
 
-        {/* Modal de confirmação */}
         <Dialog
           visible={confirmarEdicao}
           onDismiss={() => setConfirmarEdicao(false)}
-          style={{ backgroundColor: "white", borderRadius: 16 }}
+          style={styles.dialog}
         >
-          <Dialog.Title
-            style={{ fontFamily: "Poppins_700Bold", color: "#000" }}
-          >
+          <Dialog.Title style={styles.dialogTitulo}>
             Confirmar edição
           </Dialog.Title>
           <Dialog.Content>
-            <Text style={{ fontFamily: "Poppins_400Regular", color: "#333" }}>
+            <Text style={styles.dialogTexto}>
               Tem certeza que deseja atualizar os dados deste funcionário?
             </Text>
           </Dialog.Content>
           <Dialog.Actions>
             <Button
               onPress={() => setConfirmarEdicao(false)}
-              textColor="#017b36"
+              textColor={cores.verdePrincipal}
             >
               Cancelar
             </Button>
@@ -193,22 +186,17 @@ export default function EditarFuncionarioScreen() {
           </Dialog.Actions>
         </Dialog>
 
-        {/* Modal de feedback */}
         <Dialog
           visible={feedbackEdicao}
           onDismiss={() => {
             setFeedbackEdicao(false);
             router.back();
           }}
-          style={{ backgroundColor: "white", borderRadius: 16 }}
+          style={styles.dialog}
         >
-          <Dialog.Title
-            style={{ fontFamily: "Poppins_700Bold", color: "#000" }}
-          >
-            Sucesso!
-          </Dialog.Title>
+          <Dialog.Title style={styles.dialogTitulo}>Sucesso!</Dialog.Title>
           <Dialog.Content>
-            <Text style={{ fontFamily: "Poppins_400Regular", color: "#333" }}>
+            <Text style={styles.dialogTexto}>
               Os dados foram atualizados com sucesso.
             </Text>
           </Dialog.Content>
@@ -218,7 +206,7 @@ export default function EditarFuncionarioScreen() {
                 setFeedbackEdicao(false);
                 router.back();
               }}
-              textColor="#017b36"
+              textColor={cores.verdePrincipal}
             >
               Ok
             </Button>
@@ -242,14 +230,14 @@ const styles = StyleSheet.create({
     top: 20,
     left: 20,
     zIndex: 10,
-    backgroundColor: "#017b36",
+    backgroundColor: cores.verdePrincipal,
     borderRadius: 12,
     padding: 5,
   },
   titulo: {
     fontSize: 26,
     color: "white",
-    fontFamily: "Poppins_700Bold",
+    fontFamily: fontes.bold,
     marginBottom: 30,
     textAlign: "center",
   },
@@ -260,12 +248,13 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     backgroundColor: "white",
     borderRadius: 16,
-    fontFamily: "Poppins_400Regular",
+    fontFamily: fontes.regular,
   },
   erro: {
     color: "white",
     marginBottom: 12,
     textAlign: "center",
+    fontFamily: fontes.regular,
   },
   botao: {
     alignSelf: "center",
@@ -273,6 +262,18 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
     width: 200,
     marginTop: 20,
-    backgroundColor: "#017b36",
+    backgroundColor: cores.verdePrincipal,
+  },
+  dialog: {
+    backgroundColor: "white",
+    borderRadius: 16,
+  },
+  dialogTitulo: {
+    fontFamily: fontes.bold,
+    color: "#000",
+  },
+  dialogTexto: {
+    fontFamily: fontes.regular,
+    color: "#333",
   },
 });
