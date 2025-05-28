@@ -47,7 +47,8 @@
     "react-native-svg-transformer": "^1.5.1",
     "react-native-web": "~0.20.0",
     "react-native-webview": "13.13.5",
-    "sennacar-app": "file:"
+    "sennacar-app": "file:",
+    "@react-native-community/datetimepicker": "8.3.0"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",

@@ -20,7 +20,12 @@ import {
 import { estilosGlobais } from "../styles/estilosGlobais";
 
 type Cliente = { _id: string; nome: string; email?: string; telefone?: string };
-type Produto = { _id: string; nome: string; preco?: number };
+type Produto = {
+  _id: string;
+  nome: string;
+  preco?: number;
+  preco_mao_obra?: number;
+};
 
 const useDebounce = (cb: (...a: any[]) => void, delay = 100) => {
   const timer = useRef<NodeJS.Timeout | null>(null);
@@ -47,6 +52,7 @@ export default function NovoAgendamento() {
   const [produtosSelecionados, setProdutosSelecionados] = useState<Produto[]>(
     []
   );
+  const [valorTotal, setValorTotal] = useState<number>(0);
 
   const [keyboardOffset, setKeyboardOffset] = useState(0);
 
@@ -106,6 +112,15 @@ export default function NovoAgendamento() {
     };
   }, []);
 
+  useEffect(() => {
+    const total = produtosSelecionados.reduce((acc, p) => {
+      const preco = parseFloat(String(p.preco)) || 0;
+      const maoDeObra = parseFloat(String(p.preco_mao_obra)) || 0;
+      return acc + preco + maoDeObra;
+    }, 0);
+    setValorTotal(total);
+  }, [produtosSelecionados]);
+
   return (
     <TelaComFundo>
       <TouchableOpacity
@@ -115,139 +130,175 @@ export default function NovoAgendamento() {
         <Ionicons name="arrow-back" size={24} color="white" />
       </TouchableOpacity>
 
-      <View style={[styles.container, { paddingBottom: keyboardOffset }]}>
-        <Text style={styles.titulo}>
-          Agendar em{" "}
-          {dataSelecionada.toLocaleDateString("pt-BR", {
-            hour: "2-digit",
-            minute: "2-digit",
-          })}
-        </Text>
+      <FlatList
+        data={[{}]}
+        renderItem={() => (
+          <View style={[styles.container, { paddingBottom: keyboardOffset }]}>
+            <Text style={styles.titulo}>
+              Agendar em{" "}
+              {dataSelecionada.toLocaleDateString("pt-BR", {
+                hour: "2-digit",
+                minute: "2-digit",
+              })}
+            </Text>
 
-        {/* CLIENTE */}
-        <View style={{ marginBottom: 16 }}>
-          <TextInput
-            {...(clientes.length > 0
-              ? textInputPropsComListaAtiva
-              : textInputPropsComLista)}
-            placeholder="Buscar cliente"
-            value={clienteInput}
-            textColor="black"
-            onChangeText={(t) => {
-              setClienteInput(t);
-              debouncedBuscaClientes(t);
-            }}
-            left={
-              <TextInput.Icon
-                icon={() => <CostumerIcon width={20} height={20} />}
+            {/* CLIENTE */}
+            <View style={{ marginBottom: 16 }}>
+              <TextInput
+                {...(clientes.length > 0
+                  ? textInputPropsComListaAtiva
+                  : textInputPropsComLista)}
+                placeholder="Buscar cliente"
+                value={clienteInput}
+                textColor="black"
+                onChangeText={(t) => {
+                  setClienteInput(t);
+                  debouncedBuscaClientes(t);
+                }}
+                left={
+                  <TextInput.Icon
+                    icon={() => <CostumerIcon width={20} height={20} />}
+                  />
+                }
               />
-            }
-          />
 
-          {clientes.length > 0 && (
-            <FlatList
-              style={estilosGlobais.listaSugestoes}
-              data={clientes}
-              keyExtractor={(i) => i._id}
-              renderItem={({ item }) => (
-                <TouchableOpacity
-                  onPress={() => {
-                    setClienteSelecionado(item);
-                    setClienteInput(item.nome);
-                    setClientes([]);
-                  }}
-                  style={estilosGlobais.sugestaoItem}
-                >
-                  <Text style={estilosGlobais.sugestaoTexto}>{item.nome}</Text>
-                </TouchableOpacity>
+              {clientes.length > 0 && (
+                <FlatList
+                  style={estilosGlobais.listaSugestoes}
+                  data={clientes}
+                  keyExtractor={(i) => i._id}
+                  renderItem={({ item }) => (
+                    <TouchableOpacity
+                      onPress={() => {
+                        setClienteSelecionado(item);
+                        setClienteInput(item.nome);
+                        setClientes([]);
+                      }}
+                      style={estilosGlobais.sugestaoItem}
+                    >
+                      <Text style={estilosGlobais.sugestaoTexto}>
+                        {item.nome}
+                      </Text>
+                    </TouchableOpacity>
+                  )}
+                  keyboardShouldPersistTaps="handled"
+                />
               )}
-              keyboardShouldPersistTaps="handled"
-            />
-          )}
-        </View>
+            </View>
 
-        {/* PRODUTO */}
-        <View style={{ marginBottom: 16 }}>
-          <TextInput
-            {...(sugestoesProdutos.length > 0
-              ? textInputPropsComListaAtiva
-              : textInputPropsComLista)}
-            placeholder="Buscar produto"
-            textColor="black"
-            value={produtoInput}
-            onChangeText={(t) => {
-              setProdutoInput(t);
-              debouncedBuscaProdutos(t);
-            }}
-            left={
-              <TextInput.Icon
-                icon={() => <ProductIcon width={20} height={20} />}
+            {/* PRODUTO */}
+            <View style={{ marginBottom: 16 }}>
+              <TextInput
+                {...(sugestoesProdutos.length > 0
+                  ? textInputPropsComListaAtiva
+                  : textInputPropsComLista)}
+                placeholder="Buscar produto"
+                textColor="black"
+                value={produtoInput}
+                onChangeText={(t) => {
+                  setProdutoInput(t);
+                  debouncedBuscaProdutos(t);
+                }}
+                left={
+                  <TextInput.Icon
+                    icon={() => <ProductIcon width={20} height={20} />}
+                  />
+                }
               />
-            }
-          />
 
-          {sugestoesProdutos.length > 0 && (
-            <FlatList
-              style={estilosGlobais.listaSugestoes}
-              data={sugestoesProdutos}
-              keyExtractor={(i) => i._id}
-              renderItem={({ item }) => (
-                <TouchableOpacity
-                  onPress={() => {
-                    if (!produtosSelecionados.some((p) => p._id === item._id))
-                      setProdutosSelecionados((prev) => [...prev, item]);
-                    setProdutoInput("");
-                    setSugestoesProdutos([]);
-                  }}
-                  style={estilosGlobais.sugestaoItem}
-                >
-                  <Text style={estilosGlobais.sugestaoTexto}>{item.nome}</Text>
-                </TouchableOpacity>
+              {sugestoesProdutos.length > 0 && (
+                <FlatList
+                  style={estilosGlobais.listaSugestoes}
+                  data={sugestoesProdutos}
+                  keyExtractor={(i) => i._id}
+                  renderItem={({ item }) => (
+                    <TouchableOpacity
+                      onPress={() => {
+                        requestAnimationFrame(() => {
+                          if (
+                            !produtosSelecionados.some(
+                              (p) => p._id === item._id
+                            )
+                          ) {
+                            setProdutosSelecionados((prev) => [...prev, item]);
+                          }
+                          setProdutoInput("");
+                          setSugestoesProdutos([]);
+                          Keyboard.dismiss();
+                        });
+                      }}
+                      style={estilosGlobais.sugestaoItem}
+                    >
+                      <Text style={estilosGlobais.sugestaoTexto}>
+                        {item.nome}
+                      </Text>
+                    </TouchableOpacity>
+                  )}
+                  keyboardShouldPersistTaps="handled"
+                />
               )}
-              keyboardShouldPersistTaps="handled"
-            />
-          )}
-        </View>
+            </View>
 
-        {produtosSelecionados.length > 0 && (
-          <View style={styles.produtosSelecionados}>
-            <Text style={styles.subtitulo}>Selecionados:</Text>
-            {produtosSelecionados.map((p) => (
-              <Text key={p._id} style={styles.resultadoSelecionado}>
-                • {p.nome}
-              </Text>
-            ))}
+            {/* PRODUTOS SELECIONADOS */}
+            {produtosSelecionados.length > 0 && (
+              <View style={styles.produtosSelecionados}>
+                <Text style={styles.subtitulo}>Selecionados:</Text>
+                {produtosSelecionados.map((p) => (
+                  <View key={p._id} style={styles.produtoLinha}>
+                    <Text style={styles.resultadoSelecionado}>• {p.nome}</Text>
+                    <TouchableOpacity
+                      onPress={() => {
+                        const novos = produtosSelecionados.filter(
+                          (x) => x._id !== p._id
+                        );
+                        setProdutosSelecionados(novos);
+                      }}
+                    >
+                      <Ionicons name="close-circle" size={20} color="white" />
+                    </TouchableOpacity>
+                  </View>
+                ))}
+                <Text style={styles.totalValor}>
+                  Total: R$ {Number(valorTotal).toFixed(2)}
+                </Text>
+              </View>
+            )}
+
+            <Button
+              mode="contained"
+              buttonColor="#017b36"
+              textColor="white"
+              style={styles.botaoConfirmar}
+              onPress={confirmarAgendamento}
+            >
+              Confirmar agendamento
+            </Button>
+
+            <Text style={styles.pergunta}>Cliente sem cadastro?</Text>
+            <Button
+              mode="contained"
+              buttonColor="#017b36"
+              textColor="white"
+              style={styles.botaoCadastrar}
+              onPress={() => router.push("/cadastroCliente")}
+            >
+              Cadastrar cliente
+            </Button>
           </View>
         )}
-
-        <Button
-          mode="contained"
-          buttonColor="#017b36"
-          textColor="white"
-          style={styles.botaoConfirmar}
-          onPress={confirmarAgendamento}
-        >
-          Confirmar agendamento
-        </Button>
-
-        <Text style={styles.pergunta}>Cliente sem cadastro?</Text>
-        <Button
-          mode="contained"
-          buttonColor="#017b36"
-          textColor="white"
-          style={styles.botaoCadastrar}
-          onPress={() => router.push("/cadastroCliente")}
-        >
-          Cadastrar cliente
-        </Button>
-      </View>
+        keyExtractor={(_, index) => index.toString()}
+        keyboardShouldPersistTaps="handled"
+        contentContainerStyle={{ flexGrow: 1 }}
+        showsVerticalScrollIndicator={false}
+        ListFooterComponent={<View style={{ height: 40 }} />}
+      />
     </TelaComFundo>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    flexGrow: 1,
     alignContent: "center",
     justifyContent: "center",
     paddingHorizontal: 20,
@@ -299,5 +350,17 @@ const styles = StyleSheet.create({
     backgroundColor: "#017b36",
     borderRadius: 12,
     padding: 5,
+  },
+  produtoLinha: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingVertical: 4,
+  },
+  totalValor: {
+    fontFamily: "Poppins_600SemiBold",
+    color: "white",
+    marginTop: 8,
+    fontSize: 16,
   },
 });

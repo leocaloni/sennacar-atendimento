@@ -94,6 +94,18 @@ async def buscar_por_cliente_id(
     ]
 
 
+@router.get("/produto_id/{produto_id}", response_model=List[AgendamentoResponse])
+async def buscar_por_produto_id(
+    produto_id: str, user: dict = Depends(get_current_user)
+):
+    try:
+        todos = Agendamento.listar_todos()
+        filtrado = [a for a in todos if produto_id in a["produtos"]]
+        return [AgendamentoResponse.from_mongo(a) for a in filtrado]
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Erro: {str(e)}")
+
+
 @router.get("/periodo", response_model=List[AgendamentoResponse])
 async def buscar_por_periodo(
     data_inicio: str,

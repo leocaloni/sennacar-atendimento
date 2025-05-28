@@ -304,6 +304,7 @@ const styles = StyleSheet.create({
     fontFamily: "Poppins_700Bold",
     marginBottom: 30,
     marginTop: 40,
+    textAlign: "center",
   },
   botaoBusca: {
     backgroundColor: "#017b36",

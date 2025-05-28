@@ -349,6 +349,7 @@ const styles = StyleSheet.create({
     fontFamily: fontes.bold,
     marginBottom: 30,
     marginTop: 40,
+    textAlign: "center",
   },
   radioRow: {
     flexDirection: "row",
