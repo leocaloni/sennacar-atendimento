@@ -5,6 +5,7 @@ import {
   ScrollView,
   TouchableOpacity,
   Keyboard,
+  FlatList,
 } from "react-native";
 import { Text, TextInput, Button, Portal, Dialog } from "react-native-paper";
 import { useLocalSearchParams, useRouter } from "expo-router";
@@ -66,6 +67,7 @@ export default function EditarAgendamento() {
   const [confirmarEdicao, setConfirmarEdicao] = useState(false);
   const [feedbackEdicao, setFeedbackEdicao] = useState(false);
   const [erro, setErro] = useState("");
+  const [keyboardOffset, setKeyboardOffset] = useState(0);
 
   const debouncedBuscaClientes = useDebounce(async (texto: string) => {
     if (!texto) return setClientes([]);
@@ -185,6 +187,40 @@ export default function EditarAgendamento() {
     }
   };
 
+  useEffect(() => {
+    const keyboardDidShowListener = Keyboard.addListener(
+      "keyboardDidShow",
+      (e) => {
+        setKeyboardOffset(e.endCoordinates.height);
+      }
+    );
+    const keyboardDidHideListener = Keyboard.addListener(
+      "keyboardDidHide",
+      () => {
+        setKeyboardOffset(0);
+      }
+    );
+
+    return () => {
+      keyboardDidShowListener.remove();
+      keyboardDidHideListener.remove();
+    };
+  }, []);
+
+  useEffect(() => {
+    const showSub = Keyboard.addListener("keyboardDidShow", (e) => {
+      setKeyboardOffset(e.endCoordinates.height);
+    });
+    const hideSub = Keyboard.addListener("keyboardDidHide", () => {
+      setKeyboardOffset(0);
+    });
+
+    return () => {
+      showSub.remove();
+      hideSub.remove();
+    };
+  }, []);
+
   if (!carregado) {
     return (
       <TelaComFundo>
@@ -209,163 +245,173 @@ export default function EditarAgendamento() {
         <Ionicons name="arrow-back" size={24} color="white" />
       </TouchableOpacity>
 
-      <ScrollView
-        contentContainerStyle={styles.container}
+      <FlatList
+        data={[{}]}
+        keyExtractor={(_, index) => index.toString()}
         keyboardShouldPersistTaps="handled"
+        contentContainerStyle={{ flexGrow: 1 }}
         showsVerticalScrollIndicator={false}
-      >
-        <Text
-          style={[
-            estilosGlobais.tituloTela,
-            { textAlign: "center", marginTop: 80 },
-          ]}
-        >
-          Editar Agendamento
-        </Text>
-
-        {/* DATA */}
-        <TouchableOpacity
-          onPress={() => setMostrarDatePicker(true)}
-          style={styles.inputTouchable}
-        >
-          <View style={styles.inputComIcone}>
-            <CalendarIcon width={20} height={20} style={{ marginRight: 10 }} />
-            <Text style={{ color: dataSelecionada ? "#000" : "#aaa" }}>
-              {dataSelecionada
-                ? dataSelecionada.toLocaleDateString("pt-BR")
-                : "Selecionar data"}
+        ListFooterComponent={<View style={{ height: 40 }} />}
+        renderItem={() => (
+          <View style={styles.container}>
+            <Text
+              style={[
+                estilosGlobais.tituloTela,
+                { textAlign: "center", marginTop: 80 },
+              ]}
+            >
+              Editar Agendamento
             </Text>
-          </View>
-        </TouchableOpacity>
 
-        {/* HORÁRIOS */}
-        {horariosDisponiveis.length > 0 && (
-          <View style={styles.listaHorario}>
-            {horariosDisponiveis.map((h) => (
-              <TouchableOpacity
-                key={h}
-                onPress={() => setHorario(h)}
-                style={[
-                  styles.opcaoHorario,
-                  horario === h && styles.opcaoHorarioSelecionada,
-                ]}
-              >
-                <Text style={styles.textoHorario}>{h}</Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-        )}
-
-        {/* CLIENTE */}
-        <TextInput
-          {...(clientes.length > 0
-            ? textInputPropsComListaAtiva
-            : textInputPropsComLista)}
-          placeholder="Buscar cliente"
-          value={clienteInput}
-          onChangeText={(t) => {
-            setClienteInput(t);
-            debouncedBuscaClientes(t);
-          }}
-          left={
-            <TextInput.Icon
-              icon={() => <CostumerIcon width={20} height={20} />}
-            />
-          }
-          style={styles.input}
-          textColor="black"
-        />
-        {clientes.length > 0 && (
-          <View style={estilosGlobais.listaSugestoes}>
-            {clientes.map((c) => (
-              <TouchableOpacity
-                key={c._id}
-                onPress={() => {
-                  setClienteSelecionado(c);
-                  setClienteInput(c.nome);
-                  setClientes([]);
-                  Keyboard.dismiss();
-                }}
-                style={estilosGlobais.sugestaoItem}
-              >
-                <Text style={estilosGlobais.sugestaoTexto}>{c.nome}</Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-        )}
-
-        {/* PRODUTOS */}
-        <TextInput
-          {...(sugestoesProdutos.length > 0
-            ? textInputPropsComListaAtiva
-            : textInputPropsComLista)}
-          placeholder="Buscar produto"
-          value={produtoInput}
-          onChangeText={(t) => {
-            setProdutoInput(t);
-            debouncedBuscaProdutos(t);
-          }}
-          left={
-            <TextInput.Icon
-              icon={() => <ProductIcon width={20} height={20} />}
-            />
-          }
-          style={styles.input}
-          textColor="black"
-        />
-        {sugestoesProdutos.length > 0 && (
-          <View style={estilosGlobais.listaSugestoes}>
-            {sugestoesProdutos.map((p) => (
-              <TouchableOpacity
-                key={p._id}
-                onPress={() => {
-                  setProdutosSelecionados((prev) => [...prev, p]);
-                  setProdutoInput("");
-                  setSugestoesProdutos([]);
-                  Keyboard.dismiss();
-                }}
-                style={estilosGlobais.sugestaoItem}
-              >
-                <Text style={estilosGlobais.sugestaoTexto}>{p.nome}</Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-        )}
-
-        {/* PRODUTOS SELECIONADOS */}
-        {produtosSelecionados.length > 0 && (
-          <View style={styles.produtosSelecionados}>
-            <Text style={styles.subtitulo}>Selecionados:</Text>
-            {produtosSelecionados.map((p) => (
-              <View key={p._id} style={styles.produtoLinha}>
-                <Text style={styles.resultadoSelecionado}>• {p.nome}</Text>
-                <TouchableOpacity
-                  onPress={() =>
-                    setProdutosSelecionados((prev) =>
-                      prev.filter((x) => x._id !== p._id)
-                    )
-                  }
-                >
-                  <Ionicons name="close-circle" size={20} color="white" />
-                </TouchableOpacity>
+            {/* DATA */}
+            <TouchableOpacity
+              onPress={() => setMostrarDatePicker(true)}
+              style={styles.inputTouchable}
+            >
+              <View style={styles.inputComIcone}>
+                <CalendarIcon
+                  width={20}
+                  height={20}
+                  style={{ marginRight: 10 }}
+                />
+                <Text style={{ color: dataSelecionada ? "#000" : "#aaa" }}>
+                  {dataSelecionada
+                    ? dataSelecionada.toLocaleDateString("pt-BR")
+                    : "Selecionar data"}
+                </Text>
               </View>
-            ))}
-            <Text style={styles.totalValor}>
-              Total: R$ {valorTotal.toFixed(2)}
-            </Text>
+            </TouchableOpacity>
+
+            {/* HORÁRIOS */}
+            {horariosDisponiveis.length > 0 && (
+              <View style={styles.listaHorario}>
+                {horariosDisponiveis.map((h) => (
+                  <TouchableOpacity
+                    key={h}
+                    onPress={() => setHorario(h)}
+                    style={[
+                      styles.opcaoHorario,
+                      horario === h && styles.opcaoHorarioSelecionada,
+                    ]}
+                  >
+                    <Text style={styles.textoHorario}>{h}</Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            )}
+
+            {/* CLIENTE */}
+            <TextInput
+              {...(clientes.length > 0
+                ? textInputPropsComListaAtiva
+                : textInputPropsComLista)}
+              placeholder="Buscar cliente"
+              value={clienteInput}
+              onChangeText={(t) => {
+                setClienteInput(t);
+                debouncedBuscaClientes(t);
+              }}
+              left={
+                <TextInput.Icon
+                  icon={() => <CostumerIcon width={20} height={20} />}
+                />
+              }
+              style={styles.input}
+              textColor="black"
+            />
+            {clientes.length > 0 && (
+              <View style={estilosGlobais.listaSugestoes}>
+                {clientes.map((c) => (
+                  <TouchableOpacity
+                    key={c._id}
+                    onPress={() => {
+                      setClienteSelecionado(c);
+                      setClienteInput(c.nome);
+                      setClientes([]);
+                      Keyboard.dismiss();
+                    }}
+                    style={estilosGlobais.sugestaoItem}
+                  >
+                    <Text style={estilosGlobais.sugestaoTexto}>{c.nome}</Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            )}
+
+            {/* PRODUTOS */}
+            <TextInput
+              {...(sugestoesProdutos.length > 0
+                ? textInputPropsComListaAtiva
+                : textInputPropsComLista)}
+              placeholder="Buscar produto"
+              value={produtoInput}
+              onChangeText={(t) => {
+                setProdutoInput(t);
+                debouncedBuscaProdutos(t);
+              }}
+              left={
+                <TextInput.Icon
+                  icon={() => <ProductIcon width={20} height={20} />}
+                />
+              }
+              style={styles.input}
+              textColor="black"
+            />
+            {sugestoesProdutos.length > 0 && (
+              <View style={estilosGlobais.listaSugestoes}>
+                {sugestoesProdutos.map((p) => (
+                  <TouchableOpacity
+                    key={p._id}
+                    onPress={() => {
+                      setProdutosSelecionados((prev) => [...prev, p]);
+                      setProdutoInput("");
+                      setSugestoesProdutos([]);
+                      Keyboard.dismiss();
+                    }}
+                    style={estilosGlobais.sugestaoItem}
+                  >
+                    <Text style={estilosGlobais.sugestaoTexto}>{p.nome}</Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            )}
+
+            {/* PRODUTOS SELECIONADOS */}
+            {produtosSelecionados.length > 0 && (
+              <View style={styles.produtosSelecionados}>
+                <Text style={styles.subtitulo}>Selecionados:</Text>
+                {produtosSelecionados.map((p) => (
+                  <View key={p._id} style={styles.produtoLinha}>
+                    <Text style={styles.resultadoSelecionado}>• {p.nome}</Text>
+                    <TouchableOpacity
+                      onPress={() =>
+                        setProdutosSelecionados((prev) =>
+                          prev.filter((x) => x._id !== p._id)
+                        )
+                      }
+                    >
+                      <Ionicons name="close-circle" size={20} color="white" />
+                    </TouchableOpacity>
+                  </View>
+                ))}
+                <Text style={styles.totalValor}>
+                  Total: R$ {valorTotal.toFixed(2)}
+                </Text>
+              </View>
+            )}
+
+            <Button
+              mode="contained"
+              buttonColor="#017b36"
+              textColor="white"
+              style={[estilosGlobais.botaoPadrao, { marginTop: 40 }]}
+              onPress={() => setConfirmarEdicao(true)}
+            >
+              Atualizar
+            </Button>
           </View>
         )}
-
-        <Button
-          mode="contained"
-          buttonColor="#017b36"
-          textColor="white"
-          style={[estilosGlobais.botaoPadrao, { marginTop: 40 }]}
-          onPress={() => setConfirmarEdicao(true)}
-        >
-          Atualizar
-        </Button>
-      </ScrollView>
+      />
 
       <DateTimePickerModal
         isVisible={mostrarDatePicker}

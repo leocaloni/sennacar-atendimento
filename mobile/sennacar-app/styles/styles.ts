@@ -57,7 +57,14 @@ export const styles = StyleSheet.create({
     fontFamily: "Poppins_700Bold",
     marginBottom: 35,
   },
-
+  textoSenha: {
+    padding: 0,
+    textAlign: "center",
+    fontSize: 30,
+    color: "white",
+    fontFamily: "Poppins_700Bold",
+    marginBottom: 35,
+  },
   input: {
     marginTop: 20,
     fontFamily: "Poppins_400Regular",

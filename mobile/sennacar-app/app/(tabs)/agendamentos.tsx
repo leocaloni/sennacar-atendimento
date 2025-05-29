@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState, useCallback } from "react";
 import {
   View,
   StyleSheet,
@@ -19,7 +19,7 @@ import {
   addWeeks,
   isSameDay,
 } from "date-fns";
-import { useRouter } from "expo-router";
+import { useRouter, useFocusEffect } from "expo-router";
 import { estilosGlobais } from "../../styles/estilosGlobais";
 
 type DiaSemana = {
@@ -78,6 +78,7 @@ export default function AgendamentosScreen() {
         });
       }
 
+      setDias([]);
       setDias(diasAtualizados);
     } catch (err) {
       console.error("Erro ao buscar agendamentos", err);
@@ -86,12 +87,14 @@ export default function AgendamentosScreen() {
 
   const getTotalSlots = (data: Date) => {
     const isSabado = data.getDay() === 6;
-    return isSabado ? 9 : 20;
+    return isSabado ? 10 : 20;
   };
 
-  useEffect(() => {
-    fetchDisponibilidades();
-  }, [segunda]);
+  useFocusEffect(
+    useCallback(() => {
+      fetchDisponibilidades();
+    }, [segunda])
+  );
 
   const alterarSemana = (direcao: "anterior" | "proxima") => {
     setSegunda((prev) =>
@@ -108,7 +111,7 @@ export default function AgendamentosScreen() {
         <View style={styles.diasContainer}>
           {dias.map((dia, index) => (
             <TouchableOpacity
-              key={index}
+              key={dia.data.toISOString()}
               style={styles.botaoDia}
               onPress={() =>
                 router.push({
@@ -125,12 +128,18 @@ export default function AgendamentosScreen() {
                 />
               ) : dia.disponivel ? (
                 <DisponivelIcon
+                  key={`disponivel-${dia.data.toISOString()}`}
                   width={28}
                   height={28}
                   style={{ marginBottom: 4 }}
                 />
               ) : (
-                <CheioIcon width={28} height={28} style={{ marginBottom: 4 }} />
+                <CheioIcon
+                  key={`cheio-${dia.data.toISOString()}`}
+                  width={28}
+                  height={28}
+                  style={{ marginBottom: 4 }}
+                />
               )}
               <Text style={styles.nomeDia}>{dia.nome}</Text>
             </TouchableOpacity>

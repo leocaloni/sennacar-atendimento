@@ -99,6 +99,10 @@ export default function RootLayout() {
               name="editarAgendamento"
               options={{ headerShown: false }}
             />
+            <Stack.Screen
+              name="esqueceuSenha"
+              options={{ headerShown: false }}
+            />
           </Stack>
         </AuthProvider>
       </PaperProvider>

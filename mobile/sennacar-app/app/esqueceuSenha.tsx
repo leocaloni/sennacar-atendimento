@@ -1,78 +1,54 @@
+// esqueceuSenha.tsx
+
 import { useState } from "react";
 import {
   View,
   KeyboardAvoidingView,
   Image,
-  TouchableOpacity,
   Text,
   Platform,
   Keyboard,
   TouchableWithoutFeedback,
   ImageBackground,
+  StyleSheet,
+  TouchableOpacity,
 } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import { styles, textInputProps } from "../styles/styles";
 import { TextInput, Button } from "react-native-paper";
-import { StackNavigationProp } from "@react-navigation/stack";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
-import { router } from "expo-router";
-import { useAuth } from "../contexts/AuthContext";
 import { api } from "./services/api";
 import EmailIcon from "../assets/icons/email.svg";
-import SenhaIcon from "../assets/icons/senha.svg";
+import { Ionicons } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
 
-type RootStackParamList = {
-  Login: undefined;
-  Cadastro: undefined;
-  Camera: undefined;
-  EsqueceuSenha: undefined;
-};
-
-type LoginScreenNavigationProp = StackNavigationProp<
-  RootStackParamList,
-  "Login"
->;
-
-interface LoginProps {
-  navigation: LoginScreenNavigationProp;
-}
-
-export default function Login({ navigation }: LoginProps) {
+export default function EsqueceuSenha() {
   const [email, setEmail] = useState("");
-  const [senha, setSenha] = useState("");
-  const [showSenha, setShowSenha] = useState(false);
-  const [loginErro, setLoginErro] = useState("");
-  const { login } = useAuth();
+  const [mensagem, setMensagem] = useState("");
+  const [erro, setErro] = useState("");
+  const router = useRouter();
 
-  const handleLogin = async () => {
-    if (!email || !senha) {
-      setLoginErro("Todos os campos devem ser preenchidos.");
-      return;
-    }
+  const handleEnviar = async () => {
+    setMensagem("");
+    setErro("");
 
-    if (!email.includes("@")) {
-      setLoginErro("O email precisa conter '@'.");
+    if (!email || !email.includes("@")) {
+      setErro("Informe um email válido.");
       return;
     }
 
     try {
-      const response = await api.post("/auth/login", { email, senha });
-      await login(response.data.access_token);
-      router.replace("/(tabs)/agendamentos");
+      await api.post("/auth/forgot-password", { email });
+      setMensagem("Instruções enviadas para seu email.");
     } catch (err: any) {
-      const msg =
-        err?.response?.data?.detail || "Erro ao conectar com o servidor.";
-      setLoginErro(msg);
+      const msg = err?.response?.data?.detail || "Erro ao tentar enviar email.";
+      setErro(msg);
     }
   };
 
   const dismissKeyboard = () => {
     Keyboard.dismiss();
-  };
-
-  const toggleShowSenha = () => {
-    setShowSenha(!showSenha);
   };
 
   return (
@@ -109,12 +85,18 @@ export default function Login({ navigation }: LoginProps) {
 
             <View style={styles.background}>
               <View style={styles.container}>
-                <Text style={styles.textoLogin}>Bem-vindo!</Text>
+                <TouchableOpacity
+                  onPress={() => router.back()}
+                  style={[localStyles.botaoVoltar, { left: 2, top: 30 }]}
+                >
+                  <Ionicons name="arrow-back" size={24} color="white" />
+                </TouchableOpacity>
+                <Text style={styles.textoSenha}>Recuperar Senha</Text>
                 <TextInput
-                  style={styles.input}
+                  style={[styles.input, { marginBottom: 60 }]}
                   {...textInputProps}
-                  textColor="black"
                   placeholder="Email"
+                  textColor="black"
                   keyboardType="email-address"
                   value={email}
                   onChangeText={(text) => setEmail(text)}
@@ -124,48 +106,21 @@ export default function Login({ navigation }: LoginProps) {
                     />
                   }
                 />
-
-                <TextInput
-                  style={styles.input}
-                  {...textInputProps}
-                  placeholder="Senha"
-                  textColor="black"
-                  secureTextEntry={!showSenha}
-                  value={senha}
-                  onChangeText={(text) => setSenha(text)}
-                  left={
-                    <TextInput.Icon
-                      icon={() => <SenhaIcon width={20} height={20} />}
-                    />
-                  }
-                  right={
-                    <TextInput.Icon
-                      icon={showSenha ? "eye-off" : "eye"}
-                      onPress={toggleShowSenha}
-                    />
-                  }
-                />
-
-                <TouchableOpacity>
-                  <Text
-                    style={styles.esqueceuSenha}
-                    onPress={() => router.push("/esqueceuSenha")}
-                  >
-                    Esqueceu sua senha?
+                {mensagem ? (
+                  <Text style={{ color: "green", marginBottom: 10 }}>
+                    {mensagem}
                   </Text>
-                </TouchableOpacity>
-                {loginErro ? (
-                  <Text style={{ color: "red", marginBottom: 10 }}>
-                    {loginErro}
-                  </Text>
+                ) : null}
+                {erro ? (
+                  <Text style={{ color: "red", marginBottom: 10 }}>{erro}</Text>
                 ) : null}
                 <Button
                   style={styles.botao}
                   mode="contained"
                   textColor="white"
-                  onPress={handleLogin}
+                  onPress={handleEnviar}
                 >
-                  Entrar
+                  Enviar
                 </Button>
               </View>
             </View>
@@ -175,3 +130,15 @@ export default function Login({ navigation }: LoginProps) {
     </TouchableWithoutFeedback>
   );
 }
+
+const localStyles = StyleSheet.create({
+  botaoVoltar: {
+    position: "absolute",
+    top: 20,
+    left: 20,
+    zIndex: 10,
+    backgroundColor: "#017b36",
+    borderRadius: 12,
+    padding: 5,
+  },
+});
