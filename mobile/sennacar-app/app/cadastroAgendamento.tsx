@@ -9,7 +9,7 @@ import {
   Keyboard,
 } from "react-native";
 import { Text, TextInput, Button, Dialog, Portal } from "react-native-paper";
-import DateTimePicker from "@react-native-community/datetimepicker";
+import DateTimePickerModal from "react-native-modal-datetime-picker";
 import { useRouter } from "expo-router";
 import { TelaComFundo } from "../components/TelaComFundo";
 import { api } from "./services/api";
@@ -18,7 +18,6 @@ import ProductIcon from "../assets/icons/product-grey.svg";
 import CalendarIcon from "../assets/icons/calendar-grey.svg";
 import { Ionicons } from "@expo/vector-icons";
 import {
-  textInputProps,
   textInputPropsComLista,
   textInputPropsComListaAtiva,
 } from "../styles/styles";
@@ -80,6 +79,18 @@ export default function CadastroAgendamento() {
     setSugestoesProdutos(data);
   });
 
+  const buscarHorariosDisponiveis = async (dataStr: string) => {
+    try {
+      const { data } = await api.get("/agendamentos/agendamentos/horarios", {
+        params: { data: dataStr },
+      });
+      setHorariosDisponiveis(data.horarios);
+    } catch (error) {
+      console.error("Erro ao buscar horários:", error);
+      setHorariosDisponiveis([]);
+    }
+  };
+
   useEffect(() => {
     const total = produtosSelecionados.reduce((acc, p) => {
       const preco = parseFloat(String(p.preco)) || 0;
@@ -88,30 +99,6 @@ export default function CadastroAgendamento() {
     }, 0);
     setValorTotal(total);
   }, [produtosSelecionados]);
-
-  const gerarHorarios = (dataStr: string) => {
-    const dataObj = new Date(dataStr);
-    const diaSemana = dataObj.getDay();
-    const horarios: string[] = [];
-
-    const addHorario = (h: number, m: number) => {
-      const hh = h.toString().padStart(2, "0");
-      const mm = m.toString().padStart(2, "0");
-      horarios.push(`${hh}:${mm}`);
-    };
-
-    const inicio = 8;
-    const fim = diaSemana === 6 ? 13 : 18;
-    const max = diaSemana === 6 ? 12.5 : 17.5;
-
-    for (let hora = inicio; hora <= max; hora += 0.5) {
-      const h = Math.floor(hora);
-      const m = hora % 1 === 0 ? 0 : 30;
-      addHorario(h, m);
-    }
-
-    setHorariosDisponiveis(horarios);
-  };
 
   const handleCadastrar = async () => {
     if (
@@ -122,7 +109,18 @@ export default function CadastroAgendamento() {
     )
       return;
 
-    const dataAgendada = `${dataTexto}T${horario}:00`;
+    const [ano, mes, dia] = dataTexto.split("-");
+    const [hora, minuto] = horario.split(":");
+
+    const dataLocal = new Date(
+      Number(ano),
+      Number(mes) - 1,
+      Number(dia),
+      Number(hora),
+      Number(minuto)
+    );
+
+    const dataAgendada = dataLocal.toISOString();
 
     await api.post("/agendamentos/agendamentos", null, {
       params: {
@@ -203,6 +201,17 @@ export default function CadastroAgendamento() {
                 </TouchableOpacity>
               ))}
             </View>
+          )}
+          {horariosDisponiveis.length === 0 && dataSelecionada && (
+            <Text
+              style={{
+                color: "white",
+                fontFamily: "Poppins_400Regular",
+                marginBottom: 20,
+              }}
+            >
+              Nenhum horário disponível para esta data.
+            </Text>
           )}
 
           {/* CLIENTE */}
@@ -310,7 +319,7 @@ export default function CadastroAgendamento() {
             mode="contained"
             buttonColor="#017b36"
             textColor="white"
-            style={estilosGlobais.botaoPadrao}
+            style={[estilosGlobais.botaoPadrao, { marginTop: 40 }]}
             onPress={handleCadastrar}
           >
             Agendar
@@ -318,32 +327,48 @@ export default function CadastroAgendamento() {
         </ScrollView>
       </KeyboardAvoidingView>
 
-      {mostrarDatePicker && (
-        <DateTimePicker
-          mode="date"
-          display="spinner"
-          value={dataSelecionada ?? new Date()}
-          onChange={(_, selectedDate) => {
-            setMostrarDatePicker(false);
-            if (selectedDate) {
-              setDataSelecionada(selectedDate);
-              const dataStr = selectedDate.toISOString().split("T")[0];
-              setDataTexto(dataStr);
-              gerarHorarios(dataStr);
-            }
-          }}
-          locale="pt-BR"
-        />
-      )}
+      <DateTimePickerModal
+        isVisible={mostrarDatePicker}
+        mode="date"
+        onConfirm={(selectedDate) => {
+          setMostrarDatePicker(false);
+          if (selectedDate) {
+            setDataSelecionada(selectedDate);
+            const dataStr = selectedDate.toLocaleDateString("en-CA");
+            setDataTexto(dataStr);
+            buscarHorariosDisponiveis(dataStr);
+          }
+        }}
+        onCancel={() => setMostrarDatePicker(false)}
+        themeVariant="light"
+        locale="pt-BR"
+      />
 
       <Portal>
         <Dialog
           visible={mostrarSucesso}
           onDismiss={() => setMostrarSucesso(false)}
+          style={{ backgroundColor: "white", borderRadius: 16 }}
         >
-          <Dialog.Title style={{ textAlign: "center" }}>Agendado!</Dialog.Title>
+          <Dialog.Title
+            style={{
+              fontFamily: "Poppins_700Bold",
+              color: "#000",
+              textAlign: "center",
+            }}
+          >
+            Agendado!
+          </Dialog.Title>
           <Dialog.Content>
-            <Text>Agendamento criado com sucesso!</Text>
+            <Text
+              style={{
+                fontFamily: "Poppins_400Regular",
+                color: "#333",
+                textAlign: "center",
+              }}
+            >
+              Agendamento criado com sucesso!
+            </Text>
           </Dialog.Content>
           <Dialog.Actions>
             <Button
@@ -351,6 +376,8 @@ export default function CadastroAgendamento() {
                 setMostrarSucesso(false);
                 router.replace("/adminAgendamentos");
               }}
+              textColor="#017b36"
+              labelStyle={{ fontFamily: "Poppins_500Medium" }}
             >
               OK
             </Button>
@@ -368,16 +395,15 @@ const styles = StyleSheet.create({
     paddingBottom: 100,
   },
   input: {
-    marginBottom: 20,
     backgroundColor: "white",
     borderRadius: 16,
     fontFamily: "Poppins_400Regular",
+    marginTop: 20,
   },
   inputTouchable: {
     backgroundColor: "white",
     borderRadius: 16,
     padding: 16,
-    marginBottom: 20,
   },
   inputComIcone: {
     flexDirection: "row",
@@ -421,7 +447,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     flexWrap: "wrap",
     gap: 10,
-    marginBottom: 20,
+    marginTop: 20,
   },
   opcaoHorario: {
     paddingHorizontal: 12,

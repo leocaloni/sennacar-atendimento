@@ -25,7 +25,7 @@ import CostumerIcon from "../assets/icons/costumer-grey.svg";
 import ProductIcon from "../assets/icons/product-grey.svg";
 import CalendarIcon from "../assets/icons/calendar-grey.svg";
 import SearchIcon from "../assets/icons/search-white.svg";
-import DateTimePicker from "@react-native-community/datetimepicker";
+import DateTimePickerModal from "react-native-modal-datetime-picker";
 import { format } from "date-fns";
 import { Ionicons } from "@expo/vector-icons";
 import { fontes } from "../styles/fontes";
@@ -163,6 +163,12 @@ export default function AdminAgendamentosScreen() {
     );
   };
 
+  function converterUtcParaHorarioLocal(dataUtc: string): Date {
+    const data = new Date(dataUtc);
+    const offset = data.getTimezoneOffset(); // em minutos
+    return new Date(data.getTime() - offset * 60000);
+  }
+
   const excluirAgendamento = async () => {
     if (!idParaExcluir) return;
     try {
@@ -269,38 +275,39 @@ export default function AdminAgendamentosScreen() {
             </TouchableOpacity>
           </View>
 
-          {showInicio && (
-            <DateTimePicker
-              value={dataInicio || new Date()}
-              mode="date"
-              display="calendar"
-              onChange={(_, date) => {
-                setShowInicio(false);
-                if (date) {
-                  setDataInicio(date);
-                  if (dataFim) {
-                    setTimeout(() => buscarAgendamentos(), 0);
-                  }
+          <DateTimePickerModal
+            isVisible={showInicio}
+            mode="date"
+            onConfirm={(date) => {
+              setShowInicio(false);
+              if (date) {
+                setDataInicio(date);
+                if (dataFim) {
+                  setTimeout(() => buscarAgendamentos(), 0);
                 }
-              }}
-            />
-          )}
-          {showFim && (
-            <DateTimePicker
-              value={dataFim || new Date()}
-              mode="date"
-              display="calendar"
-              onChange={(_, date) => {
-                setShowFim(false);
-                if (date) {
-                  setDataFim(date);
-                  if (dataInicio) {
-                    setTimeout(() => buscarAgendamentos(), 0);
-                  }
+              }
+            }}
+            onCancel={() => setShowInicio(false)}
+            themeVariant="light"
+            locale="pt-BR"
+          />
+
+          <DateTimePickerModal
+            isVisible={showFim}
+            mode="date"
+            onConfirm={(date) => {
+              setShowFim(false);
+              if (date) {
+                setDataFim(date);
+                if (dataInicio) {
+                  setTimeout(() => buscarAgendamentos(), 0);
                 }
-              }}
-            />
-          )}
+              }
+            }}
+            onCancel={() => setShowFim(false)}
+            themeVariant="light"
+            locale="pt-BR"
+          />
         </View>
       ) : (
         <View style={{ flexDirection: "row", alignItems: "flex-start" }}>
@@ -382,7 +389,10 @@ export default function AdminAgendamentosScreen() {
 
               <Text style={styles.label}>Data</Text>
               <Text style={styles.valor}>
-                {format(new Date(item.data_agendada), "dd/MM/yyyy HH:mm")}
+                {format(
+                  converterUtcParaHorarioLocal(item.data_agendada),
+                  "dd/MM/yyyy HH:mm"
+                )}
               </Text>
 
               <Text style={styles.label}>Cliente</Text>
@@ -451,13 +461,23 @@ export default function AdminAgendamentosScreen() {
         <Dialog
           visible={confirmarExclusao}
           onDismiss={() => setConfirmarExclusao(false)}
+          style={{ backgroundColor: "white", borderRadius: 16 }}
         >
-          <Dialog.Title>Confirmar exclusão</Dialog.Title>
+          <Dialog.Title
+            style={{ fontFamily: "Poppins_700Bold", color: "#000" }}
+          >
+            Confirmar exclusão
+          </Dialog.Title>
           <Dialog.Content>
-            <Text>Deseja mesmo excluir este agendamento?</Text>
+            <Text style={{ fontFamily: "Poppins_400Regular", color: "#333" }}>
+              Deseja mesmo excluir este agendamento?
+            </Text>
           </Dialog.Content>
           <Dialog.Actions>
-            <Button onPress={() => setConfirmarExclusao(false)}>
+            <Button
+              onPress={() => setConfirmarExclusao(false)}
+              textColor={cores.verdePrincipal}
+            >
               Cancelar
             </Button>
             <Button onPress={excluirAgendamento} textColor={cores.vermelho}>
@@ -469,13 +489,25 @@ export default function AdminAgendamentosScreen() {
         <Dialog
           visible={feedbackExclusao}
           onDismiss={() => setFeedbackExclusao(false)}
+          style={{ backgroundColor: "white", borderRadius: 16 }}
         >
-          <Dialog.Title>Sucesso!</Dialog.Title>
+          <Dialog.Title
+            style={{ fontFamily: "Poppins_700Bold", color: "#000" }}
+          >
+            Sucesso!
+          </Dialog.Title>
           <Dialog.Content>
-            <Text>Agendamento excluído com sucesso.</Text>
+            <Text style={{ fontFamily: "Poppins_400Regular", color: "#333" }}>
+              Agendamento excluído com sucesso.
+            </Text>
           </Dialog.Content>
           <Dialog.Actions>
-            <Button onPress={() => setFeedbackExclusao(false)}>Ok</Button>
+            <Button
+              onPress={() => setFeedbackExclusao(false)}
+              textColor={cores.verdePrincipal}
+            >
+              Ok
+            </Button>
           </Dialog.Actions>
         </Dialog>
       </Portal>

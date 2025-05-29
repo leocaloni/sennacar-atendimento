@@ -39,6 +39,7 @@ export default function NovoAgendamento() {
   const { horario } = useLocalSearchParams();
   const horarioISO = Array.isArray(horario) ? horario[0] : horario;
   const dataSelecionada = new Date(horarioISO as string);
+
   const router = useRouter();
 
   const [clienteInput, setClienteInput] = useState("");
@@ -85,7 +86,7 @@ export default function NovoAgendamento() {
     await api.post("/agendamentos/agendamentos", null, {
       params: {
         cliente_id: clienteSelecionado._id,
-        data_agendada: horarioISO,
+        data_agendada: dataSelecionada.toISOString(),
         produtos: produtosSelecionados.map((p) => p._id).join(","),
       },
     });

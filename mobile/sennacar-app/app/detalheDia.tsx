@@ -114,11 +114,15 @@ export default function DetalheDiaScreen() {
 
   const obterAgendamento = (hora: Date) => {
     return agendamentos.find((a) => {
-      const dataAgendada = new Date(a.data_agendada);
-      const localDate = new Date(
-        dataAgendada.getTime() - dataAgendada.getTimezoneOffset() * 60000
+      const agDataUTC = new Date(a.data_agendada);
+      const agDataLocal = new Date(
+        agDataUTC.getTime() - agDataUTC.getTimezoneOffset() * 60000
       );
-      return isSameMinute(localDate, hora);
+
+      return (
+        agDataLocal.getHours() === hora.getHours() &&
+        agDataLocal.getMinutes() === hora.getMinutes()
+      );
     });
   };
 

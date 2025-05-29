@@ -127,6 +127,20 @@ export default function CadastroProduto() {
     };
   }, []);
 
+  useEffect(() => {
+    const showSub = Keyboard.addListener("keyboardDidShow", (e) => {
+      setKeyboardOffset(e.endCoordinates.height);
+    });
+    const hideSub = Keyboard.addListener("keyboardDidHide", () => {
+      setKeyboardOffset(0);
+    });
+
+    return () => {
+      showSub.remove();
+      hideSub.remove();
+    };
+  }, []);
+
   return (
     <TelaComFundo>
       <TouchableOpacity
@@ -136,110 +150,125 @@ export default function CadastroProduto() {
         <Ionicons name="arrow-back" size={24} color="white" />
       </TouchableOpacity>
 
-      <View style={[styles.container, { paddingBottom: keyboardOffset }]}>
-        <Text style={styles.titulo}>Cadastro de Produto</Text>
-
-        <TextInput
-          {...textInputProps}
-          style={styles.input}
-          placeholder="Nome"
-          textColor="black"
-          value={nome}
-          onChangeText={setNome}
-          left={
-            <TextInput.Icon
-              icon={() => <ProductIcon width={20} height={20} />}
-            />
-          }
-        />
-
-        <TextInput
-          {...textInputProps}
-          style={styles.input}
-          placeholder="Preço"
-          textColor="black"
-          value={preco}
-          keyboardType="numeric"
-          onChangeText={(v) => setPreco(formatarMoeda(v))}
-          left={
-            <TextInput.Icon
-              icon={() => <DinheiroIcon width={20} height={20} />}
-            />
-          }
-        />
-
-        <TextInput
-          {...textInputProps}
-          style={styles.input}
-          placeholder="Mão de obra (se tiver)"
-          textColor="black"
-          value={maoObra}
-          keyboardType="numeric"
-          onChangeText={(v) => setMaoObra(formatarMoeda(v))}
-          left={
-            <TextInput.Icon
-              icon={() => <MechanicIcon width={20} height={20} />}
-            />
-          }
-        />
-
-        <View style={{ zIndex: 10 }}>
-          <TextInput
-            {...(sugestoesCategoria.length > 0
-              ? textInputPropsComListaAtiva
-              : textInputPropsComLista)}
-            placeholder="Categoria"
-            textColor="black"
-            value={categoria}
-            onChangeText={(texto) => {
-              setCategoria(texto);
-              buscarCategorias(texto);
-            }}
-            left={
-              <TextInput.Icon
-                icon={() => <CategoriaIcon width={20} height={20} />}
-              />
-            }
+      <FlatList
+        data={[{}]}
+        keyExtractor={(_, index) => index.toString()}
+        keyboardShouldPersistTaps="handled"
+        contentContainerStyle={{ flexGrow: 1 }}
+        showsVerticalScrollIndicator={false}
+        ListFooterComponent={<View style={{ height: 40 }} />}
+        renderItem={() => (
+          <View
             style={[
-              styles.input,
-              sugestoesCategoria.length > 0 && { marginBottom: 0 },
+              styles.container,
+              { paddingBottom: keyboardOffset, marginTop: 20 },
             ]}
-          />
+          >
+            <Text style={styles.titulo}>Cadastro de Produto</Text>
 
-          {sugestoesCategoria.length > 0 && (
-            <FlatList
-              data={sugestoesCategoria}
-              keyExtractor={(item) => item}
-              keyboardShouldPersistTaps="handled"
-              style={styles.listaSugestoes}
-              renderItem={({ item }) => (
-                <TouchableOpacity
-                  style={styles.sugestaoItem}
-                  onPress={() => {
-                    setCategoria(item);
-                    setSugestoesCategoria([]);
-                  }}
-                >
-                  <Text style={styles.sugestaoTexto}>{item}</Text>
-                </TouchableOpacity>
-              )}
+            <TextInput
+              {...textInputProps}
+              style={styles.input}
+              placeholder="Nome"
+              textColor="black"
+              value={nome}
+              onChangeText={setNome}
+              left={
+                <TextInput.Icon
+                  icon={() => <ProductIcon width={20} height={20} />}
+                />
+              }
             />
-          )}
-        </View>
 
-        {erro !== "" && <Text style={styles.erro}>{erro}</Text>}
+            <TextInput
+              {...textInputProps}
+              style={styles.input}
+              placeholder="Preço"
+              textColor="black"
+              value={preco}
+              keyboardType="numeric"
+              onChangeText={(v) => setPreco(formatarMoeda(v))}
+              left={
+                <TextInput.Icon
+                  icon={() => <DinheiroIcon width={20} height={20} />}
+                />
+              }
+            />
 
-        <Button
-          mode="contained"
-          buttonColor="#017b36"
-          textColor="white"
-          style={styles.botaoCadastrar}
-          loading={loading}
-          onPress={handleCadastrar}
-        >
-          Cadastrar
-        </Button>
-      </View>
+            <TextInput
+              {...textInputProps}
+              style={styles.input}
+              placeholder="Mão de obra (se tiver)"
+              textColor="black"
+              value={maoObra}
+              keyboardType="numeric"
+              onChangeText={(v) => setMaoObra(formatarMoeda(v))}
+              left={
+                <TextInput.Icon
+                  icon={() => <MechanicIcon width={20} height={20} />}
+                />
+              }
+            />
+
+            <View style={{ zIndex: 10 }}>
+              <TextInput
+                {...(sugestoesCategoria.length > 0
+                  ? textInputPropsComListaAtiva
+                  : textInputPropsComLista)}
+                placeholder="Categoria"
+                textColor="black"
+                value={categoria}
+                onChangeText={(texto) => {
+                  setCategoria(texto);
+                  buscarCategorias(texto);
+                }}
+                left={
+                  <TextInput.Icon
+                    icon={() => <CategoriaIcon width={20} height={20} />}
+                  />
+                }
+                style={[
+                  styles.input,
+                  sugestoesCategoria.length > 0 && { marginBottom: 0 },
+                ]}
+              />
+
+              {sugestoesCategoria.length > 0 && (
+                <FlatList
+                  data={sugestoesCategoria}
+                  keyExtractor={(item) => item}
+                  keyboardShouldPersistTaps="handled"
+                  style={styles.listaSugestoes}
+                  renderItem={({ item }) => (
+                    <TouchableOpacity
+                      style={styles.sugestaoItem}
+                      onPress={() => {
+                        setCategoria(item);
+                        setSugestoesCategoria([]);
+                      }}
+                    >
+                      <Text style={styles.sugestaoTexto}>{item}</Text>
+                    </TouchableOpacity>
+                  )}
+                />
+              )}
+            </View>
+
+            {erro !== "" && <Text style={styles.erro}>{erro}</Text>}
+
+            <Button
+              mode="contained"
+              buttonColor="#017b36"
+              textColor="white"
+              style={styles.botaoCadastrar}
+              loading={loading}
+              onPress={handleCadastrar}
+            >
+              Cadastrar
+            </Button>
+          </View>
+        )}
+      />
 
       <Portal>
         <Dialog
@@ -281,6 +310,7 @@ const styles = StyleSheet.create({
   container: {
     flexGrow: 1,
     justifyContent: "center",
+    alignContent: "center",
     paddingHorizontal: 20,
     paddingTop: 60,
     paddingBottom: 20,

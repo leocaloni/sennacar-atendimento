@@ -27,6 +27,7 @@ class Agendamento:
         try:
             agendamentos_col = get_agendamentos_collection()
 
+            # Verifica se já existe um agendamento nesse horário
             if agendamentos_col.find_one(
                 {
                     "data_agendada": self.data_agendada,
@@ -36,23 +37,37 @@ class Agendamento:
                 print("Horário já ocupado")
                 return None
 
+            # Calcula valor total dos produtos
             valor_total = Produto.calcular_valor_total(self.produtos)
 
-            # Criar evento no Google Agenda
+            # Buscar nome do cliente
+            from app.models.cliente import Cliente  # garante import sem circularidade
+
+            cliente = Cliente.buscar_por_id(self.cliente_id)
+            nome_cliente = cliente["nome"] if cliente else "Cliente"
+
+            # Buscar nomes dos produtos
+            nomes_produtos = []
+            for pid in self.produtos:
+                produto = Produto.buscar_por_id(pid)
+                if produto:
+                    nomes_produtos.append(produto["nome"])
+
+            # Cria evento no Google Agenda
             google_service = GoogleCalendarService()
             start_time = self.data_agendada
             end_time = start_time + timedelta(minutes=30)
             event = google_service.create_event(
                 {
-                    "summary": "Agendamento com cliente",
-                    "description": f"Produtos: {', '.join(self.produtos)}",
+                    "summary": f"Agendamento - {nome_cliente}",
+                    "description": f"Produtos: {', '.join(nomes_produtos)}",
                     "start_time": start_time,
                     "end_time": end_time,
                 }
             )
-
             google_event_id = event.get("id") if event else None
 
+            # Salva no banco
             agendamento_id = agendamentos_col.insert_one(
                 {
                     "cliente_id": self.cliente_id,
@@ -61,18 +76,18 @@ class Agendamento:
                     "valor_total": valor_total,
                     "status": self.status,
                     "observacoes": self.observacoes,
-                    "google_event_id": google_event_id,  # 👈 aqui salvamos no Mongo
+                    "google_event_id": google_event_id,
                     "criado_em": datetime.now(),
                 }
             ).inserted_id
 
             print(
-                f"Agendamento criado | Total: R${valor_total:.2f} | ID: {agendamento_id}"
+                f"Agendamento criado | Cliente: {nome_cliente} | Total: R${valor_total:.2f} | ID: {agendamento_id}"
             )
             return str(agendamento_id)
 
         except Exception as e:
-            print(f"Erro: {str(e)}")
+            print(f"Erro ao criar agendamento: {str(e)}")
             return None
 
     @staticmethod
@@ -120,6 +135,17 @@ class Agendamento:
         except Exception as e:
             print(f"Erro ao listar agendamentos: {e}")
             return []
+
+    @staticmethod
+    def atualizar_agendamento(agendamento_id: str, dados: dict) -> bool:
+        try:
+            result = get_agendamentos_collection().update_one(
+                {"_id": ObjectId(agendamento_id)}, {"$set": dados}
+            )
+            return result.modified_count > 0
+        except Exception as e:
+            print(f"Erro ao atualizar agendamento: {str(e)}")
+            return False
 
     @staticmethod
     def atualizar_produtos(agendamento_id: str, novos_produtos: List[str]) -> bool:

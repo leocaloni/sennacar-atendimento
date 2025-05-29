@@ -80,7 +80,7 @@ export default function RootLayout() {
               options={{ headerShown: false }}
             />
             <Stack.Screen
-              name="edtiarProduto"
+              name="editarProduto"
               options={{ headerShown: false }}
             />
             <Stack.Screen

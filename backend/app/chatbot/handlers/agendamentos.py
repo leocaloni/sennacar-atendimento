@@ -1,24 +1,26 @@
 from datetime import datetime, timedelta, time
+from typing import List
 from app.models.agendamento import Agendamento
 from app.models.cliente import Cliente
 from app.google.calendario import GoogleCalendarService
+from pytz import timezone, utc
 
 
-def get_horarios_disponiveis(data):
+def get_horarios_disponiveis(data) -> List[str]:
     """Retorna horários disponíveis para uma data específica"""
-    # Verifica se é domingo (não abre)
+    # Se domingo, não abre
     if data.weekday() == 6:
         return []
 
-    # Define horários de funcionamento
-    if data.weekday() == 5:  # Sábado
+    # Define horário de funcionamento
+    if data.weekday() == 5:  # sábado
         inicio = time(8, 0)
         fim = time(12, 30)
-    else:  # Segunda a Sexta
+    else:  # segunda a sexta
         inicio = time(8, 0)
         fim = time(17, 30)
 
-    # Gera slots de 30 minutos
+    # Gera slots de 30 em 30 minutos
     horarios = []
     current_time = inicio
     while current_time <= fim:
@@ -27,20 +29,29 @@ def get_horarios_disponiveis(data):
             datetime.combine(datetime.today(), current_time) + timedelta(minutes=30)
         ).time()
 
-    # Remove horários já agendados
-    agendamentos = Agendamento.buscar_por_periodo(
-        datetime.combine(data, time(0, 0)), datetime.combine(data, time(23, 59))
-    )
+    tz = timezone("America/Sao_Paulo")
+    # Busca agendamentos no Mongo
+    inicio_dia = tz.localize(datetime.combine(data, time(0, 0))).astimezone(utc)
+    fim_dia = tz.localize(datetime.combine(data, time(23, 59, 59))).astimezone(utc)
+    agendamentos = Agendamento.buscar_por_periodo(inicio_dia, fim_dia)
 
-    horarios_ocupados = [
-        agendamento["data_agendada"].time().strftime("%H:%M")
-        for agendamento in agendamentos
-    ]
+    # Converte os horários do Mongo para horário local
 
+    horarios_ocupados = []
+
+    for a in agendamentos:
+        dt = a["data_agendada"]
+
+        # Se vier sem timezone (naive), considera como UTC
+        if dt.tzinfo is None:
+            dt = utc.localize(dt)
+
+        local_dt = dt.astimezone(tz)
+        hora = local_dt.strftime("%H:%M")
+        horarios_ocupados.append(hora)
+
+    # Retorna apenas os horários livres
     return [h for h in horarios if h not in horarios_ocupados]
-
-
-# No arquivo agendamentos.py, modifique a função iniciar_agendamento:
 
 
 def iniciar_agendamento(chatbot_assistant):

@@ -1,12 +1,13 @@
 from datetime import datetime, timedelta
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from app.models.agendamento import Agendamento
-from app.schemas.agendamento import AgendamentoResponse
+from app.schemas.agendamento import AgendamentoResponse, AgendamentoUpdate
 from typing import List, Optional
 from app.auth.auth_utils import get_current_user
 from app.google.calendario import GoogleCalendarService
 from app.models.cliente import Cliente
 from app.models.produto import Produto
+from app.chatbot.handlers.agendamentos import get_horarios_disponiveis
 
 router = APIRouter(prefix="/agendamentos", tags=["Agendamentos"])
 
@@ -31,28 +32,6 @@ async def criar_agendamento(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Data já reservada ou dados inválidos",
         )
-
-    # ⬇️ Adiciona o evento no Google Calendar com nome do cliente e produtos
-    try:
-        cliente = Cliente.buscar_por_id(cliente_id)
-        nome_cliente = cliente["nome"] if cliente else "Cliente"
-
-        nomes_produtos = []
-        for pid in lista_produtos:
-            p = Produto.buscar_por_id(pid)
-            if p:
-                nomes_produtos.append(p["nome"])
-
-        GoogleCalendarService().create_event(
-            {
-                "summary": f"Agendamento - {nome_cliente}",
-                "description": f"Produtos: {', '.join(nomes_produtos)}",
-                "start_time": data_agendada,
-                "end_time": data_agendada + timedelta(minutes=30),
-            }
-        )
-    except Exception as e:
-        print(f"Erro ao criar evento no Google Calendar: {e}")
 
     return {"id": agendamento_id}
 
@@ -106,6 +85,22 @@ async def buscar_por_produto_id(
         raise HTTPException(status_code=500, detail=f"Erro: {str(e)}")
 
 
+@router.get("/agendamento/{agendamento_id}", response_model=AgendamentoResponse)
+async def buscar_agendamento_por_id(
+    agendamento_id: str,
+    user: dict = Depends(get_current_user),
+):
+    agendamento = Agendamento.buscar_por_id(agendamento_id)
+
+    if not agendamento:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Agendamento não encontrado",
+        )
+
+    return AgendamentoResponse.from_mongo(agendamento)
+
+
 @router.get("/periodo", response_model=List[AgendamentoResponse])
 async def buscar_por_periodo(
     data_inicio: str,
@@ -138,6 +133,37 @@ async def buscar_por_periodo(
     except Exception as e:
         print(f"Erro ao buscar agendamentos: {str(e)}")
         return []
+
+
+@router.get("/horarios")
+async def obter_horarios_disponiveis(
+    data: str = Query(..., description="Data no formato YYYY-MM-DD")
+):
+    try:
+        data_formatada = datetime.strptime(data, "%Y-%m-%d").date()
+        horarios = get_horarios_disponiveis(data_formatada)
+        return {"horarios": horarios}
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Formato de data inválido")
+
+
+@router.put("/agendamento/{agendamento_id}")
+async def atualizar_agendamento(
+    agendamento_id: str,
+    dados: AgendamentoUpdate,
+    user: dict = Depends(get_current_user),
+):
+    atualizado = Agendamento.atualizar_agendamento(
+        agendamento_id, dados.dict(exclude_unset=True)
+    )
+
+    if not atualizado:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Agendamento não encontrado ou falha na atualização",
+        )
+
+    return {"message": "Agendamento atualizado com sucesso"}
 
 
 @router.put("/agendamento/{agendamento_id}/produtos")
