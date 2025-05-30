@@ -18,6 +18,7 @@ import ProductIcon from "../assets/icons/product-grey.svg";
 import SearchIcon from "../assets/icons/search-white.svg";
 import { Ionicons } from "@expo/vector-icons";
 
+// Tela de administração de produtos: busca, edição, exclusão e cadastro
 export default function AdminProdutosScreen() {
   const [valor, setValor] = useState("");
   const [produto, setProduto] = useState<any>(null);

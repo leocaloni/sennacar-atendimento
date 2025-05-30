@@ -30,6 +30,7 @@ type DiaSemana = {
 
 const SIGLAS = ["SEG", "TER", "QUA", "QUI", "SEX", "SÁB"];
 
+// Tela de gerenciamento de agendamentos com visualização semanal e controle de disponibilidade
 export default function AgendamentosScreen() {
   const router = useRouter();
 
@@ -59,7 +60,6 @@ export default function AgendamentosScreen() {
       });
 
       const agendamentos: any[] = response.data;
-
       const diasAtualizados: DiaSemana[] = [];
 
       for (let i = 0; i < 6; i++) {
@@ -108,8 +108,9 @@ export default function AgendamentosScreen() {
         <Text style={estilosGlobais.tituloTela}>Gerenciar Agendamentos</Text>
         <Text style={styles.subtitulo}>Agendamentos da semana</Text>
 
+        {/* Botões de dias da semana */}
         <View style={styles.diasContainer}>
-          {dias.map((dia, index) => (
+          {dias.map((dia) => (
             <TouchableOpacity
               key={dia.data.toISOString()}
               style={styles.botaoDia}
@@ -128,24 +129,19 @@ export default function AgendamentosScreen() {
                 />
               ) : dia.disponivel ? (
                 <DisponivelIcon
-                  key={`disponivel-${dia.data.toISOString()}`}
                   width={28}
                   height={28}
                   style={{ marginBottom: 4 }}
                 />
               ) : (
-                <CheioIcon
-                  key={`cheio-${dia.data.toISOString()}`}
-                  width={28}
-                  height={28}
-                  style={{ marginBottom: 4 }}
-                />
+                <CheioIcon width={28} height={28} style={{ marginBottom: 4 }} />
               )}
               <Text style={styles.nomeDia}>{dia.nome}</Text>
             </TouchableOpacity>
           ))}
         </View>
 
+        {/* Seleção de semana */}
         <View style={styles.semanaContainer}>
           <TouchableOpacity onPress={() => alterarSemana("anterior")}>
             <Ionicons name="chevron-back" size={24} color="white" />
@@ -160,6 +156,7 @@ export default function AgendamentosScreen() {
           </TouchableOpacity>
         </View>
 
+        {/* Legenda de ícones */}
         <View style={styles.legenda}>
           <View style={styles.legendaItem}>
             <DisponivelIcon width={24} height={24} />

@@ -31,6 +31,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { fontes } from "../styles/fontes";
 import { cores } from "../styles/cores";
 
+// Tela de administração de agendamentos, com filtros, buscas, edições e exclusões
 export default function AdminAgendamentosScreen() {
   const [filtro, setFiltro] = useState<"cliente" | "produto" | "periodo">(
     "cliente"
@@ -52,6 +53,7 @@ export default function AdminAgendamentosScreen() {
   const [feedbackExclusao, setFeedbackExclusao] = useState(false);
   const [idParaExcluir, setIdParaExcluir] = useState<string | null>(null);
 
+  //delay na busca de sugestões
   const useDebounce = (cb: (...a: any[]) => void, delay = 150) => {
     const timer = useRef<NodeJS.Timeout | null>(null);
     return (...args: any[]) => {
@@ -60,6 +62,7 @@ export default function AdminAgendamentosScreen() {
     };
   };
 
+  //busca para a lista de sugestões
   const debouncedBusca = useDebounce(async (texto: string) => {
     if (!texto) return setSugestoes([]);
     try {
@@ -76,6 +79,7 @@ export default function AdminAgendamentosScreen() {
     }
   });
 
+  //busca direta pelo botão
   const buscarAgendamentos = async () => {
     setErro("");
     setAgendamentos([]);
@@ -112,6 +116,7 @@ export default function AdminAgendamentosScreen() {
     }
   };
 
+  //busca pelas sugestões
   const buscarAgendamentosCom = async (obj: any) => {
     setErro("");
     setAgendamentos([]);
@@ -165,7 +170,7 @@ export default function AdminAgendamentosScreen() {
 
   function converterUtcParaHorarioLocal(dataUtc: string): Date {
     const data = new Date(dataUtc);
-    const offset = data.getTimezoneOffset(); // em minutos
+    const offset = data.getTimezoneOffset();
     return new Date(data.getTime() - offset * 60000);
   }
 
@@ -259,6 +264,7 @@ export default function AdminAgendamentosScreen() {
               />
             </TouchableOpacity>
 
+            {/* Text field conforme a opção */}
             <TouchableOpacity
               style={{ flex: 1 }}
               onPress={() => setShowFim(true)}
@@ -275,6 +281,7 @@ export default function AdminAgendamentosScreen() {
             </TouchableOpacity>
           </View>
 
+          {/* DateTimePicker no caso de peíodo */}
           <DateTimePickerModal
             isVisible={showInicio}
             mode="date"

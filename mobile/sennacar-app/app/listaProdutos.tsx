@@ -12,6 +12,7 @@ import { TelaComFundo } from "../components/TelaComFundo";
 import { api } from "./services/api";
 import { Ionicons, Feather } from "@expo/vector-icons";
 
+// Tela de listagem de produtos: permite visualizar, filtrar por categoria, editar e excluir produtos.
 export default function ListaProdutosScreen() {
   const router = useRouter();
   const [produtos, setProdutos] = useState<any[]>([]);

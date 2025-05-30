@@ -18,6 +18,7 @@ import { textInputProps } from "../styles/styles";
 import { cores } from "../styles/cores";
 import { fontes } from "../styles/fontes";
 
+// Tela de edição de cliente: permite alterar nome, email e telefone de um cliente existente.
 export default function EditarClienteScreen() {
   const { id } = useLocalSearchParams();
   const [nome, setNome] = useState("");

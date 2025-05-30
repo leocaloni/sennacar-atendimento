@@ -19,6 +19,9 @@ class Produto:
         self.categoria = categoria
         self.descricao = descricao
 
+    # Cadastra um novo produto no banco de dados
+    # - Verifica se o produto já existe pelo nome
+    # - Insere o produto e retorna o ID
     def cadastrar_produto(self) -> Optional[str]:
         try:
             produtos_col = get_produtos_collection()
@@ -43,6 +46,9 @@ class Produto:
             print(f"Erro: {str(e)}")
             return None
 
+    # Calcula o valor total de uma lista de produtos
+    # - Soma o preço e o preço de mão de obra de cada produto
+    # - Utiliza uma agregação no MongoDB
     @staticmethod
     def calcular_valor_total(produtos_ids: List[str]) -> float:
         try:
@@ -62,6 +68,9 @@ class Produto:
             print(f"Erro no cálculo: {str(e)}")
             return 0.0
 
+    # Atualiza o valor total de um agendamento com base nos produtos associados
+    # - Busca o agendamento
+    # - Recalcula o valor total e atualiza no banco
     @staticmethod
     def atualizar_agendamento_com_total(agendamento_id: str) -> bool:
         try:
@@ -84,6 +93,8 @@ class Produto:
             print(f"Erro ao atualizar valor do agendamento: {str(e)}")
             return False
 
+    # Busca um produto pelo ID
+    # - Retorna o documento correspondente ou None
     @staticmethod
     def buscar_por_id(produto_id: str) -> Optional[Dict]:
         try:
@@ -92,6 +103,8 @@ class Produto:
             print(f"Erro ao buscar produto: {str(e)}")
             return None
 
+    # Lista produtos de uma categoria específica
+    # - Ordena os resultados pelo nome
     @staticmethod
     def listar_por_categoria(categoria: str) -> List[Dict]:
         try:
@@ -104,11 +117,15 @@ class Produto:
             print(f"Erro ao listar produtos: {str(e)}")
             return []
 
+    # Lista produtos cujo nome corresponde parcialmente ao texto informado
+    # - Utiliza expressão regular (case insensitive)
     @staticmethod
     def listar_por_nome_regex(texto: str) -> List[Dict]:
         regex = {"$regex": f".*{texto}.*", "$options": "i"}
         return list(get_produtos_collection().find({"nome": regex}).limit(15))
 
+    # Atualiza os dados de um produto pelo ID
+    # - Retorna True se a atualização foi bem-sucedida
     @staticmethod
     def atualizar_produto(produto_id: str, dados_atualizados: dict) -> bool:
         try:
@@ -121,6 +138,8 @@ class Produto:
             print(f"Erro ao atualizar produto: {str(e)}")
             return False
 
+    # Deleta um produto pelo ID
+    # - Retorna True se a exclusão foi realizada com sucesso
     @staticmethod
     def deletar_produto(produto_id: str) -> bool:
         try:

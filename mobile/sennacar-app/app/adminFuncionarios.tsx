@@ -28,6 +28,7 @@ import {
 import { fontes } from "../styles/fontes";
 import { cores } from "../styles/cores";
 
+// Tela de administração de funcionários: busca, edição, exclusão e cadastro
 export default function AdminFuncionariosScreen() {
   const [metodo, setMetodo] = useState<"nome" | "email">("nome");
   const [valor, setValor] = useState("");

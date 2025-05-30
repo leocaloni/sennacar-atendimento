@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, status
+from pydantic import BaseModel, EmailStr
 from app.models.funcionario import Funcionario
 from app.auth.auth_utils import criar_token_acesso
 from app.schemas.auth import AuthLogin, AuthToken
@@ -6,19 +7,23 @@ from app.schemas.auth import AuthLogin, AuthToken
 router = APIRouter(tags=["Autenticação"])
 
 
+class EmailRequest(BaseModel):
+    email: EmailStr
+
+
+# Realiza autenticação do funcionário
+# - Valida email e senha
+# - Gera e retorna token JWT se válido
 @router.post("/login", response_model=AuthToken)
 async def login(login_data: AuthLogin):
-    # Verificação manual de campos vazios
     if not login_data.email or not login_data.senha:
         raise HTTPException(
             status_code=400, detail="Todos os campos devem ser preenchidos"
         )
 
-    # Validação básica de formato de email
     if "@" not in login_data.email:
         raise HTTPException(status_code=400, detail="O email precisa conter '@'")
 
-    # Buscar funcionário
     funcionario = Funcionario.buscar_por_email(login_data.email)
 
     if not funcionario:
@@ -37,3 +42,14 @@ async def login(login_data: AuthLogin):
     )
 
     return AuthToken(access_token=token)
+
+
+# Verifica se um email está cadastrado
+# - Retorna nome e email se encontrado
+# - Caso contrário, retorna erro 404
+@router.post("/auth/verificar-email")
+async def verificar_email(dados: EmailRequest):
+    funcionario = Funcionario.buscar_por_email(dados.email)
+    if not funcionario:
+        raise HTTPException(status_code=404, detail="Funcionário não encontrado")
+    return {"nome": funcionario["nome"], "email": funcionario["email"]}

@@ -38,6 +38,7 @@ const useDebounce = (cb: (...args: any[]) => void, delay = 300) => {
   };
 };
 
+// Tela de edição de agendamento: permite alterar data, horário, cliente e produtos associados a um agendamento existente.
 export default function EditarAgendamento() {
   const { id } = useLocalSearchParams();
   const router = useRouter();

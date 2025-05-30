@@ -22,6 +22,7 @@ const opcoesOrdenacao = [
   "Cliente (A-Z)",
 ];
 
+// Tela de listagem de agendamentos: permite visualizar, ordenar, editar e excluir agendamentos.
 export default function ListaAgendamentosScreen() {
   const router = useRouter();
   const [agendamentos, setAgendamentos] = useState<any[]>([]);

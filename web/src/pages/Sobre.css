@@ -1,6 +1,12 @@
-html {
-  font-family: Poppins, sans-serif;
-  scroll-behavior: smooth;
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
 }
 
 .foto-principal {
@@ -224,4 +230,93 @@ html {
   align-items: center;
   z-index: 5;
   pointer-events: none;
+}
+
+@media (max-width: 768px) {
+  .linha-do-tempo {
+    padding-left: 10px;
+    gap: 50px;
+  }
+
+  .linha-do-tempo::before {
+    left: 20px;
+    width: 4px;
+    transform: none;
+  }
+
+  .item-linha-tempo .conteudo-linha-tempo {
+    flex-direction: column !important;
+    align-items: flex-start;
+    gap: 20px;
+    padding-left: 40px;
+  }
+
+  .marcador-ano {
+    left: 12px;
+    top: 70%;
+    transform: translate(-50%, -50%) rotate(45deg);
+    width: 40px;
+    height: 40px;
+  }
+
+  .marcador-ano span {
+    font-size: 11px;
+  }
+
+  .media-linha-tempo {
+    padding: 0;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    gap: 10px;
+  }
+
+  .media-linha-tempo img {
+    flex: 1 1 48%;
+    max-width: 48%;
+    height: auto;
+    object-fit: cover;
+    border-radius: 10px;
+  }
+
+  .media-linha-tempo img:only-child {
+    flex: 1 1 100%;
+    max-width: 100%;
+  }
+
+  .media-linha-tempo.img-dupla {
+    flex-direction: row;
+    gap: 10px;
+  }
+
+  .media-linha-tempo.img-dupla img {
+    flex: 1 1 48%;
+    max-width: 48%;
+  }
+
+  .video-wrapper,
+  .texto-linha-tempo {
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+
+  .video-linha-tempo {
+    width: 90%;
+    max-width: 280px;
+    height: auto;
+    margin: 20px auto 0;
+  }
+
+  .texto-linha-tempo {
+    text-align: left;
+  }
+
+  .texto-linha-tempo h3 {
+    font-size: 1.1rem;
+    margin-bottom: 5px;
+  }
+
+  .texto-linha-tempo p {
+    font-size: 0.95rem;
+    line-height: 1.4;
+  }
 }

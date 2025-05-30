@@ -19,6 +19,7 @@ import CostumerIcon from "../assets/icons/costumer-grey.svg";
 import EmailIcon from "../assets/icons/email.svg";
 import PhoneIcon from "../assets/icons/phone.svg";
 
+// Tela de cadastro de cliente: preenche nome, email, telefone e envia para a API
 export default function CadastroClienteScreen() {
   const [nome, setNome] = useState("");
   const [email, setEmail] = useState("");
@@ -60,7 +61,7 @@ export default function CadastroClienteScreen() {
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={{ flex: 1 }}
-        keyboardVerticalOffset={Platform.OS === "ios" ? 100 : 0} // Ajuste fino se necessário
+        keyboardVerticalOffset={Platform.OS === "ios" ? 100 : 0}
       >
         <ScrollView
           contentContainerStyle={styles.container}

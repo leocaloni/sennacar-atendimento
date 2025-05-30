@@ -38,6 +38,8 @@ interface LoginProps {
   navigation: LoginScreenNavigationProp;
 }
 
+// Tela de Login: permite autenticação do usuário através de email e senha.
+// Inclui validação de campos, toggle de visibilidade de senha e navegação pós-login.
 export default function Login({ navigation }: LoginProps) {
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");

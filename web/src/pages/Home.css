@@ -2,12 +2,12 @@
 @import "slick-carousel/slick/slick.css";
 @import "slick-carousel/slick/slick-theme.css";
 
-html {
-  right: auto;
-  left: auto;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
+html,
+body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  overflow-x: hidden;
 }
 
 .foto-principal {
@@ -19,11 +19,7 @@ html {
 }
 
 .foto-loja {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center;
-  filter: blur(5px);
+  width: 100vw;
 }
 
 .escurecedor {
@@ -187,7 +183,8 @@ html {
 
 .slick-slide img {
   width: 100%;
-  height: 400px;
+  height: auto;
+  max-height: 350px;
   object-fit: cover;
   border-radius: 10px;
 }
@@ -277,10 +274,16 @@ html {
   padding: 8px 15px;
   border-radius: 8px;
   transition: all 0.3s ease;
+  justify-content: space-between;
 }
 
 .item-porque-escolher:hover {
   background: rgba(0, 6, 121, 0.05);
+}
+
+.item-porque-escolher span {
+  flex: 1;
+  text-align: left;
 }
 
 .icon-porque-escolher {
@@ -288,6 +291,69 @@ html {
   height: 28px;
   flex-shrink: 0;
   order: -1;
+}
+@media (max-width: 768px) {
+  .nossos-servicos-inicio,
+  .porque-escolher {
+    flex-direction: column;
+    padding: 30px 20px;
+    gap: 20px;
+  }
+
+  .slick-prev,
+  .slick-next {
+    display: none !important;
+  }
+
+  .carrossel,
+  .carrossel2 {
+    max-width: 100%;
+    padding: 0;
+    order: -1;
+    min-width: 100%;
+  }
+
+  .texto-img-principal {
+    left: 20px;
+    right: 20px;
+    padding: 0 20px;
+    text-align: center;
+  }
+
+  .texto-img-principal h1 {
+    font-size: 2rem;
+  }
+
+  .slick-prev {
+    left: 5px !important;
+  }
+
+  .slick-next {
+    right: 5px !important;
+  }
+
+  .texto,
+  .texto2 {
+    padding: 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  .icons-inicio-serivcos-grid {
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .item-servicos p {
+    white-space: normal;
+    word-wrap: break-word;
+    text-align: center;
+  }
+
+  .texto-img-principal h1 {
+    font-size: 1.5rem;
+    text-align: center;
+  }
 }
 
 @media (max-width: 768px) {
@@ -303,47 +369,80 @@ html {
     max-width: 100%;
     padding: 0;
     order: -1;
+    min-width: 100%;
   }
 
   .texto-img-principal {
     left: 20px;
     right: 20px;
+    padding: 0 20px;
     text-align: center;
   }
 
   .texto-img-principal h1 {
     font-size: 2rem;
   }
-}
 
-.texto-img-principal {
-  left: 5%;
-  right: 5%;
-  text-align: left;
-}
+  .texto,
+  .texto2 {
+    padding: 10px;
+  }
 
-.carrossel,
-.carrossel2 {
-  min-width: 300px;
+  .slick-slide {
+    overflow: hidden;
+    display: flex !important;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .slick-list {
+    overflow: hidden;
+  }
+
+  .slick-slide img {
+    width: 100%;
+    max-width: 100%;
+    height: auto;
+    object-fit: cover;
+    border-radius: 10px;
+  }
+
+  .slick-prev {
+    left: 10px !important;
+  }
+
+  .slick-next {
+    right: 10px !important;
+  }
+
+  .slick-prev:after,
+  .slick-next:after {
+    border-width: 1.5px;
+    top: 4px;
+  }
 }
 
 @media (max-width: 480px) {
   .icons-inicio-serivcos-grid {
-    flex-direction: column;
-    gap: 20px;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+    flex-direction: row;
+  }
+
+  .item-servicos {
+    flex: 1 1 28%;
+    min-width: auto;
   }
 
   .item-servicos p {
     white-space: normal;
-  }
-}
-
-@media (max-width: 768px) {
-  .slick-prev {
-    left: 5px !important;
+    word-wrap: break-word;
+    text-align: center;
   }
 
-  .slick-next {
-    right: 5px !important;
+  .texto-img-principal h1 {
+    font-size: 1.5rem;
+    text-align: center;
   }
 }

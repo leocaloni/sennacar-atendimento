@@ -72,3 +72,45 @@
   background-color: #00044d;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
+
+.hamburger {
+  display: none;
+  margin-left: auto;
+  padding-right: 30px;
+  cursor: pointer;
+}
+
+@media (max-width: 768px) {
+  .nav-bar {
+    flex-wrap: wrap;
+    justify-content: space-between;
+  }
+
+  .nav-bar-itens {
+    flex-direction: column;
+    width: 100%;
+    overflow: hidden;
+    max-height: 0;
+    transition: max-height 0.4s ease;
+    background-color: #eef1f6;
+  }
+
+  .nav-bar-itens.open {
+    display: flex;
+    max-height: 400px;
+  }
+
+  .list-item,
+  .list-item-button {
+    padding: 15px 20px;
+    text-align: center;
+  }
+
+  .logo-principal {
+    padding-left: 20px;
+  }
+
+  .hamburger {
+    display: block;
+  }
+}

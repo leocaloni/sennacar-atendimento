@@ -35,6 +35,9 @@ const useDebounce = (cb: (...a: any[]) => void, delay = 100) => {
   };
 };
 
+// Tela de Novo Agendamento: permite selecionar um cliente e produtos para agendar um horário específico.
+// Inclui busca debounced de clientes e produtos, exibição de produtos selecionados e cálculo de valor total.
+// Oferece também a opção de cadastrar um novo cliente.
 export default function NovoAgendamento() {
   const { horario } = useLocalSearchParams();
   const horarioISO = Array.isArray(horario) ? horario[0] : horario;

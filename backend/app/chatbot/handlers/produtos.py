@@ -1,11 +1,14 @@
 from app.models.produto import Produto
 
 
+# Função que lista produtos de uma categoria específica para o chatbot
+# Caso a operação seja cancelada, limpa os estados relacionados
+# Se não for informada a categoria, tenta inferir a partir da mensagem do usuário
+# Retorna uma mensagem com a lista de produtos e opções para o usuário
 def listar_produtos_por_categoria(chatbot_assistant, categoria=None):
-    # Verifica cancelamento
     if (
         hasattr(chatbot_assistant, "last_user_choice")
-        and chatbot_assistant.last_user_choice.lower() == "cancelar"
+        and chatbot_assistant.last_user_choice.lower() == "cancelar tudo"
     ):
         chatbot_assistant.awaiting_product_selection = False
         chatbot_assistant.produtos_temp = None
@@ -16,7 +19,6 @@ def listar_produtos_por_categoria(chatbot_assistant, categoria=None):
             "options": ["Agendar", "Ver serviços", "Tirar dúvida"],
         }
 
-    # Se o usuário escolheu "Continuar comprando" ou "Adicionar mais produtos"
     if (
         hasattr(chatbot_assistant, "last_user_choice")
         and chatbot_assistant.last_user_choice
@@ -28,7 +30,6 @@ def listar_produtos_por_categoria(chatbot_assistant, categoria=None):
             "options": ["Insulfilm", "Som", "Multimídia", "PPF"],
         }
 
-    # Lógica para determinar a categoria
     if not categoria:
         message = getattr(chatbot_assistant, "current_message", "").lower()
         if "insulfilm" in message or "insulfim" in message:
@@ -46,7 +47,6 @@ def listar_produtos_por_categoria(chatbot_assistant, categoria=None):
     if not produtos:
         return f"Não encontrei produtos na categoria {categoria}. Deseja ver outra categoria?"
 
-    # Mostra produtos
     resposta = "📋 LISTA DE PRODUTOS 📋\n\n"
     resposta += f"🔹 {categoria.upper()}:\n\n"
 
@@ -56,7 +56,6 @@ def listar_produtos_por_categoria(chatbot_assistant, categoria=None):
             resposta += f" + R${produto['preco_mao_obra']:.2f} (instalação)"
         resposta += "\n"
 
-    # Opções baseadas no estado atual
     if (
         hasattr(chatbot_assistant, "selected_products")
         and chatbot_assistant.selected_products
@@ -66,14 +65,14 @@ def listar_produtos_por_categoria(chatbot_assistant, categoria=None):
             "Quero comprar",
             "Ver meus produtos",
             "Agendar instalação",
-            "Cancelar",
+            "Cancelar tudo",
         ]
     else:
         resposta += "\n \n Gostaria de comprar algum desses produtos?"
         options = [
             "Quero comprar",
             "Ver outras categorias",
-            "Cancelar",
+            "Cancelar tudo",
         ]
 
     chatbot_assistant.produtos_temp = produtos
@@ -83,6 +82,9 @@ def listar_produtos_por_categoria(chatbot_assistant, categoria=None):
     return {"response": resposta, "options": options}
 
 
+# Função que permite o usuário selecionar um produto listado anteriormente
+# Se o produto for selecionado, adiciona à lista de produtos escolhidos
+# Mostra também um resumo dos produtos já selecionados e opções de próxima ação
 def selecionar_produto(chatbot_assistant, produto=None):
     if (
         not hasattr(chatbot_assistant, "produtos_temp")
@@ -90,20 +92,17 @@ def selecionar_produto(chatbot_assistant, produto=None):
     ):
         return "Por favor, primeiro liste os produtos de uma categoria."
 
-    # Se o usuário clicou em "Adicionar mais produtos"
     if produto == "Adicionar mais produtos":
         return {
             "response": "Escolha a categoria para adicionar mais produtos:",
             "options": ["Insulfilm", "Som", "Multimídia", "PPF"],
         }
 
-    # Se o usuário clicou em "Quero comprar" (sem produto específico)
     if produto is None:
         resposta = "Selecione o produto que deseja comprar:\n\n"
         produtos = [p["nome"] for p in chatbot_assistant.produtos_temp]
         return {"response": resposta, "options": produtos}
 
-    # Se o usuário selecionou um produto específico
     produto_selecionado = next(
         (p for p in chatbot_assistant.produtos_temp if p["nome"] == produto), None
     )
@@ -120,7 +119,6 @@ def selecionar_produto(chatbot_assistant, produto=None):
                 f" + R${produto_selecionado['preco_mao_obra']:.2f} (instalação)\n\n"
             )
 
-        # Mostra resumo dos produtos selecionados
         if len(chatbot_assistant.selected_products) > 1:
             resposta += "\n📦 Seus produtos selecionados:\n"
             total = 0
@@ -137,13 +135,16 @@ def selecionar_produto(chatbot_assistant, produto=None):
             "options": [
                 "Adicionar mais produtos",
                 "Agendar instalação",
-                "Cancelar",
+                "Cancelar tudo",
             ],
         }
 
     return "Por favor, selecione um produto válido da lista."
 
 
+# Função que exibe ao usuário todos os produtos que ele já selecionou
+# Calcula o total de custo considerando preço e mão de obra
+# Retorna uma mensagem resumida e opções de próximas ações
 def ver_produtos_selecionados(chatbot_assistant):
     if (
         not hasattr(chatbot_assistant, "selected_products")

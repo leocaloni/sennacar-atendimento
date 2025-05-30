@@ -12,6 +12,10 @@ from app.chatbot.handlers.agendamentos import get_horarios_disponiveis
 router = APIRouter(prefix="/agendamentos", tags=["Agendamentos"])
 
 
+# Cria um novo agendamento
+# - Recebe dados via query params
+# - Verifica se o horário está disponível
+# - Retorna o ID do agendamento criado ou erro
 @router.post("/", status_code=status.HTTP_201_CREATED)
 async def criar_agendamento(
     cliente_id: str,
@@ -36,6 +40,9 @@ async def criar_agendamento(
     return {"id": agendamento_id}
 
 
+# Lista todos os agendamentos
+# - Requer autenticação
+# - Retorna lista ou erro se vazio
 @router.get("/", response_model=List[AgendamentoResponse])
 async def listar_agendamentos(user: dict = Depends(get_current_user)):
     agendamentos = Agendamento.listar_todos()
@@ -47,6 +54,9 @@ async def listar_agendamentos(user: dict = Depends(get_current_user)):
     return [AgendamentoResponse.from_mongo(agendamento) for agendamento in agendamentos]
 
 
+# Busca agendamentos de um cliente específico
+# - Requer autenticação
+# - Retorna lista de agendamentos ou erro se não encontrado
 @router.get("/cliente_id/{cliente_id}", response_model=List[AgendamentoResponse])
 async def buscar_por_cliente_id(
     cliente_id: str, user: dict = Depends(get_current_user)
@@ -73,6 +83,8 @@ async def buscar_por_cliente_id(
     ]
 
 
+# Busca agendamentos que possuem um produto específico
+# - Filtra agendamentos que contenham o ID do produto
 @router.get("/produto_id/{produto_id}", response_model=List[AgendamentoResponse])
 async def buscar_por_produto_id(
     produto_id: str, user: dict = Depends(get_current_user)
@@ -85,6 +97,9 @@ async def buscar_por_produto_id(
         raise HTTPException(status_code=500, detail=f"Erro: {str(e)}")
 
 
+# Busca um agendamento pelo ID
+# - Requer autenticação
+# - Retorna o agendamento ou erro se não encontrado
 @router.get("/agendamento/{agendamento_id}", response_model=AgendamentoResponse)
 async def buscar_agendamento_por_id(
     agendamento_id: str,
@@ -101,6 +116,9 @@ async def buscar_agendamento_por_id(
     return AgendamentoResponse.from_mongo(agendamento)
 
 
+# Busca agendamentos dentro de um intervalo de datas
+# - Ajusta hora de início e fim
+# - Permite filtro opcional por status
 @router.get("/periodo", response_model=List[AgendamentoResponse])
 async def buscar_por_periodo(
     data_inicio: str,
@@ -135,6 +153,9 @@ async def buscar_por_periodo(
         return []
 
 
+# Retorna os horários disponíveis para uma data
+# - Chama função de domínio get_horarios_disponiveis
+# - Valida o formato da data
 @router.get("/horarios")
 async def obter_horarios_disponiveis(
     data: str = Query(..., description="Data no formato YYYY-MM-DD")
@@ -147,6 +168,9 @@ async def obter_horarios_disponiveis(
         raise HTTPException(status_code=400, detail="Formato de data inválido")
 
 
+# Atualiza informações de um agendamento
+# - Recebe apenas os campos alterados
+# - Retorna sucesso ou erro se não encontrado
 @router.put("/agendamento/{agendamento_id}")
 async def atualizar_agendamento(
     agendamento_id: str,
@@ -166,6 +190,9 @@ async def atualizar_agendamento(
     return {"message": "Agendamento atualizado com sucesso"}
 
 
+# Atualiza a lista de produtos de um agendamento
+# - Recalcula o valor total
+# - Retorna sucesso ou erro
 @router.put("/agendamento/{agendamento_id}/produtos")
 async def atualizar_produtos(
     agendamento_id: str,
@@ -181,6 +208,8 @@ async def atualizar_produtos(
     return {"message": "Produtos atualizados com sucesso"}
 
 
+# Atualiza o status de um agendamento
+# - Exemplo: de pendente para confirmado
 @router.put("/agendamento/{agendamento_id}/status")
 async def atualizar_status(
     agendamento_id: str, novo_status: str, user: dict = Depends(get_current_user)
@@ -194,6 +223,9 @@ async def atualizar_status(
     return {"message": f"Status atualizado para '{novo_status}' com sucesso"}
 
 
+# Deleta um agendamento
+# - Remove também o evento do Google Calendar, se existir
+# - Retorna sucesso ou erro
 @router.delete("/agendamento/{agendamento_id}")
 async def deletar_agendamento(
     agendamento_id: str, user: dict = Depends(get_current_user)
@@ -203,7 +235,6 @@ async def deletar_agendamento(
     if not agendamento:
         raise HTTPException(status_code=404, detail="Agendamento não encontrado")
 
-    # Se tiver event_id, excluir do Google
     google_event_id = agendamento.get("google_event_id")
     if google_event_id:
         try:

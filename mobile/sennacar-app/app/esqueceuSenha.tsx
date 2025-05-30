@@ -1,5 +1,3 @@
-// esqueceuSenha.tsx
-
 import { useState } from "react";
 import {
   View,
@@ -13,6 +11,8 @@ import {
   StyleSheet,
   TouchableOpacity,
 } from "react-native";
+import * as Linking from "expo-linking";
+
 import { StatusBar } from "expo-status-bar";
 import { styles, textInputProps } from "../styles/styles";
 import { TextInput, Button } from "react-native-paper";
@@ -23,6 +23,7 @@ import EmailIcon from "../assets/icons/email.svg";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 
+// Tela de recuperação de senha: permite ao usuário enviar uma solicitação de ajuda para redefinir a senha via e-mail.
 export default function EsqueceuSenha() {
   const [email, setEmail] = useState("");
   const [mensagem, setMensagem] = useState("");
@@ -39,10 +40,24 @@ export default function EsqueceuSenha() {
     }
 
     try {
-      await api.post("/auth/forgot-password", { email });
-      setMensagem("Instruções enviadas para seu email.");
+      const res = await api.post("/auth/auth/verificar-email", { email });
+      const { nome, email: emailConfirmado } = res.data;
+
+      const adminEmail = "pi.metro.troca.de.senha@gmail.com";
+      const assunto = encodeURIComponent("Solicitação de ajuda com senha");
+      const corpo = encodeURIComponent(
+        `Olá administrador,\n\nO funcionário ${nome} (${emailConfirmado}) está solicitando ajuda para redefinir a senha do sistema.\n\nPor favor, entre em contato para resolver a situação.\n\nAtt,\nApp de Gestão`
+      );
+
+      const mailto = `mailto:${adminEmail}?subject=${assunto}&body=${corpo}`;
+      const canOpen = await Linking.canOpenURL(mailto);
+      if (canOpen) {
+        Linking.openURL(mailto);
+      } else {
+        setErro("Não foi possível abrir o app de e-mail.");
+      }
     } catch (err: any) {
-      const msg = err?.response?.data?.detail || "Erro ao tentar enviar email.";
+      const msg = err?.response?.data?.detail || "Erro ao verificar o e-mail.";
       setErro(msg);
     }
   };

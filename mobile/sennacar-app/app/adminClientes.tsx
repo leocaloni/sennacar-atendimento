@@ -29,6 +29,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { cores } from "../styles/cores";
 import { fontes } from "../styles/fontes";
 
+// Tela de administração de clientes: busca, edição, exclusão e cadastro
 export default function AdminClientesScreen() {
   const [metodo, setMetodo] = useState<"nome" | "email" | "telefone">("nome");
   const [valor, setValor] = useState("");
@@ -40,6 +41,7 @@ export default function AdminClientesScreen() {
   const [feedbackExclusao, setFeedbackExclusao] = useState(false);
   const [verIdCompleto, setVerIdCompleto] = useState(false);
 
+  //delay na busca de sugestões
   const useDebounce = (cb: (...a: any[]) => void, delay = 100) => {
     const timer = useRef<NodeJS.Timeout | null>(null);
     return (...args: any[]) => {
@@ -48,6 +50,7 @@ export default function AdminClientesScreen() {
     };
   };
 
+  //busca de sugestões
   const debouncedBuscaParcial = useDebounce(async (texto: string) => {
     if (!texto) return setSugestoes([]);
     try {

@@ -21,6 +21,7 @@ import {
 } from "date-fns";
 import ptBR from "date-fns/locale/pt-BR";
 
+// Tela de detalhamento dos agendamentos do dia: exibe horários, status e permite cancelar ou criar agendamentos.
 export default function DetalheDiaScreen() {
   const router = useRouter();
   const { data } = useLocalSearchParams();

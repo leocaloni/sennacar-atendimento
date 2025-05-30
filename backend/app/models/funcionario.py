@@ -11,6 +11,10 @@ class Funcionario:
         self.senha = senha
         self.is_admin = is_admin
 
+    # Cadastra um novo funcionário
+    # - Verifica se o email já está cadastrado
+    # - Criptografa a senha com bcrypt
+    # - Retorna o ID do funcionário ou None se já existir
     def cadastrar_funcionario(self) -> Optional[str]:
         try:
             funcionario_collection = get_funcionario_collection()
@@ -37,6 +41,8 @@ class Funcionario:
             print(f"Erro ao cadastrar funcionário: {e}")
             return None
 
+    # Busca um funcionário pelo ID
+    # Retorna o documento correspondente ou None
     @staticmethod
     def buscar_por_id(funcionario_id: str) -> Optional[Dict]:
         try:
@@ -49,16 +55,19 @@ class Funcionario:
             print(f"Erro ao buscar funcionário: {e}")
             return None
 
+    # Obtém um funcionário pelo ID (mesma funcionalidade de buscar_por_id)
+    # Mantido por compatibilidade ou nomenclatura
     @staticmethod
     def obter_funcionario_por_id(funcionario_id: str) -> Optional[Dict]:
         try:
-            # Convertendo o id para ObjectId
             funcionario_id_obj = ObjectId(funcionario_id)
             return get_funcionario_collection().find_one({"_id": funcionario_id_obj})
         except Exception as e:
             print(f"Erro ao buscar funcionário por id: {e}")
             return None
 
+    # Busca um funcionário pelo email
+    # Retorna o documento correspondente ou None
     @staticmethod
     def buscar_por_email(email: str) -> Optional[Dict]:
         try:
@@ -67,6 +76,8 @@ class Funcionario:
             print(f"Erro ao buscar funcionário por email: {e}")
             return None
 
+    # Lista funcionários cujo nome corresponde parcialmente ao texto informado
+    # Apenas funcionários não administradores são listados
     @staticmethod
     def listar_por_nome_regex(texto: str) -> List[Dict]:
         regex = {"$regex": f".*{texto}.*", "$options": "i"}
@@ -76,6 +87,8 @@ class Funcionario:
             .limit(10)
         )
 
+    # Lista funcionários cujo email corresponde parcialmente ao texto informado
+    # Apenas funcionários não administradores são listados
     @staticmethod
     def listar_por_email_regex(texto: str) -> List[Dict]:
         regex = {"$regex": f".*{texto}.*", "$options": "i"}
@@ -85,6 +98,7 @@ class Funcionario:
             .limit(10)
         )
 
+    # Lista todos os funcionários cadastrados que não são administradores
     @staticmethod
     def listar_todos() -> List[Dict]:
         try:
@@ -93,6 +107,8 @@ class Funcionario:
             print(f"Erro ao listar funcionários: {e}")
             return []
 
+    # Atualiza os dados de um funcionário com base no ID
+    # Retorna True se a atualização foi realizada com sucesso
     @staticmethod
     def atualizar_funcionario(funcionario_id: str, dados_atualizacao: Dict) -> bool:
         try:
@@ -104,6 +120,8 @@ class Funcionario:
             print(f"Erro ao atualizar funcionário: {e}")
             return False
 
+    # Deleta um funcionário com base no ID
+    # Retorna True se a exclusão foi bem-sucedida
     @staticmethod
     def deletar_funcionario(funcionario_id: str) -> bool:
         try:
@@ -115,6 +133,8 @@ class Funcionario:
             print(f"Erro ao deletar funcionário: {e}")
             return False
 
+    # Verifica se a senha informada corresponde à senha criptografada armazenada
+    # Utiliza bcrypt para comparação
     @staticmethod
     def verificar_senha(senha_criptografada: bytes, senha: str) -> bool:
         try:

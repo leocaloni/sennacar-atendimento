@@ -12,6 +12,7 @@ import ulisses from "../assets/img-ulisses.jpg";
 import lojaNova from "../assets/loja-nova.jpeg";
 import video from "../assets/video-loja.mp4";
 
+// Componente que apresenta a história da empresa em uma linha do tempo
 function Sobre() {
   const linhaDoTempo = [
     {

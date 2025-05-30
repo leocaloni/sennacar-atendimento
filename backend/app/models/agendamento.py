@@ -23,11 +23,15 @@ class Agendamento:
         self.observacoes = observacoes
         self.valor_total = valor_total
 
+    # Cria um novo agendamento
+    # - Verifica disponibilidade de horário
+    # - Calcula valor total dos produtos
+    # - Cria evento no Google Calendar
+    # - Salva o agendamento no banco de dados
     def criar_agendamento(self) -> Optional[str]:
         try:
             agendamentos_col = get_agendamentos_collection()
 
-            # Verifica se já existe um agendamento nesse horário
             if agendamentos_col.find_one(
                 {
                     "data_agendada": self.data_agendada,
@@ -37,23 +41,19 @@ class Agendamento:
                 print("Horário já ocupado")
                 return None
 
-            # Calcula valor total dos produtos
             valor_total = Produto.calcular_valor_total(self.produtos)
 
-            # Buscar nome do cliente
-            from app.models.cliente import Cliente  # garante import sem circularidade
+            from app.models.cliente import Cliente
 
             cliente = Cliente.buscar_por_id(self.cliente_id)
             nome_cliente = cliente["nome"] if cliente else "Cliente"
 
-            # Buscar nomes dos produtos
             nomes_produtos = []
             for pid in self.produtos:
                 produto = Produto.buscar_por_id(pid)
                 if produto:
                     nomes_produtos.append(produto["nome"])
 
-            # Cria evento no Google Agenda
             google_service = GoogleCalendarService()
             start_time = self.data_agendada
             end_time = start_time + timedelta(minutes=30)
@@ -67,7 +67,6 @@ class Agendamento:
             )
             google_event_id = event.get("id") if event else None
 
-            # Salva no banco
             agendamento_id = agendamentos_col.insert_one(
                 {
                     "cliente_id": self.cliente_id,
@@ -90,6 +89,8 @@ class Agendamento:
             print(f"Erro ao criar agendamento: {str(e)}")
             return None
 
+    # Busca um agendamento pelo ID
+    # Retorna um dicionário com os dados ou None se não encontrado
     @staticmethod
     def buscar_por_id(agendamento_id: str) -> Optional[Dict]:
         try:
@@ -100,6 +101,7 @@ class Agendamento:
             print(f"Erro ao buscar agendamento: {str(e)}")
             return None
 
+    # Retorna todos os agendamentos de um cliente, ordenados pela data mais recente
     @staticmethod
     def buscar_por_cliente(cliente_id: str) -> List[Dict]:
         try:
@@ -112,6 +114,8 @@ class Agendamento:
             print(f"Erro ao buscar agendamentos: {str(e)}")
             return []
 
+    # Busca agendamentos dentro de um intervalo de datas
+    # Pode filtrar também pelo status se informado
     @staticmethod
     def buscar_por_periodo(
         data_inicio: datetime, data_fim: datetime, status: Optional[str] = None
@@ -128,6 +132,7 @@ class Agendamento:
             print(f"Erro ao filtrar agendamentos: {str(e)}")
             return []
 
+    # Lista todos os agendamentos cadastrados no banco
     @staticmethod
     def listar_todos() -> List[Dict]:
         try:
@@ -136,6 +141,8 @@ class Agendamento:
             print(f"Erro ao listar agendamentos: {e}")
             return []
 
+    # Atualiza os dados de um agendamento com base no ID
+    # Retorna True se houve modificação, False caso contrário
     @staticmethod
     def atualizar_agendamento(agendamento_id: str, dados: dict) -> bool:
         try:
@@ -147,6 +154,8 @@ class Agendamento:
             print(f"Erro ao atualizar agendamento: {str(e)}")
             return False
 
+    # Atualiza a lista de produtos e o valor total de um agendamento
+    # Retorna True se a atualização foi realizada com sucesso
     @staticmethod
     def atualizar_produtos(agendamento_id: str, novos_produtos: List[str]) -> bool:
         try:
@@ -163,6 +172,8 @@ class Agendamento:
             print(f"Erro: {str(e)}")
             return False
 
+    # Atualiza o status de um agendamento (ex.: de 'pendente' para 'confirmado')
+    # Retorna True se a alteração foi feita
     @staticmethod
     def atualizar_status(agendamento_id: str, novo_status: str) -> bool:
         try:
@@ -174,6 +185,8 @@ class Agendamento:
             print(f"Erro ao atualizar status: {str(e)}")
             return False
 
+    # Deleta um agendamento com base no ID
+    # Retorna True se o agendamento foi excluído
     @staticmethod
     def deletar_agendamento(agendamento_id: str) -> bool:
         try:

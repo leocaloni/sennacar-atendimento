@@ -14,6 +14,7 @@ import { router, useFocusEffect } from "expo-router";
 import { fontes } from "../styles/fontes";
 import { cores } from "../styles/cores";
 
+// Tela de listagem de funcionários: permite visualizar, editar e excluir funcionários.
 export default function ListaFuncionariosScreen() {
   const [funcionarios, setFuncionarios] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);

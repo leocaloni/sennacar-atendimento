@@ -68,12 +68,29 @@
         "o que vocês fazem",
         "o que vocês instalam",
         "oq vcs fazem",
-        "oq vcs instalam"
+        "oq vcs instalam",
+        "servicos",
+        "que tipos de servicos",
+        "ver servicos"
       ],
       "responses": [
         "Trabalhamos com instalações de insulfilm, PPF (película de proteção de pintura), multimídias e caixas de som! Gostaria de ver o catálogo?",
         "Oferecemos instalação de insulfilm, PPF (película de proteção de pintura), multimídias e caixas de som! Você gostaria de ver o catálogo?",
         "Oferecemos instalação de insulfilm, PPF, multimídias e caixas de som. Pode contar com a gente! Gostaria de ver o catálogo?"
+      ]
+    },
+    {
+      "tag": "agendar_produto",
+      "patterns": [
+        "Agendar",
+        "quero agendar",
+        "agendamento",
+        "como eu agendo",
+        "o que tem para agendar"
+      ],
+      "responses": [
+        "Claro, vamos agendar sim! Que serviço/produto você está interessado?",
+        "Que tipo de produto/serviço você se interessou para agendarmos?"
       ]
     },
     {

@@ -13,7 +13,7 @@ import midiaImagem from "../assets/multimidia-inicio.jpg";
 import ferramentas from "../assets/ferramentas.svg";
 import dinheiro from "../assets/dinheiro.svg";
 import qualidade from "../assets/Quality.svg";
-import lojacamera from "../assets/loja-camera.jpg";
+import kombi from "../assets/kombi.jpg";
 import mercedesinterior from "../assets/mercedes_interior.jpg";
 import subwoofer from "../assets/subwoofer.jpg";
 import buggy from "../assets/buggy.jpg";
@@ -22,6 +22,7 @@ import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import "./Home.css";
 
+// Componente da página inicial que apresenta os serviços e diferenciais da empresa
 function Home() {
   const settings = {
     dots: true,
@@ -45,6 +46,7 @@ function Home() {
           </h1>
         </div>
       </div>
+
       <div className="nossos-servicos-inicio">
         <div className="texto">
           <h2 className="titulo">Nossos serviços</h2>
@@ -69,6 +71,7 @@ function Home() {
             Ver todos os serviços
           </Link>
         </div>
+
         <div className="carrossel">
           <Slider {...settings}>
             <div>
@@ -86,11 +89,12 @@ function Home() {
           </Slider>
         </div>
       </div>
+
       <div className="porque-escolher">
         <div className="carrossel2">
           <Slider {...settings}>
             <div>
-              <img src={lojacamera} alt="Imagem camera" />
+              <img src={kombi} alt="Imagem camera" />
             </div>
             <div>
               <img src={mercedesinterior} alt="Imagem interior mercedes" />
@@ -103,11 +107,12 @@ function Home() {
             </div>
           </Slider>
         </div>
+
         <div className="texto2">
           <h2 className="titulo">Por que escolher a SennaCar?</h2>
           <ul className="lista-porque-escolher">
             <li className="item-porque-escolher">
-              Profissionais especializados
+              <span>Profissionais especializados</span>
               <img
                 src={ferramentas}
                 alt="ferramentas"
@@ -115,7 +120,7 @@ function Home() {
               />
             </li>
             <li className="item-porque-escolher">
-              Preços acessíveis
+              <span>Preços acessíveis</span>
               <img
                 src={dinheiro}
                 alt="dinheiro"
@@ -123,7 +128,7 @@ function Home() {
               />
             </li>
             <li className="item-porque-escolher">
-              Produtos da melhor qualidade
+              <span>Produtos da melhor qualidade</span>
               <img
                 src={qualidade}
                 alt="qualidade"
@@ -136,4 +141,5 @@ function Home() {
     </>
   );
 }
+
 export default Home;

@@ -9,6 +9,7 @@ import facebook from "../assets/facebook-preto.svg";
 
 import "./Contato.css";
 
+// Componente que exibe informações de contato e localização da empresa
 function Contato() {
   return (
     <>
@@ -27,6 +28,7 @@ function Contato() {
           </h1>
         </div>
       </div>
+
       <div className="contatos-container">
         <div className="texto">
           <h2 className="titulo">Contatos</h2>
@@ -41,10 +43,7 @@ function Contato() {
             </li>
             <a
               href="https://wa.me/5511940385204"
-              style={{
-                textDecoration: "none",
-                color: "inherit",
-              }}
+              style={{ textDecoration: "none", color: "inherit" }}
               target="_blank"
               rel="noopener noreferrer"
             >
@@ -55,10 +54,7 @@ function Contato() {
             </a>
             <a
               href="https://www.instagram.com/sennacar/"
-              style={{
-                textDecoration: "none",
-                color: "inherit",
-              }}
+              style={{ textDecoration: "none", color: "inherit" }}
               target="_blank"
               rel="noopener noreferrer"
             >
@@ -69,10 +65,7 @@ function Contato() {
             </a>
             <a
               href="https://www.facebook.com/sennacarsom?fref=ts"
-              style={{
-                textDecoration: "none",
-                color: "inherit",
-              }}
+              style={{ textDecoration: "none", color: "inherit" }}
               target="_blank"
               rel="noopener noreferrer"
             >
@@ -82,10 +75,12 @@ function Contato() {
               </li>
             </a>
           </ul>
+
           <Link to="/chatbot" className="botao-chatbot">
             Fale com o nosso assistente virtual!
           </Link>
         </div>
+
         <div className="mapa-container">
           <iframe
             src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3659.6596836072595!2d-46.529323925024386!3d-23.472737058341576!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x94ce5ff7fe2ddf27%3A0x157d87a470f86b0e!2sSenna%20Car!5e0!3m2!1spt-BR!2sbr!4v1746562166781!5m2!1spt-BR!2sbr"

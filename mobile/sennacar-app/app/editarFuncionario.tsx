@@ -17,6 +17,7 @@ import { textInputProps } from "../styles/styles";
 import { cores } from "../styles/cores";
 import { fontes } from "../styles/fontes";
 
+// Tela de edição de funcionário: permite alterar nome e email de um funcionário existente.
 export default function EditarFuncionarioScreen() {
   const { id } = useLocalSearchParams();
   const [nome, setNome] = useState("");

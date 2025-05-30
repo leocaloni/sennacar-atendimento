@@ -9,6 +9,9 @@ class Cliente:
         self.email = email
         self.telefone = telefone
 
+    # Cadastra um novo cliente no banco de dados
+    # - Verifica se já existe cliente com mesmo email ou telefone
+    # - Retorna o ID do cliente cadastrado ou None se já existir
     def cadastrar_cliente(self) -> Optional[str]:
         try:
             clientes_collection = get_clientes_collection()
@@ -30,6 +33,8 @@ class Cliente:
             print(f"Erro ao cadastrar cliente: {e}")
             return None
 
+    # Busca um cliente pelo ID
+    # Retorna o documento do cliente ou None se não encontrado
     @staticmethod
     def buscar_por_id(cliente_id: str) -> Optional[Dict]:
         try:
@@ -38,6 +43,8 @@ class Cliente:
             print(f"Erro ao buscar cliente: {e}")
             return None
 
+    # Busca um cliente pelo número de telefone
+    # Retorna o cliente correspondente ou None
     @staticmethod
     def buscar_por_telefone(telefone: str) -> Optional[Dict]:
         try:
@@ -46,6 +53,8 @@ class Cliente:
             print(f"Erro ao buscar cliente por telefone: {e}")
             return None
 
+    # Busca um cliente pelo nome exato
+    # Retorna o cliente correspondente ou None
     @staticmethod
     def buscar_por_nome(nome: str) -> Optional[Dict]:
         try:
@@ -54,6 +63,8 @@ class Cliente:
             print(f"Erro ao buscar cliente por nome: {e}")
             return None
 
+    # Busca um cliente pelo email
+    # Retorna o cliente correspondente ou None
     @staticmethod
     def buscar_por_email(email: str) -> Optional[Dict]:
         try:
@@ -62,21 +73,28 @@ class Cliente:
             print(f"Erro ao buscar cliente por email: {e}")
             return None
 
+    # Lista clientes cujo nome corresponde parcialmente ao texto informado
+    # Utiliza expressão regular para busca insensível a maiúsculas/minúsculas
     @staticmethod
     def listar_por_nome_regex(texto: str) -> List[Dict]:
         regex = {"$regex": f".*{texto}.*", "$options": "i"}
         return list(get_clientes_collection().find({"nome": regex}).limit(10))
 
+    # Lista clientes cujo email corresponde parcialmente ao texto informado
+    # Utiliza expressão regular para busca insensível a maiúsculas/minúsculas
     @staticmethod
     def listar_por_email_regex(texto: str) -> List[Dict]:
         regex = {"$regex": f".*{texto}.*", "$options": "i"}
         return list(get_clientes_collection().find({"email": regex}).limit(10))
 
+    # Lista clientes cujo telefone corresponde parcialmente ao texto informado
+    # Utiliza expressão regular para busca insensível a maiúsculas/minúsculas
     @staticmethod
     def listar_por_telefone_regex(texto: str) -> List[Dict]:
         regex = {"$regex": f".*{texto}.*", "$options": "i"}
         return list(get_clientes_collection().find({"telefone": regex}).limit(10))
 
+    # Lista todos os clientes cadastrados no banco
     @staticmethod
     def listar_todos() -> List[Dict]:
         try:
@@ -85,6 +103,8 @@ class Cliente:
             print(f"Erro ao listar clientes: {e}")
             return []
 
+    # Atualiza os dados de um cliente com base no ID
+    # Retorna True se a atualização foi realizada com sucesso
     @staticmethod
     def atualizar_cliente(cliente_id: str, dados_atualizacao: Dict) -> bool:
         try:
@@ -96,6 +116,8 @@ class Cliente:
             print(f"Erro ao atualizar cliente: {e}")
             return False
 
+    # Deleta um cliente com base no ID
+    # Retorna True se a exclusão foi bem-sucedida
     @staticmethod
     def deletar_cliente(cliente_id: str) -> bool:
         try:

@@ -10,6 +10,7 @@ import midiacarro from "../assets/multimidia-servico.jpg";
 
 import "./Servicos.css";
 
+// Componente que exibe os serviços oferecidos pela empresa
 function Servicos() {
   return (
     <>
@@ -23,6 +24,7 @@ function Servicos() {
           </h1>
         </div>
       </div>
+
       <div className="servicos-container">
         <div className="texto">
           <h2 className="titulo">Instalação de Som Automotivo</h2>
@@ -30,7 +32,6 @@ function Servicos() {
             Instalamos o melhor sistema de som automotivo no seu carro! Confira
             já as opções:
           </p>
-
           <ul className="lista-servicos">
             <li className="item-servico">
               <span className="servico-titulo">Subwoofers:</span>
@@ -56,6 +57,7 @@ function Servicos() {
         </div>
         <img src={subwoofer} alt="subwoofer" className="imagem-servico" />
       </div>
+
       <div className="servicos-container">
         <img src={audi} alt="audi" className="imagem-servico" />
         <div className="texto">
@@ -64,7 +66,6 @@ function Servicos() {
             Instalamos diversos tipos de insulfims no seu carro, e sem deixar
             bolhas!
           </p>
-
           <ul className="lista-servicos">
             <li className="item-servico">
               <ul className="sub-lista">
@@ -88,6 +89,7 @@ function Servicos() {
           </Link>
         </div>
       </div>
+
       <div className="servicos-container">
         <div className="texto">
           <h2 className="titulo">Instalação de PPF</h2>
@@ -104,6 +106,7 @@ function Servicos() {
         </div>
         <img src={landrover} alt="landrover" className="imagem-servico" />
       </div>
+
       <div className="servicos-container">
         <img src={midiacarro} alt="midia" className="imagem-servico" />
         <div className="texto">
@@ -111,7 +114,6 @@ function Servicos() {
           <p className="subtitulo">
             Instalamos as melhores multimídias do mercado no seu carro!
           </p>
-
           <ul className="lista-servicos">
             <li className="item-servico">
               <ul className="sub-lista">

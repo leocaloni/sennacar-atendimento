@@ -5,6 +5,7 @@ import { useAuth } from "../../contexts/AuthContext";
 import { useState } from "react";
 import { estilosGlobais } from "../../styles/estilosGlobais";
 
+// Tela de perfil do usuário autenticado com opção para logout
 export default function PerfilScreen() {
   const { user, logout } = useAuth();
   const [verIdCompleto, setVerIdCompleto] = useState(false);
@@ -14,6 +15,7 @@ export default function PerfilScreen() {
       <View style={styles.container}>
         <Text style={estilosGlobais.tituloTela}>Meu perfil</Text>
 
+        {/* Card de informações do funcionário */}
         <View style={estilosGlobais.cardPadrao}>
           <Text style={estilosGlobais.textoLabel}>Nome</Text>
           <Text style={estilosGlobais.textoValor}>{user?.nome || "-"}</Text>

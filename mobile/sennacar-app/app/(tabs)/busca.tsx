@@ -28,6 +28,7 @@ type Cliente = {
   telefone: string;
 };
 
+//delay na busca de sugestões
 const useDebounce = (cb: (...a: any[]) => void, delay = 100) => {
   const timer = useRef<NodeJS.Timeout | null>(null);
   return (...args: any[]) => {
@@ -36,6 +37,7 @@ const useDebounce = (cb: (...a: any[]) => void, delay = 100) => {
   };
 };
 
+// Tela de busca de clientes por nome, email ou telefone, com sugestões e cadastro
 export default function BuscaScreen() {
   const [metodo, setMetodo] = useState<"nome" | "email" | "telefone">("nome");
   const [valor, setValor] = useState("");
@@ -45,6 +47,7 @@ export default function BuscaScreen() {
   const [erro, setErro] = useState("");
   const [verIdCompleto, setVerIdCompleto] = useState(false);
 
+  //busca para a lista de sugestões
   const debouncedBuscaParcial = useDebounce(async (texto: string) => {
     if (!texto) return setSugestoes([]);
     try {
@@ -62,7 +65,6 @@ export default function BuscaScreen() {
     setCliente(null);
     setSugestoes([]);
     setLoading(true);
-
     try {
       const { data } = await api.get<Cliente>("/clientes/clientes/", {
         params: { [metodo]: valor },
@@ -115,6 +117,7 @@ export default function BuscaScreen() {
           </View>
         </RadioButton.Group>
 
+        {/* TextInput de acordo com a seleção da busca */}
         <View style={{ flexDirection: "row", alignItems: "flex-start" }}>
           <View style={{ flex: 1 }}>
             <TextInput
@@ -138,6 +141,7 @@ export default function BuscaScreen() {
               left={<TextInput.Icon icon={IconComponent} />}
             />
 
+            {/* Lista de sugestões de busca */}
             {sugestoes.length > 0 && (
               <FlatList
                 style={estilosGlobais.listaSugestoes}
@@ -185,6 +189,7 @@ export default function BuscaScreen() {
 
         {loading && <ActivityIndicator style={{ marginTop: 20 }} />}
 
+        {/* Card de informações do cliente */}
         {cliente && (
           <View style={estilosGlobais.cardPadrao}>
             <Text style={styles.label}>Nome</Text>

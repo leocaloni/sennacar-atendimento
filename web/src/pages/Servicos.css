@@ -193,3 +193,79 @@ html {
   padding-left: 15px;
   position: relative;
 }
+
+@media (max-width: 768px) {
+  .servicos-container {
+    flex-direction: column;
+    padding: 30px 20px;
+    gap: 20px;
+  }
+
+  .imagem-servico {
+    max-width: 100%;
+    width: 100%;
+    height: auto;
+    padding: 0;
+    border-radius: 10px;
+  }
+
+  .texto {
+    padding: 0;
+    text-align: center;
+  }
+
+  .texto h2 {
+    font-size: 1.8rem;
+  }
+
+  .subtitulo,
+  .ppf-texto {
+    font-size: 1rem;
+    text-align: center;
+  }
+
+  .lista-servicos {
+    text-align: left;
+    padding-left: 10px;
+    font-size: 0.95rem;
+  }
+
+  .check {
+    margin-left: 5px;
+  }
+
+  .botao-chatbot {
+    margin-top: 15px;
+  }
+
+  .texto-img-principal {
+    left: 20px;
+    right: 20px;
+    text-align: center;
+    padding: 0 10px;
+  }
+
+  .texto-img-principal h1 {
+    font-size: 2rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .texto h2 {
+    font-size: 1.5rem;
+  }
+
+  .subtitulo,
+  .ppf-texto {
+    font-size: 0.95rem;
+  }
+
+  .servico-titulo {
+    font-size: 1rem;
+  }
+
+  .sub-lista li {
+    font-size: 0.9rem;
+    word-wrap: break-word;
+  }
+}

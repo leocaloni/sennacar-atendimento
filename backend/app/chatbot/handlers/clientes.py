@@ -1,6 +1,10 @@
 from app.models.cliente import Cliente
 
 
+# Função responsável por cadastrar ou atualizar um cliente no sistema
+# Se o cliente já existir (baseado no telefone), atualiza os dados
+# Caso contrário, cria um novo cliente no banco
+# Retorna "existente", "novo" ou False conforme o resultado da operaçãos
 def cadastrar_cliente(chatbot_assistant):
     nome = chatbot_assistant.client_data["nome"]
     email = chatbot_assistant.client_data["email"]
@@ -16,17 +20,16 @@ def cadastrar_cliente(chatbot_assistant):
 
         if cliente_existente:
             print(f"Cliente encontrado (ID: {cliente_existente['_id']})")
-            # Atualiza os dados do cliente existente se necessário
             cliente.atualizar_cliente(
                 str(cliente_existente["_id"]), {"nome": nome, "email": email}
             )
-            return "existente"  # Retorna um status diferente para cliente existente
+            return "existente"
 
         cliente_id = cliente.cadastrar_cliente()
 
         if cliente_id:
             print(f"Cliente {nome} cadastrado com sucesso! ID: {cliente_id}")
-            return "novo"  # Retorna status para novo cliente
+            return "novo"
         return False
 
     except Exception as e:

@@ -21,6 +21,7 @@ import DinheiroIcon from "../assets/icons/dinheiro-grey.svg";
 import MechanicIcon from "../assets/icons/mechanic-grey.svg";
 import CategoriaIcon from "../assets/icons/categoria.svg";
 
+// Tela de edição de produto: permite alterar nome, preço, mão de obra e categoria de um produto existente.
 export default function EditarProduto() {
   const { id } = useLocalSearchParams();
   const router = useRouter();

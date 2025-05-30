@@ -79,12 +79,14 @@ a:hover .footer-icon {
   transition: color 0.3s ease;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 500px) {
   .footer-content {
-    gap: 40px;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
   }
 
-  .footer-title::after {
-    width: 60px;
+  .contact-item {
+    justify-content: center;
   }
 }

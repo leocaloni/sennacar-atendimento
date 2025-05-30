@@ -12,6 +12,7 @@ import { api } from "./services/api";
 import { Ionicons } from "@expo/vector-icons";
 import { router, useFocusEffect } from "expo-router";
 
+// Tela de listagem de clientes: permite visualizar, editar e excluir clientes.
 export default function ListaClientesScreen() {
   const [clientes, setClientes] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);

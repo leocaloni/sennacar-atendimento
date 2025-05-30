@@ -28,12 +28,35 @@ function_mappings = {
     "iniciar_agendamento": iniciar_agendamento,
 }
 
-# Inicializa o chatbot
 chatbot = ChatbotAssistant(intents_path, function_mappings)
 chatbot.parse_intents()
 chatbot.load_model("app/chatbot/chatbot_model.pth", "app/chatbot/dimensions.json")
 
 
+# Reseta o estado do chatbot para valores iniciais, limpando seleções temporárias
+def reset_chatbot_state(chatbot):
+    chatbot.awaiting_product_selection = False
+    chatbot.produtos_temp = None
+    chatbot.current_category = None
+    chatbot.selected_products = []
+    chatbot.client_data_temp = None
+    chatbot.awaiting_confirmation = False
+
+
+# Processa a mensagem enviada pelo usuário e determina a resposta apropriada.
+# Define fluxo de tratamento conforme o tipo de mensagem: agendamento, formulário ou texto normal.
+# Valida se a mensagem não está vazia para evitar erros no processamento.
+# Trata comandos específicos de agendamento: "calendar|", "confirmar" ou "alterar data".
+# Chama diretamente a função de confirmação de agendamento.
+# Se a mensagem for um JSON, trata como dados de formulário enviados pelo usuário.
+# Extrai nome, email e telefone; valida se todos estão preenchidos.
+# Confirmação manual de agendamento para fluxos mais antigos.
+# Garante que cliente, produtos, data e hora estejam presentes.
+# Processa confirmação de dados temporários de cliente.
+# Se confirmado, cadastra cliente e inicia o fluxo de agendamento.
+# Se cancelado, reseta o estado do chatbot.
+# Processa a mensagem normalmente via modelo de intents do chatbot.
+# Define opções padrão conforme o conteúdo da resposta ou se houve cancelamento.
 @router.post("/message", response_model=ChatbotResponse)
 async def process_message(message_data: ChatbotMessage):
     user_message = message_data.message
@@ -44,7 +67,6 @@ async def process_message(message_data: ChatbotMessage):
     if user_message.startswith("calendar|") or user_message.lower() in [
         "confirmar",
         "alterar data",
-        "cancelar",
     ]:
         try:
             return confirmar_agendamento(chatbot, user_message)
@@ -53,7 +75,7 @@ async def process_message(message_data: ChatbotMessage):
             return JSONResponse(
                 content={
                     "response": "Erro ao processar agendamento. Tente novamente.",
-                    "options": ["Cancelar"],
+                    "options": ["Cancelar tudo"],
                 },
                 status_code=500,
             )
@@ -61,7 +83,6 @@ async def process_message(message_data: ChatbotMessage):
     chatbot.current_message = user_message
     chatbot.last_user_choice = user_message
 
-    # Verifica se é um JSON com dados do formulário
     if user_message.startswith("{") and user_message.endswith("}"):
         try:
             form_data = json.loads(user_message)
@@ -107,13 +128,10 @@ async def process_message(message_data: ChatbotMessage):
             if not all([cliente, produtos, data, hora]):
                 return {
                     "response": "Informações insuficientes para confirmar o agendamento.",
-                    "options": ["Cancelar"],
+                    "options": ["Cancelar tudo"],
                 }
 
-            # 🔄 Aqui você pode salvar no banco ou Google Agenda
-            # exemplo fictício:
             print(f"Agendamento confirmado para {cliente['nome']} em {data} às {hora}")
-            # → substitua por chamada real: salvar_agendamento(cliente, produtos, data, hora)
 
             return {
                 "response": f"✅ Agendamento confirmado para {data} às {hora}. Agradecemos pela preferência!",
@@ -123,25 +141,23 @@ async def process_message(message_data: ChatbotMessage):
         except Exception as e:
             return {
                 "response": "Erro ao confirmar o agendamento. Por favor, tente novamente.",
-                "options": ["Cancelar"],
+                "options": ["Cancelar tudo"],
             }
 
-    # Processa confirmação dos dados
     if hasattr(chatbot, "client_data_temp") and chatbot.client_data_temp:
         if user_message.lower() == "dados corretos":
-            chatbot.client_data = {
-                "nome": chatbot.client_data_temp["nome"],
-                "email": chatbot.client_data_temp["email"],
-                "telefone": chatbot.client_data_temp["telefone"],
-            }
-
-            # Cadastra o cliente (mas não mostra mensagem de confirmação)
+            chatbot.client_data = chatbot.client_data_temp.copy()
             resultado = cadastrar_cliente(chatbot)
             chatbot.awaiting_confirmation = False
             chatbot.client_data_temp = None
-
-            # Chama diretamente a função de agendamento
             return iniciar_agendamento(chatbot)
+
+        if user_message.lower() in ["cancelar", "cancelar tudo"]:
+            reset_chatbot_state(chatbot)
+            return {
+                "response": "Operação cancelada. Como posso ajudar?",
+                "options": ["Agendar", "Ver serviços", "Tirar dúvida"],
+            }
 
     response = chatbot.process_message(user_message)
 
@@ -149,25 +165,26 @@ async def process_message(message_data: ChatbotMessage):
         return response
 
     options = None
-    if chatbot.last_user_choice.lower() == "cancelar":
-        chatbot.awaiting_product_selection = False
-        chatbot.produtos_temp = None
-        chatbot.current_category = None
-        chatbot.selected_products = []
-        chatbot.client_data_temp = None
-        chatbot.awaiting_confirmation = False
+    if chatbot.last_user_choice.lower() in ["cancelar", "cancelar tudo"]:
+        reset_chatbot_state(chatbot)
         response = "Operação cancelada. Como posso ajudar?"
         options = ["Agendar", "Ver serviços", "Tirar dúvida"]
     elif "como posso te ajudar" in response.lower():
         options = ["Agendar", "Ver serviços", "Tirar dúvida"]
     elif any(
-        phrase in response.lower() for phrase in ["catálogo", "categorias disponíveis"]
+        phrase in response.lower()
+        for phrase in [
+            "catálogo",
+            "categorias disponíveis",
+            "serviço/produto",
+            "produto/serviço",
+        ]
     ):
         options = ["Insulfim", "Multimídia", "Caixas de Som", "PPF"]
 
-    return {"response": response, "options": options}
 
-
+# Obtém horários disponíveis para a data fornecida.
+# Valida o formato da data e trata erro de parsing.
 @router.get("/api/horarios")
 async def get_horarios(data: str):
     try:

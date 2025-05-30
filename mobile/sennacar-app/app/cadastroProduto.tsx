@@ -22,6 +22,7 @@ import DinheiroIcon from "../assets/icons/dinheiro-grey.svg";
 import MechanicIcon from "../assets/icons/mechanic-grey.svg";
 import CategoriaIcon from "../assets/icons/categoria.svg";
 
+// Tela de cadastro de produto: preenche nome, preço, categoria e envia para a API
 export default function CadastroProduto() {
   const [nome, setNome] = useState("");
   const [preco, setPreco] = useState("");

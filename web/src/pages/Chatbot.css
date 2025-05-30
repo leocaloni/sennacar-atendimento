@@ -146,14 +146,16 @@ html {
 
 .chat-messages {
   flex: 1;
-  padding: 20px;
   overflow-y: auto;
+  padding: 20px;
   display: flex;
   flex-direction: column;
   gap: 15px;
   scrollbar-width: none;
   -ms-overflow-style: none;
-  align-items: center;
+  align-items: stretch;
+  max-height: 100%;
+  min-height: 200px;
 }
 
 .chat-messages::-webkit-scrollbar {
@@ -313,13 +315,18 @@ html {
   background: #017b36;
 }
 
-/* Adicione ao final do arquivo Chatbot.css */
-
 .calendar-wrapper {
   width: 100%;
   margin: 15px 0;
   display: flex;
   justify-content: center;
+}
+
+.calendar-nav {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 5px;
 }
 
 .calendar-picker {
@@ -386,4 +393,217 @@ html {
 .time-slot.selected {
   background: #000679;
   color: white;
+}
+
+.botao-limpar {
+  margin-top: 10px;
+  padding: 10px 20px;
+  background-color: #000679;
+  color: #fff;
+  border: 2px solid #000679;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.3s, color 0.3s;
+  align-self: center;
+}
+
+.botao-limpar:hover {
+  background-color: #fff;
+  color: #000679;
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+}
+
+.modal {
+  background: #fff;
+  padding: 20px 30px;
+  border-radius: 8px;
+  text-align: center;
+}
+
+.modal-buttons {
+  margin-top: 15px;
+  display: flex;
+  justify-content: space-around;
+}
+
+.confirm-btn {
+  background: #f40b0f;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.cancel-btn {
+  background: #000679;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+@media (max-width: 768px) {
+  .texto-img-principal {
+    left: 20px;
+    right: 20px;
+    padding: 0 15px;
+    text-align: center;
+  }
+
+  .texto-img-principal h1 {
+    font-size: 2rem;
+  }
+
+  .texto {
+    max-width: 100%;
+    margin-top: 30px;
+    padding: 0 20px;
+    text-align: center;
+  }
+
+  .subtitulo-chatbot {
+    padding: 0 10px;
+    font-size: 1rem;
+  }
+
+  .lista-contatos {
+    padding: 0;
+    max-width: 100%;
+  }
+
+  .item-contato {
+    justify-content: center;
+    font-size: 1rem;
+    gap: 10px;
+  }
+
+  .icon-contato {
+    width: 24px;
+    height: 24px;
+  }
+
+  .chatbot-container {
+    padding: 20px 10px;
+  }
+
+  .chat-box {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    background-color: #b5b5b5;
+    border-radius: 8px;
+    padding: 10px;
+    min-height: 500px;
+  }
+
+  .chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 10px;
+    max-height: 60vh;
+  }
+
+  .message-content {
+    font-size: 0.95rem;
+  }
+
+  .message-options {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .option-button {
+    width: 100%;
+  }
+
+  .chat-input {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+    padding: 10px;
+    background-color: #000679;
+    border-radius: 0 0 8px 8px;
+  }
+
+  .chat-input input {
+    flex: 1;
+    padding: 10px;
+    font-size: 1rem;
+    border-radius: 8px;
+    border: none;
+  }
+
+  .chat-input button {
+    padding: 10px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+  }
+
+  .formulario-dados {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .calendar-picker {
+    max-width: 100%;
+  }
+
+  .time-slots {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  .chat-box {
+    min-height: 450px;
+  }
+
+  .message-content {
+    font-size: 0.9rem;
+  }
+
+  .option-button {
+    font-size: 0.9rem;
+    padding: 10px;
+  }
+
+  .time-slots {
+    grid-template-columns: repeat(1, 1fr);
+  }
+
+  .texto-img-principal h1 {
+    font-size: 1.7rem;
+  }
+
+  .titulo {
+    font-size: 1.5rem;
+  }
+
+  .subtitulo-chatbot {
+    font-size: 0.95rem;
+  }
+
+  .icon-contato {
+    width: 20px;
+    height: 20px;
+  }
 }

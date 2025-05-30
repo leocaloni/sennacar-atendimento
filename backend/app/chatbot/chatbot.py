@@ -24,6 +24,8 @@ from app.chatbot.handlers.produtos import (
 )
 
 
+# Modelo de rede neural para classificação de intents no chatbot
+# Possui três camadas densas com funções de ativação ReLU e dropout para evitar overfitting
 class ChatbotModel(nn.Module):
 
     def __init__(self, input_size, output_size):
@@ -47,6 +49,8 @@ class ChatbotModel(nn.Module):
 
 class ChatbotAssistant:
 
+    # Classe principal do assistente de chatbot
+    # Inicializa variáveis de estado para controle de contexto, cliente, agendamento e produtos
     def __init__(self, intents_path, function_mappings=None):
         self.model = None
         self.intents_path = intents_path
@@ -75,6 +79,8 @@ class ChatbotAssistant:
         self.awaiting_scheduling = False
         self.awaiting_scheduling_confirmation = False
 
+    # Função utilitária para tokenização e lematização de texto
+    # Remove caracteres especiais, converte para minúsculas e aplica lematização
     @staticmethod
     def tokenize_and_lemmatize(text):
         lemmatizer = nltk.WordNetLemmatizer()
@@ -85,9 +91,12 @@ class ChatbotAssistant:
 
         return words
 
+    # Converte uma lista de palavras em um vetor binário com base no vocabulário conhecido
     def bag_of_words(self, words):
         return [1 if word in words else 0 for word in self.vocabulary]
 
+    # Carrega e processa os padrões e respostas das intents a partir de um arquivo JSON
+    # Atualiza o vocabulário e a lista de intents
     def parse_intents(self):
         lemmatizer = nltk.WordNetLemmatizer()
 
@@ -107,6 +116,8 @@ class ChatbotAssistant:
 
                 self.vocabulary = sorted(set(self.vocabulary))
 
+    # Prepara os dados de treinamento a partir dos documentos e intents
+    # Gera a matriz de entrada (X) e o vetor de saída (y)
     def prepare_data(self):
         bags = []
         indices = []
@@ -123,6 +134,8 @@ class ChatbotAssistant:
         self.X = np.array(bags)
         self.y = np.array(indices)
 
+    # Treina o modelo de rede neural com os dados preparados
+    # Utiliza CrossEntropyLoss e otimizador Adam
     def train_model(self, batch_size, lr, epochs):
         X_tensor = torch.tensor(self.X, dtype=torch.float32)
         y_tensor = torch.tensor(self.y, dtype=torch.long)
@@ -148,6 +161,7 @@ class ChatbotAssistant:
 
             print(f"Epoch {epoch+1}: Loss: {running_loss / len(loader):.4f}")
 
+    # Salva os pesos do modelo treinado e as dimensões de entrada/saída para posterior carregamento
     def save_model(self, model_path, dimensions_path):
         torch.save(self.model.state_dict(), model_path)
 
@@ -156,6 +170,7 @@ class ChatbotAssistant:
                 {"input_size": self.X.shape[1], "output_size": len(self.intents)}, f
             )
 
+    # Carrega o modelo previamente salvo com as dimensões corretas
     def load_model(self, model_path, dimensions_path):
         with open(dimensions_path, "r") as f:
             dimensions = json.load(f)
@@ -163,6 +178,9 @@ class ChatbotAssistant:
         self.model = ChatbotModel(dimensions["input_size"], dimensions["output_size"])
         self.model.load_state_dict(torch.load(model_path, weights_only=True))
 
+    # Processa uma mensagem de entrada do usuário
+    # Realiza fluxo de controle conforme o estado atual e retorna a resposta apropriada
+    # Inclui reconhecimento de intents, confirmação de dados, seleção de produtos e agendamento
     def process_message(self, input_message):
         self.current_message = input_message
         self.last_user_choice = input_message
@@ -224,18 +242,17 @@ class ChatbotAssistant:
         predicted_intent = self.intents[predicted_class_index]
         print(f"Predicted intent: {predicted_intent}")
 
-        # Se for uma intent de produto, chama a função mas não retorna ainda
         if self.function_mappings and predicted_intent in self.function_mappings:
             response = self.function_mappings[predicted_intent](self)
             if response:
                 return response
 
-        # Retorna a resposta padrão da intent
         if self.intents_responses[predicted_intent]:
             return random.choice(self.intents_responses[predicted_intent])
         else:
             return "Desculpe, não entendi. Poderia reformular sua pergunta?"
 
+    # Gera a mensagem de confirmação de dados do cliente antes do cadastro
     def _generate_confirmation_message(self):
         return (
             "Por favor, confirme seus dados:\n"
@@ -245,6 +262,8 @@ class ChatbotAssistant:
             "Digite 'dados corretos' para confirmar ou 'dados incorretos' para reenviar."
         )
 
+    # Processa a confirmação ou correção dos dados enviados pelo cliente
+    # Atualiza o estado do assistente conforme a resposta
     def _handle_confirmation(self, input_message):
         if input_message.lower() == "dados corretos":
             self.client_data = self.client_data_temp

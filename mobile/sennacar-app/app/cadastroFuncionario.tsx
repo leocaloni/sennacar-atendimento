@@ -14,6 +14,7 @@ import MechanicIcon from "../assets/icons/mechanic-grey.svg";
 import EmailIcon from "../assets/icons/email.svg";
 import SenhaIcon from "../assets/icons/senha.svg";
 
+// Tela de cadastro de funcionário: preenche nome, email, senha e envia para a API
 export default function CadastroFuncionario() {
   const [nome, setNome] = useState("");
   const [email, setEmail] = useState("");

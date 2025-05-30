@@ -2,14 +2,14 @@ import { View, StyleSheet } from "react-native";
 import { Text, Button } from "react-native-paper";
 import { useRouter } from "expo-router";
 import { TelaComFundo } from "../../components/TelaComFundo";
-import { estilosGlobais } from "../../styles/estilosGlobais"; // importa estilos globais
+import { estilosGlobais } from "../../styles/estilosGlobais";
 
-// Ícones SVG
 import MechanicIcon from "../../assets/icons/mechanic-green.svg";
 import CustomerIcon from "../../assets/icons/costumer-green.svg";
 import CalendarIcon from "../../assets/icons/calendar-green.svg";
 import ProductIcon from "../../assets/icons/product-green.svg";
 
+// Tela de administração: permite acesso às áreas de gerenciamento
 export default function AdminScreen() {
   const router = useRouter();
 
@@ -25,6 +25,7 @@ export default function AdminScreen() {
             Selecione uma opção para gerenciar:
           </Text>
 
+          {/* Botões para telas de admin */}
           <View style={styles.grid}>
             {[
               {

@@ -39,6 +39,7 @@ const useDebounce = (cb: (...a: any[]) => void, delay = 300) => {
   };
 };
 
+// Tela de cadastro de agendamento: seleção de cliente, produtos, data, horário e envio
 export default function CadastroAgendamento() {
   const router = useRouter();
 
@@ -79,6 +80,7 @@ export default function CadastroAgendamento() {
     setSugestoesProdutos(data);
   });
 
+  //busca horários disponíveis
   const buscarHorariosDisponiveis = async (dataStr: string) => {
     try {
       const { data } = await api.get("/agendamentos/agendamentos/horarios", {
@@ -161,7 +163,6 @@ export default function CadastroAgendamento() {
             Novo Agendamento
           </Text>
 
-          {/* DATA */}
           <TouchableOpacity
             onPress={() => setMostrarDatePicker(true)}
             style={styles.inputTouchable}
@@ -185,7 +186,6 @@ export default function CadastroAgendamento() {
             </View>
           </TouchableOpacity>
 
-          {/* HORÁRIO */}
           {horariosDisponiveis.length > 0 && (
             <View style={styles.listaHorario}>
               {horariosDisponiveis.map((h) => (
@@ -214,7 +214,6 @@ export default function CadastroAgendamento() {
             </Text>
           )}
 
-          {/* CLIENTE */}
           <TextInput
             {...(clientes.length > 0
               ? textInputPropsComListaAtiva
@@ -252,7 +251,6 @@ export default function CadastroAgendamento() {
             </View>
           )}
 
-          {/* PRODUTOS */}
           <TextInput
             {...(sugestoesProdutos.length > 0
               ? textInputPropsComListaAtiva
@@ -290,7 +288,6 @@ export default function CadastroAgendamento() {
             </View>
           )}
 
-          {/* PRODUTOS SELECIONADOS */}
           {produtosSelecionados.length > 0 && (
             <View style={styles.produtosSelecionados}>
               <Text style={styles.subtitulo}>Selecionados:</Text>

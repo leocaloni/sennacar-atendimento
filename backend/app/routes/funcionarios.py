@@ -7,6 +7,9 @@ from app.schemas.funcionario import FuncionarioResponse, FuncionarioUpdate
 router = APIRouter(prefix="/funcionarios", tags=["Funcionários"])
 
 
+# Cria um novo funcionário com os dados fornecidos.
+# Apenas administradores podem realizar essa operação.
+# Retorna erro se o email já estiver cadastrado.
 @router.post("/", status_code=status.HTTP_201_CREATED)
 async def criar_funcionario(
     nome: str,
@@ -27,6 +30,9 @@ async def criar_funcionario(
     return {"id": funcionario_id}
 
 
+# Lista todos os funcionários não administradores cadastrados.
+# Requer autenticação.
+# Retorna erro se nenhum funcionário for encontrado.
 @router.get("/", response_model=List[FuncionarioResponse])
 async def listar_funcionarios(user: dict = Depends(get_current_user)):
     funcionarios = Funcionario.listar_todos()
@@ -38,6 +44,9 @@ async def listar_funcionarios(user: dict = Depends(get_current_user)):
     return [FuncionarioResponse.from_mongo(funcionario) for funcionario in funcionarios]
 
 
+# Busca funcionários com correspondência parcial por nome ou email.
+# Prioriza nome; se não houver, busca por email.
+# Retorna erro se nenhum critério for fornecido.
 @router.get("/busca", response_model=List[FuncionarioResponse])
 async def buscar_funcionarios_parcial(
     nome: Optional[str] = None,
@@ -53,6 +62,9 @@ async def buscar_funcionarios_parcial(
     return [FuncionarioResponse.from_mongo(f) for f in funcionarios]
 
 
+# Obtém um funcionário específico pelo ID.
+# Requer autenticação.
+# Retorna erro se o funcionário não for encontrado.
 @router.get("/{funcionario_id}", response_model=FuncionarioResponse)
 async def obter_funcionario(
     funcionario_id: str, user: dict = Depends(get_current_user)
@@ -66,18 +78,23 @@ async def obter_funcionario(
     return FuncionarioResponse.from_mongo(funcionario)
 
 
+# Retorna os dados do funcionário atualmente autenticado.
+# Útil para consultas de perfil próprio.
 @router.get("/me", response_model=FuncionarioResponse)
 async def meu_perfil(user: dict = Depends(get_current_user)):
     return FuncionarioResponse.from_mongo(user)
 
 
+# Atualiza os dados de um funcionário específico.
+# Apenas administradores podem realizar essa operação.
+# Garante que pelo menos um dado seja fornecido para atualização.
+# Retorna erro se o funcionário não for encontrado.
 @router.put("/{funcionario_id}")
 async def atualizar_funcionario(
     funcionario_id: str,
     dados_atualizacao: FuncionarioUpdate,
     admin: dict = Depends(verificar_admin),
 ):
-    # Converte os dados da atualização em um dicionário
     dados_atualizacao_dict = dados_atualizacao.dict(exclude_unset=True)
 
     if not dados_atualizacao_dict:
@@ -96,6 +113,9 @@ async def atualizar_funcionario(
     return {"message": "Funcionário atualizado"}
 
 
+# Remove um funcionário do sistema pelo ID.
+# Apenas administradores podem realizar essa operação.
+# Retorna erro se o funcionário não for encontrado.
 @router.delete("/{funcionario_id}")
 async def deletar_funcionario(
     funcionario_id: str, admin: dict = Depends(verificar_admin)
