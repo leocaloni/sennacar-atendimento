@@ -72,12 +72,9 @@ async def process_message(message_data: ChatbotMessage):
             return confirmar_agendamento(chatbot, user_message)
         except Exception as e:
             print("Erro ao processar calendar/agendamento:", str(e))
-            return JSONResponse(
-                content={
-                    "response": "Erro ao processar agendamento. Tente novamente.",
-                    "options": ["Cancelar tudo"],
-                },
-                status_code=500,
+            return ChatbotResponse(
+                response="Erro ao processar agendamento. Tente novamente.",
+                options=["Cancelar tudo"],
             )
 
     chatbot.current_message = user_message
@@ -91,10 +88,9 @@ async def process_message(message_data: ChatbotMessage):
             telefone = form_data.get("telefone", "").strip()
 
             if not all([nome, email, telefone]):
-                return {
-                    "response": "Por favor, preencha todos os campos corretamente.",
-                    "options": None,
-                }
+                return ChatbotResponse(
+                    response="Por favor, preencha todos os campos corretamente."
+                )
 
             chatbot.client_data_temp = {
                 "nome": nome,
@@ -102,21 +98,21 @@ async def process_message(message_data: ChatbotMessage):
                 "telefone": telefone,
             }
 
-            return {
-                "response": (
+            return ChatbotResponse(
+                response=(
                     "Por favor, confirme seus dados:\n"
                     f"Nome: {nome}\n"
                     f"Email: {email}\n"
                     f"Telefone: {telefone}"
                 ),
-                "options": ["Dados corretos", "Dados incorretos"],
-            }
+                options=["Dados corretos", "Dados incorretos"],
+            )
 
         except json.JSONDecodeError:
-            return {
-                "response": "Ocorreu um erro ao processar seus dados. Por favor, tente novamente.",
-                "options": None,
-            }
+            return ChatbotResponse(
+                response="Ocorreu um erro ao processar seus dados. Por favor, tente novamente.",
+                options=None,
+            )
 
     if user_message.lower() == "confirmar agendamento":
         try:
@@ -126,23 +122,23 @@ async def process_message(message_data: ChatbotMessage):
             hora = chatbot.agendamento_hora
 
             if not all([cliente, produtos, data, hora]):
-                return {
-                    "response": "Informações insuficientes para confirmar o agendamento.",
-                    "options": ["Cancelar tudo"],
-                }
+                return ChatbotResponse(
+                    response="Informações insuficientes para confirmar o agendamento.",
+                    options=["Cancelar tudo"],
+                )
 
             print(f"Agendamento confirmado para {cliente['nome']} em {data} às {hora}")
 
-            return {
-                "response": f"✅ Agendamento confirmado para {data} às {hora}. Agradecemos pela preferência!",
-                "options": ["Agendar novamente", "Ver serviços"],
-            }
+            return ChatbotResponse(
+                response=f"✅ Agendamento confirmado para {data} às {hora}. Agradecemos pela preferência!",
+                options=["Agendar novamente", "Ver serviços"],
+            )
 
         except Exception as e:
-            return {
-                "response": "Erro ao confirmar o agendamento. Por favor, tente novamente.",
-                "options": ["Cancelar tudo"],
-            }
+            return ChatbotResponse(
+                response="Erro ao confirmar o agendamento. Por favor, tente novamente.",
+                options=["Cancelar tudo"],
+            )
 
     if hasattr(chatbot, "client_data_temp") and chatbot.client_data_temp:
         if user_message.lower() == "dados corretos":
@@ -154,10 +150,10 @@ async def process_message(message_data: ChatbotMessage):
 
         if user_message.lower() in ["cancelar", "cancelar tudo"]:
             reset_chatbot_state(chatbot)
-            return {
-                "response": "Operação cancelada. Como posso ajudar?",
-                "options": ["Agendar", "Ver serviços", "Tirar dúvida"],
-            }
+            return ChatbotResponse(
+                response="Operação cancelada. Como posso ajudar?",
+                options=["Agendar", "Ver serviços", "Tirar dúvida"],
+            )
 
     response = chatbot.process_message(user_message)
 
@@ -182,6 +178,8 @@ async def process_message(message_data: ChatbotMessage):
     ):
         options = ["Insulfim", "Multimídia", "Caixas de Som", "PPF"]
 
+    return ChatbotResponse(response=response, options=options)
+
 
 # Obtém horários disponíveis para a data fornecida.
 # Valida o formato da data e trata erro de parsing.
@@ -192,4 +190,10 @@ async def get_horarios(data: str):
         horarios = horarios_service(data_obj)
         return {"horarios": horarios}
     except ValueError:
-        raise HTTPException(status_code=400, detail="Formato de data inválido")
+        raise HTTPException(
+            status_code=500,
+            detail=ChatbotResponse(
+                response="Erro ao processar agendamento. Tente novamente.",
+                options=["Cancelar tudo"],
+            ).dict(),
+        )
