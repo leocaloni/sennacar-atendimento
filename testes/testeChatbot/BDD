@@ -1,0 +1,25 @@
+Funcionalidade: Cadastro de cliente via chatbot
+
+  Como um cliente novo
+  Quero poder informar meus dados pessoais em uma única mensagem
+  Para que eu possa ser cadastrado no sistema e realizar agendamentos
+
+  Cenário: Cadastro de cliente com dados válidos
+    Dado que o cliente envia a mensagem "João Silva, joao@email.com, 11999999999"
+    Quando o chatbot reconhecer os dados
+    Então ele deve responder com a confirmação dos dados
+
+  Cenário: Confirmação de dados corretos
+    Dado que o chatbot está aguardando confirmação de dados
+    Quando o cliente responde "dados corretos"
+    Então o sistema deve cadastrar o cliente e confirmar o sucesso
+
+  Cenário: Correção de dados
+    Dado que o chatbot está aguardando confirmação de dados
+    Quando o cliente responde "dados incorretos"
+    Então o chatbot deve solicitar novamente os dados pessoais
+
+  Cenário: Cliente já cadastrado
+    Dado que os dados já pertencem a um cliente cadastrado
+    Quando o cliente envia novamente seus dados
+    Então o chatbot deve avisar que o cliente já existe e seguir o fluxo normalmente

@@ -1,0 +1,10 @@
+Funcionalidade: Cadastro de clientes
+
+  Como um funcionário do sistema
+  Quero poder cadastrar um novo cliente
+  Para que ele possa agendar serviços futuramente
+
+  Cenário: Cadastro bem-sucedido de cliente
+    Dado que o funcionário preenche nome, email e telefone válidos
+    Quando ele submete o cadastro
+    Então o sistema deve salvar o cliente e retornar o ID do novo cliente

@@ -1,0 +1,31 @@
+import pytest
+from app.models.cliente import Cliente
+from app.database import get_clientes_collection
+
+
+@pytest.fixture(autouse=True)
+def limpar_clientes():
+    # Limpa o banco de testes antes de cada execução
+    col = get_clientes_collection()
+    col.delete_many({})
+
+
+def test_cadastro_cliente_sucesso():
+    cliente = Cliente(nome="João Teste", email="joao@teste.com", telefone="11999999999")
+    cliente_id = cliente.cadastrar_cliente()
+    assert cliente_id is not None
+
+    resultado = get_clientes_collection().find_one({"_id": cliente_id})
+    assert resultado is not None
+    assert resultado["nome"] == "João Teste"
+
+
+def test_cadastro_cliente_duplicado():
+    cliente1 = Cliente(nome="Maria", email="maria@exemplo.com", telefone="11999999999")
+    cliente2 = Cliente(nome="Maria Clone", email="maria@exemplo.com", telefone="11999999999")
+
+    cliente1_id = cliente1.cadastrar_cliente()
+    assert cliente1_id is not None
+
+    cliente2_id = cliente2.cadastrar_cliente()
+    assert cliente2_id is None  # Deve impedir duplicado por email/telefone
