@@ -1,4 +1,4 @@
-# 🚗 SennaCar – Site + Sistema de Agendamentos com Chatbot
+# SennaCar – Site + Sistema de Agendamentos com Chatbot
 
 Este é um sistema completo desenvolvido para a **SennaCar**, composto por um site institucional que possui um **chatbot inteligente** para atendimento ao cliente e **aplicativo mobile para funcionários**. O foco é facilitar a comunicação com o cliente, oferecer produtos e permitir agendamentos de instalações de forma automatizada.
 
