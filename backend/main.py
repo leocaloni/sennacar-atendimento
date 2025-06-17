@@ -55,6 +55,7 @@ def custom_openapi():
         description="API do sistema de agendamentos e atendimento da Sennacar",
         routes=app.routes,
     )
+    
     openapi_schema["components"]["securitySchemes"] = {
         "BearerAuth": {
             "type": "http",
